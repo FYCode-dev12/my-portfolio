@@ -19,3 +19,7 @@ docs/private/
 # os / editor
 .DS_Store
 .vscode/
+*.pem
+.vercel
+coverage/
+npm-debug.log*
