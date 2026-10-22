@@ -1,0 +1,60 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import { mdxComponents } from "../../../../mdx-components";
+import { ProjectNav } from "@/components/sections/projects/ProjectNav";
+import { ProjectSidebar } from "@/components/sections/projects/ProjectSidebar";
+import { Container } from "@/components/ui/Container";
+import { Heading } from "@/components/ui/Heading";
+import { getAllProjects, getProjectBySlug } from "@/lib/content";
+
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  return (await getAllProjects()).map((p) => ({ slug: p.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/projects/[slug]">): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await getProjectBySlug(slug);
+  if (!project) return {};
+  return {
+    title: project.title,
+    description: project.summary,
+    alternates: { canonical: `/projects/${project.slug}` },
+    openGraph: { title: project.title, description: project.summary, type: "article" },
+  };
+}
+
+export default async function ProjectPage({ params }: PageProps<"/projects/[slug]">) {
+  const { slug } = await params;
+  const project = await getProjectBySlug(slug);
+  if (!project) notFound();
+
+  const all = await getAllProjects();
+  const index = all.findIndex((p) => p.slug === slug);
+
+  return (
+    <Container className="py-16 sm:py-24">
+      <Link href="/projects" className="text-sm text-muted hover:text-fg">
+        ← Semua proyek
+      </Link>
+      <Heading level={1} className="mt-6">
+        {project.title}
+      </Heading>
+      <p className="mt-4 max-w-2xl text-lg text-muted">{project.summary}</p>
+      <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_20rem]">
+        <article className="min-w-0 max-w-2xl">
+          <MDXRemote source={project.body} components={mdxComponents} />
+        </article>
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <ProjectSidebar project={project} />
+        </div>
+      </div>
+      <ProjectNav prev={all[index - 1]} next={all[index + 1]} />
+    </Container>
+  );
+}
