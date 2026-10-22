@@ -1,0 +1,51 @@
+---
+title: "PI-LYNK"
+slug: "pi-lynk"
+summary: "Pemendek tautan dan pembuat QR code dengan perlindungan penyalahgunaan di sisi server, dashboard admin, dan analitik klik."
+role: "Fullstack developer"
+period:
+  start: "2026-10"
+status: "live"
+stack: ["Next.js", "TypeScript", "PostgreSQL", "Neon", "Drizzle ORM", "Auth.js", "Cloudflare Turnstile"]
+links:
+  live: "https://s.pmkitera.web.id"
+  repo: "https://github.com/Persekutuan-Mahasiswa-Kristen-ITERA/pi-lynk"
+repoVisibility: "public"
+featured: true
+order: 3
+metrics:
+  - label: "Dipakai untuk"
+    value: "Tautan form rekrutmen dan tautan lainnya"
+  - label: "Tabel database"
+    value: "3"
+  - label: "Route handler"
+    value: "8"
+---
+
+## Latar Belakang & Masalah Teknis
+
+Poster, formulir pendaftaran, dan media sosial membutuhkan tautan pendek yang resmi. Layanan pemendek yang terbuka untuk publik rawan disalahgunakan: tautan ke situs berbahaya, phishing, spam, dan slug yang meniru nama resmi organisasi. Jadi pembatasan tidak boleh hanya di tampilan, tetapi harus ditegakkan di server.
+
+## Solusi & Arsitektur
+
+- **Validasi URL tujuan di server.** Hanya `http`/`https`. Ditolak: kredensial di URL (`user:pass@`), alamat IP, jaringan privat, `localhost`, domain IDN/punycode, tautan ke PI-LYNK sendiri, pemendek tautan lain, dan daftar domain yang diblokir. Server tidak pernah mengambil URL tujuan, sehingga tidak ada jalur SSRF.
+- **Slug.** Ada daftar slug yang dicadangkan sistem. Slug yang mengandung kata terlindungi hanya bisa dibuat admin.
+- **Anti-bot.** Cloudflare Turnstile diverifikasi di server sebelum tautan dibuat.
+- **Rate limit.** Alamat IP di-hash dengan salt lalu dihitung per jam dan per hari di Postgres. IP asli tidak disimpan.
+- **Pengalihan.** Pencarian slug lewat unique index, lalu redirect sementara (307). Tautan kedaluwarsa, nonaktif, atau diblokir menampilkan halaman khusus. Halaman perantara untuk tautan non-resmi bisa diaktifkan lewat konfigurasi.
+- **Analitik klik.** Penghitung diperbarui tanpa menahan redirect. Crawler pratinjau (WhatsApp, Telegram, Facebook, Slack, dan sejenisnya) tidak dihitung.
+- **Admin.** Dashboard dengan Auth.js dan Google OAuth. Hanya email dalam daftar admin yang boleh masuk. Admin juga menangani laporan penyalahgunaan dan impor tautan lama.
+- **QR code.** Dibuat dari tautan pendek.
+
+## Teknologi & Alasannya
+
+- **Neon serverless driver + Drizzle.** Cocok untuk lingkungan serverless dengan koneksi singkat.
+- **Rate limit di database.** Instance serverless tidak berbagi memori, jadi hitungan harus disimpan di tempat bersama.
+- **Auth.js dengan allowlist.** Admin hanya segelintir orang, jadi tidak perlu sistem akun penuh.
+
+## Hasil & Key Takeaways
+
+Layanan sudah live di `s.pmkitera.web.id` dan dipakai untuk tautan form rekrutmen serta tautan lainnya.
+
+- Layanan publik tanpa login perlu threat model sejak awal: tiap pembatasan di atas menjawab satu cara penyalahgunaan.
+- Aturan keamanan yang ditegakkan di server tidak bisa dilewati lewat klien.

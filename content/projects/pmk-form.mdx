@@ -1,0 +1,60 @@
+---
+title: "PMK Form"
+slug: "pmk-form"
+summary: "Platform formulir untuk rekrutmen, kegiatan, survei, dan presensi, dengan form builder drag-and-drop dan sinkronisasi ke Google Sheets."
+role: "Fullstack developer"
+period:
+  start: "2026-03"
+status: "live"
+stack: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "shadcn/ui", "Zod", "react-hook-form"]
+links:
+  live: "https://form.pmkitera.web.id"
+  repo: "https://github.com/Persekutuan-Mahasiswa-Kristen-ITERA/pmk-form"
+repoVisibility: "public"
+featured: true
+order: 1
+metrics:
+  - label: "Dipakai untuk"
+    value: "Rekrutmen Ketua Umum dan form kegiatan lain"
+  - label: "Tipe field"
+    value: "14"
+  - label: "Migrasi SQL"
+    value: "18"
+---
+
+## Latar Belakang & Masalah Teknis
+
+Kepanitiaan dan departemen organisasi membutuhkan satu tempat untuk membuat formulir: rekrutmen, kegiatan, survei, dan presensi. Versi awalnya adalah sistem khusus rekrutmen, lalu saya generalisasi menjadi platform formulir.
+
+Masalah teknisnya ada empat:
+
+- Struktur form berbeda untuk tiap kebutuhan, sehingga validasi tidak bisa ditulis statis.
+- Pendaftar mengunggah lampiran, jadi ukuran dan jumlah file harus dibatasi.
+- Endpoint publik tanpa login rawan spam.
+- Panitia bekerja di Google Sheets, sehingga respons harus sampai ke sana tanpa kehilangan data.
+
+## Solusi & Arsitektur
+
+- **Form builder.** Admin menyusun form dengan drag-and-drop (`@dnd-kit`) dari 14 tipe field. Konfigurasi field disimpan sebagai data di Postgres, dan halaman publik `/form/[slug]` merender form apa pun dari data itu.
+- **Validasi di server.** Skema Zod dibangun dari konfigurasi field saat pengiriman. Server menjadi sumber kebenaran dan membuang key yang tidak dideklarasikan.
+- **Unggahan.** File dibatasi 512 KB dan jumlah field unggah dibatasi, lewat server action.
+- **Rate limit.** Memakai Upstash Redis bila dikonfigurasi, dengan fallback in-memory.
+- **Sinkronisasi Google Sheets.** Respons masuk antrean outbox dan diproses cron (maksimal 5 percobaan per baris). Kegagalan sheet tidak menggagalkan pengiriman form.
+- **Panel admin.** Respons bisa diekspor ke CSV dan lampiran ke ZIP. Form yang dihapus masuk tempat sampah (soft delete). Ada manajemen admin dan audit log.
+- **Data.** Supabase (Postgres, Auth, Storage) dengan Row Level Security. Skema berevolusi lewat 18 migrasi SQL, termasuk migrasi dari sistem rekrutmen awal ke model formulir generik.
+- **Rilis.** CI menjalankan typecheck, lint, unit test, dan build. Deploy ke Vercel.
+
+## Teknologi & Alasannya
+
+- **Next.js App Router.** Server action menangani pengiriman form dan unggahan tanpa backend terpisah.
+- **Supabase.** Postgres, autentikasi, dan penyimpanan file dalam satu layanan, sehingga tidak perlu membangun backend sendiri.
+- **Zod + react-hook-form.** Validasi instan di klien, sementara server tetap memvalidasi ulang.
+- **shadcn/ui + Tailwind.** Komponen konsisten dan mudah disesuaikan.
+
+## Hasil & Key Takeaways
+
+Situs sudah live dan dipakai untuk form rekrutmen Ketua Umum serta form kegiatan lainnya.
+
+- Model form berbasis data membuat jenis form baru tidak membutuhkan kode baru.
+- Sinkronisasi lewat outbox menjaga data tetap aman di database meskipun Google Sheets sedang bermasalah.
+- Mengubah sistem yang sudah dipakai menjadi platform umum menuntut migrasi bertahap, bukan penulisan ulang.

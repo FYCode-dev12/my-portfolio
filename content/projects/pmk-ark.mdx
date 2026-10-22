@@ -1,0 +1,45 @@
+---
+title: "PMK ARK"
+slug: "pmk-ark"
+summary: "Arsip bahan ibadah mingguan (PPT ibadah, PPT khotbah, warta) per tanggal ibadah, dengan akses berbasis peran dan penyimpanan file di object storage."
+role: "Fullstack developer"
+period:
+  start: "2026-09"
+status: "live"
+stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Cloudflare R2", "Tailwind CSS", "Zod"]
+links:
+  live: "https://ark.pmkitera.web.id"
+repoVisibility: "private-org"
+featured: false
+order: 10
+metrics:
+  - label: "Isi arsip"
+    value: "PPT Ibadah, PPT Khotbah, dan Warta Mingguan"
+  - label: "Model data"
+    value: "5"
+  - label: "Route API"
+    value: "12"
+---
+
+## Latar Belakang & Masalah Teknis
+
+Bahan ibadah mingguan tersebar di berbagai tempat dan sulit dicari. ARK mengumpulkannya dalam satu arsip yang bisa dicari menurut kategori, periode pelayanan, dan tanggal ibadah.
+
+## Solusi & Arsitektur
+
+- **Model data.** Dokumen punya kategori, periode pelayanan, tanggal ibadah, dan pengisi. Statusnya draft atau published, dan hanya dokumen published yang tampil di arsip publik.
+- **Penyimpanan file.** File disimpan di Cloudflare R2 lewat lapisan `StorageService`, sehingga penyedia penyimpanan bisa diganti tanpa mengubah logika aplikasi.
+- **Autentikasi.** Login dengan bcrypt dan sesi JWT (`jose`) di cookie `httpOnly`, `sameSite=lax`, dan `secure` di produksi. Middleware memverifikasi token di setiap permintaan admin.
+- **Peran.** Tiga peran bertingkat: admin, pengurus, dan jemaat.
+- **Berbagi.** Tiap arsip bisa dibagikan lewat QR code.
+
+## Teknologi & Alasannya
+
+- **Prisma + PostgreSQL.** Skema bertipe dan relasi yang jelas antara dokumen, kategori, dan periode.
+- **Cloudflare R2.** Penyimpanan file yang kompatibel dengan S3, dipakai lewat AWS SDK.
+
+## Hasil & Key Takeaways
+
+Situs sudah live di `ark.pmkitera.web.id`. Kode sumbernya berada di repositori privat organisasi, jadi studi kasus ini hanya menjelaskan arsitektur.
+
+- Lapisan abstraksi untuk penyimpanan murah dibuat sejak awal dan mengurangi ketergantungan pada satu penyedia.

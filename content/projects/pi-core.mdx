@@ -1,0 +1,59 @@
+---
+title: "PI-CORE"
+slug: "pi-core"
+summary: "Sistem identitas dan akses organisasi: struktur, anggota, jabatan per periode, dan login terpusat (OIDC) untuk aplikasi lain. Web, API, dan mobile dalam satu monorepo."
+role: "Fullstack developer"
+period:
+  start: "2026-10"
+status: "in-progress"
+stack: ["TypeScript", "Next.js", "Hono", "Cloudflare Workers", "Better Auth", "Drizzle ORM", "PostgreSQL", "Expo", "pnpm", "Turborepo"]
+links:
+  repo: "https://github.com/Persekutuan-Mahasiswa-Kristen-ITERA/pi-core"
+repoVisibility: "public"
+featured: true
+order: 2
+metrics:
+  - label: "Status"
+    value: "Staging, belum rilis produksi"
+  - label: "Pengguna"
+    value: "Baru saya sendiri"
+  - label: "ADR terdokumentasi"
+    value: "19"
+  - label: "File test"
+    value: "32"
+---
+
+## Latar Belakang & Masalah Teknis
+
+Organisasi memiliki struktur bertingkat: unit puncak, divisi di bawahnya, dan jabatan yang berganti tiap periode kepengurusan. Aplikasi-aplikasi organisasi membutuhkan satu sumber kebenaran untuk identitas anggota, penugasan, dan hak akses.
+
+Masalah teknisnya adalah memodelkan jabatan, peran, dan penugasan per periode, lalu menerapkan permission berlingkup: seluruh organisasi, satu unit, atau diri sendiri. Selain itu, aplikasi lain harus bisa memakai login ini tanpa mengelola kata sandi sendiri.
+
+## Solusi & Arsitektur
+
+Satu monorepo (pnpm + Turborepo) dengan tiga aplikasi dan tiga paket bersama.
+
+- **`apps/api`.** API tipis di Cloudflare Workers dengan Hono. Semua endpoint divalidasi Zod. Satu Durable Object `RealtimeHub` menyiarkan event perubahan data.
+- **`apps/web`.** Panel admin dengan Next.js, dirancang agar halaman dilayani sebagai aset statis.
+- **`apps/mobile`.** Aplikasi anggota dengan Expo (React Native).
+- **Login.** Hanya Google. Better Auth menangani sesi, dan plugin OAuth provider membuat PI-CORE berperan sebagai OIDC provider untuk aplikasi organisasi lain. Akun non-institusi ditolak.
+- **Data.** PostgreSQL di Supabase, diakses lewat Hyperdrive dengan Drizzle. Sesuai ADR-0009, Data API Supabase dimatikan dan RLS aktif di semua tabel.
+- **Realtime.** Event hanya membawa id dan jenis aksi, sehingga klien mengambil ulang data lewat API yang sudah menerapkan cek permission. Rancangannya ada di ADR-0011: WebSocket, dengan SSE sebagai cadangan.
+- **Kualitas.** CI menjalankan typecheck, lint, test, dan audit dependensi. Keputusan arsitektur dicatat sebagai 19 ADR.
+
+## Teknologi & Alasannya
+
+- **Cloudflare Workers Free.** Batasan "tanpa sumber daya berbayar" menjadi constraint desain, dicatat di ADR-0003 dan ADR-0014.
+- **Hono.** Ringan untuk Workers dan cocok untuk API tipis.
+- **Better Auth.** Menyediakan sesi dan OIDC provider dalam satu pustaka (ADR-0007, ADR-0017).
+- **Drizzle + Hyperdrive.** Koneksi langsung ke Postgres lewat connection pooling (ADR-0009).
+- **Expo.** Satu basis TypeScript untuk web dan mobile. Build iOS dibatasi ke pengembangan karena tidak ada akun pengembang berbayar (ADR-0004).
+
+## Hasil & Key Takeaways
+
+Proyek masih berjalan: ada di staging dan belum punya URL produksi. Saat ini pengguna barunya saya sendiri, jadi tidak ada klaim adopsi.
+
+Bagian yang paling berguna untuk diceritakan adalah keputusan berbasis pengukuran. Di staging, satu request memakai CPU sekitar 14–40 ms (warm) dan 120–303 ms (cold start), padahal batas Workers Free adalah 10 ms. Angka itu dicatat di ADR-0013, dan hasilnya adalah pergeseran ke pola static-first dengan API Worker yang tipis.
+
+- Batasan sumber daya gratis bisa menjadi alasan desain yang jelas, bukan sekadar hambatan.
+- Mencatat keputusan sebagai ADR menjaga alasan tetap bisa dilacak.
