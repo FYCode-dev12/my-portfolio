@@ -8,6 +8,23 @@ Branch kerja: `feat/portfolio-mvp`. Tidak ada `git push` dari agent.
 |---|---|---|---|
 | 0 Persiapan | Selesai, satu sisa keputusan (lihat di bawah) | `f97e364` chore: add gitignore and AGENTS.md; `513ff28` docs: add plan and inventory | `AGENTS.md` disalin ke root. `.gitignore` menutup `.env*`, `_sources/`, `docs/private/`. `docs/private/` tidak ter-track (`git ls-files docs/private` kosong) |
 | 1 Scaffold dan tooling | Selesai | `feat: scaffold next.js app and tooling` | `typecheck`, `lint`, `build`, `validate:content` lolos. `GET /` pada `next start` = 200 |
+| 2 Design system | Selesai, menunggu CP1 | `feat: add design system and layout shell` | Token persis AGENTS.md bagian 6. Komponen: Container, Heading, Badge, Card, Section, ExternalLink, Button, SkipLink, ThemeToggle, Header, Footer. Halaman sementara `/design` (noindex, dihapus di Fase 4) |
+
+## Hasil ukur Fase 2
+
+Kontras teks (rasio WCAG, dihitung dari token):
+
+| Pasangan | Dark | Light |
+|---|---|---|
+| fg / bg | 15,87 | 17,50 |
+| muted / bg | 7,51 | 7,13 |
+| muted / surface | 6,97 | 7,58 |
+| accent / bg | 7,67 | 9,74 |
+| accent-fg / accent | 7,67 | 10,36 |
+
+Semua teks lolos AA (4,5:1). CLS = 0 saat muat dan saat ganti tema, di desktop dan 360px, kedua tema (Chromium headless). Tidak ada overflow horizontal di 360px. Tab pertama = skip link.
+
+**Perlu keputusan pemilik:** token `--border` hanya 1,35:1 (dark) dan 1,21:1 (light) terhadap `--bg`. Ini cukup untuk garis dekoratif kartu, tetapi di bawah 3:1 yang diminta WCAG 1.4.11 untuk batas komponen UI. Tombol `secondary` dan ikon tema bergantung pada border itu, meski teks/ikonnya sendiri kontras. Token tidak diubah, sesuai larangan menambah/mengubah warna.
 
 ## Versi terpasang
 

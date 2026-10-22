@@ -1,8 +1,11 @@
+import { Container } from "@/components/ui/Container";
+import { Heading } from "@/components/ui/Heading";
+
 export default function Home() {
   return (
-    <main>
-      <h1>Febrian Yoel Anggara Saputra</h1>
-      <p>Portofolio sedang dibangun.</p>
-    </main>
+    <Container className="py-24">
+      <Heading level={1}>Febrian Yoel Anggara Saputra</Heading>
+      <p className="mt-4 text-muted">Portofolio sedang dibangun.</p>
+    </Container>
   );
 }
