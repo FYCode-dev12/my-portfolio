@@ -1,0 +1,21 @@
+# dependencies & build
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# secrets
+.env*
+!.env.example
+nohup.out
+*.bak
+client_secret*.json
+
+# bahan sumber & dokumen rahasia (tidak boleh di-push)
+_sources/
+docs/private/
+
+# os / editor
+.DS_Store
+.vscode/
