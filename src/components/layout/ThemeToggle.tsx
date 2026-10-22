@@ -21,7 +21,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label="Ganti tema terang atau gelap"
-      className="inline-flex size-10 items-center justify-center rounded-md border border-border text-muted transition-colors hover:border-accent hover:text-fg"
+      className="inline-flex size-10 items-center justify-center rounded-md border border-border-strong text-muted transition-colors hover:border-accent hover:text-fg"
     >
       <Sun aria-hidden="true" className="theme-icon-dark size-5" />
       <Moon aria-hidden="true" className="theme-icon-light size-5" />

@@ -23,3 +23,6 @@ docs/private/
 .vercel
 coverage/
 npm-debug.log*
+
+# konfigurasi lokal agent (memuat referensi proyek)
+opencode.json
