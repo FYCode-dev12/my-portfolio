@@ -1,16 +1,18 @@
 import { Button } from "@/components/ui/Button";
-import { PageTitle } from "@/components/ui/PageTitle";
+import { Container } from "@/components/ui/Container";
+import { Heading } from "@/components/ui/Heading";
 
 export default function NotFound() {
   return (
-    <div className="gutter pb-24 pt-10 sm:pt-16">
-      <PageTitle lines={["Halaman", "tidak ada."]} />
-      <p className="t-lead mt-8 max-w-[36ch] text-muted">
-        Alamat yang Anda tuju tidak ada atau sudah dipindahkan.
-      </p>
-      <Button href="/" className="mt-10">
+    <Container size="narrow" className="py-24">
+      <p className="font-mono text-sm text-accent">404</p>
+      <Heading level={1} className="mt-2">
+        Halaman tidak ditemukan
+      </Heading>
+      <p className="mt-4 text-muted">Alamat yang Anda tuju tidak ada atau sudah dipindahkan.</p>
+      <Button href="/" className="mt-8">
         Kembali ke beranda
       </Button>
-    </div>
+    </Container>
   );
 }

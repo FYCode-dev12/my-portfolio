@@ -1,9 +1,11 @@
+import { Container } from "@/components/ui/Container";
+
 export default function Loading() {
   return (
-    <div className="gutter py-24" aria-busy="true">
-      <p role="status" className="text-muted">
+    <Container className="py-24" aria-busy="true">
+      <p role="status" className="font-mono text-sm text-muted">
         Memuat…
       </p>
-    </div>
+    </Container>
   );
 }

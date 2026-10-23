@@ -1,30 +1,31 @@
 import Image from "next/image";
+import { Section } from "@/components/ui/Section";
 import { photos, type Photo } from "@/content/photos";
 
-function Frame({ photo, className, sizes }: { photo: Photo; className: string; sizes: string }) {
-  return (
-    <div className={`zoom-in relative overflow-hidden rounded-lg bg-surface ${className}`}>
-      <Image
-        src={photo.src}
-        alt={photo.alt}
-        fill
-        sizes={sizes}
-        className="object-cover"
-        style={{ objectPosition: photo.position }}
-      />
-    </div>
-  );
-}
+const items: Photo[] = [photos.itera, photos.pantai, photos.petaTeluk, photos.petaKeyser];
 
 export function AboutPhotos() {
   return (
-    <div className="gutter section">
-      <div className="grid gap-4 md:grid-cols-12 md:gap-6">
-        <Frame photo={photos.petaTeluk} className="aspect-[4/5] md:col-span-4 md:aspect-auto md:min-h-[26rem]" sizes="(min-width: 768px) 32vw, 94vw" />
-        <Frame photo={photos.pantai} className="aspect-[3/2] md:col-span-8 md:aspect-auto md:min-h-[26rem]" sizes="(min-width: 768px) 62vw, 94vw" />
-        <Frame photo={photos.itera} className="aspect-[4/3] md:col-span-8 md:aspect-auto md:min-h-[26rem]" sizes="(min-width: 768px) 62vw, 94vw" />
-        <Frame photo={photos.petaKeyser} className="aspect-[4/5] md:col-span-4 md:aspect-auto md:min-h-[26rem]" sizes="(min-width: 768px) 32vw, 94vw" />
-      </div>
-    </div>
+    <Section
+      id="lampung"
+      title="Dari Lampung"
+      description="Kampus dan pesisir tempat saya belajar dan tumbuh. Foto dan peta arsip berlisensi terbuka, kreditnya ada di footer."
+      className="pt-0 sm:pt-0"
+    >
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {items.map((photo) => (
+          <li key={photo.src} className="relative aspect-[4/5] overflow-hidden rounded-md border border-border bg-surface">
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              fill
+              sizes="(min-width: 1024px) 24vw, (min-width: 640px) 46vw, 90vw"
+              className="object-cover"
+              style={{ objectPosition: photo.position }}
+            />
+          </li>
+        ))}
+      </ul>
+    </Section>
   );
 }

@@ -1,45 +1,27 @@
-import Image from "next/image";
 import Link from "next/link";
-import { workFrames } from "@/content/photos";
+import { Section } from "@/components/ui/Section";
 import type { Project } from "@/lib/content";
-import { formatYearMonth } from "@/lib/format";
+import { ProjectCard } from "@/components/sections/projects/ProjectCard";
 
 export function FeaturedProjects({ projects }: { projects: Project[] }) {
-  const earliest = projects.map((p) => p.period.start).sort()[0];
   return (
-    <section id="projects" aria-labelledby="projects-heading" className="section gutter">
-      <div className="work-copy t-name reveal text-pretty">
-        <h2 id="projects-heading">Proyek:</h2>{" "}
-        <ul>
-          {projects.map((project, index) => {
-            const frame = workFrames[index % workFrames.length];
-            return (
-              <li key={project.slug}>
-                <Link href={`/projects/${project.slug}`} className="work-name">
-                  {project.title}
-                </Link>
-                <span className="work-frame" aria-hidden="true">
-                  <Image
-                    src={frame.src}
-                    alt=""
-                    fill
-                    sizes="240px"
-                    className="object-cover"
-                    style={{ objectPosition: frame.position }}
-                  />
-                </span>
-                {index < projects.length - 1 ? ", " : "."}{" "}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-      <p className="t-small reveal mt-10 max-w-[60ch] text-muted" style={{ "--i": 1 } as React.CSSProperties}>
-        {projects.length} sistem web sejak {formatYearMonth(earliest)}.{" "}
-        <Link href="/projects" className="link text-fg">
-          Buka semua studi kasus
+    <Section
+      id="projects"
+      title="Proyek unggulan"
+      description="Sistem web yang saya bangun dan rilis untuk organisasi."
+    >
+      <ul className="grid gap-4 lg:grid-cols-3">
+        {projects.map((project) => (
+          <li key={project.slug}>
+            <ProjectCard project={project} />
+          </li>
+        ))}
+      </ul>
+      <p className="mt-8">
+        <Link href="/projects" className="text-accent underline-offset-4 hover:underline">
+          Lihat semua proyek
         </Link>
       </p>
-    </section>
+    </Section>
   );
 }

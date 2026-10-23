@@ -22,7 +22,7 @@ Accessibility, Best Practices, dan SEO: 100 di semua halaman dan semua jalan.
 - Total Blocking Time 150-260 ms, hampir seluruhnya evaluasi skrip runtime tersebut.
 - Satu stylesheet (5,4 KB) memblokir render sekitar 110-157 ms. `experimental.inlineCss` tidak dicoba karena dokumentasi Next menyebut halaman prerender tetap memakai `<link>`.
 - TTFB 10-28 ms, jadi server lokal bukan penyebab. LCP adalah teks (render delay 80-100 ms), bukan gambar.
-- Font Hanken Grotesk (satu file, sekitar 34 KB) dimuat lewat `next/font/google`, di-host sendiri saat build.
+- Font (kini Geist dan Geist Mono) dimuat lewat `next/font/google`, di-host sendiri saat build.
 
 Ukur ulang di URL Vercel setelah deploy. Jika Performance di produksi < 95, langkah berikutnya yang bisa dipertimbangkan: kurangi font (tanpa Geist Mono di halaman yang tidak memakainya) dan uji `inlineCss`.
 
@@ -63,3 +63,10 @@ axe-core 4 dengan tag `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`, `b
 - axe-core 4 (wcag2a/aa, 21a/aa, 22aa, best-practice), 8 halaman x tema light dan dark: **0 pelanggaran**. Dua temuan awal (kontras akibat opacity awal animasi reveal, h1 beranda kosong untuk pembaca layar) sudah diperbaiki.
 - Lighthouse (mobile): `/` 96, `/about` 97, `/projects` 99, `/projects/pmk-form` 98, `/contact` 95-97. Accessibility, Best Practices, SEO = 100 di semua. CLS 0. Desktop 100 di semua. LCP `/contact` pada mobile bervariasi 1,8-3,2 s antar-jalan (sampel pertama 90-92, setelah `priority` pada foto dan penghapusan fade foto 95-97).
 - Klik-tembus Playwright semua kontrol di light/dark x desktop/mobile: header, menu mobile, toggle tema (tersimpan setelah muat ulang), unduh CV (header, kontak, footer), tombol hero, nama proyek di beranda, tautan beranda, filter proyek, baris proyek, tautan fakta, sebelumnya/berikutnya, kontak, footer, 404. Tanpa galat konsol selain 404 yang disengaja.
+
+## Pengukuran ulang setelah kembali ke rencana awal (build lokal, 23 Okt 2026)
+
+- axe-core, 8 halaman x tema light dan dark: **0 pelanggaran**.
+- Lighthouse (mobile) `/`, `/projects`, `/projects/pmk-form`, `/about`, `/contact`: Performance 99-100, Accessibility 100, Best Practices 100, SEO 100. CLS 0, LCP 1,8-2,0 s, TBT 37-79 ms.
+- Klik-tembus Playwright (`click2.cjs`) di dark/light x desktop/mobile: navigasi header, skip link, toggle tema (tersimpan setelah muat ulang), tiga tombol hero termasuk unduh CV, 3 kartu unggulan, "Lihat semua proyek", CTA email dan CV, filter teknologi (4 -> 1 -> 4 kartu), 4 kartu proyek, tautan sidebar (live dan repo, tab baru), diagram 5 kolom, sebelumnya/berikutnya, kontak, 8 tautan kredit foto (semua https), 404. Tanpa galat konsol selain 404 yang disengaja.
+- Belum diperiksa: skor di URL produksi, dan pembaca layar sungguhan.

@@ -6,7 +6,7 @@ type ProjectFilterProps = {
   active?: string;
 };
 
-const chip = "inline-flex min-h-11 items-center rounded-md px-4 transition-colors";
+const chip = "inline-flex h-9 items-center rounded-md border px-3 text-sm transition-colors";
 
 export function ProjectFilter({ stacks, active }: ProjectFilterProps) {
   return (
@@ -16,7 +16,12 @@ export function ProjectFilter({ stacks, active }: ProjectFilterProps) {
           <Link
             href="/projects"
             aria-current={active ? undefined : "true"}
-            className={cn(chip, active ? "bg-surface hover:bg-fg hover:text-bg" : "bg-field text-field-fg")}
+            className={cn(
+              chip,
+              active
+                ? "border-border-strong text-muted hover:text-fg"
+                : "border-accent bg-accent text-accent-fg",
+            )}
           >
             Semua
           </Link>
@@ -28,10 +33,15 @@ export function ProjectFilter({ stacks, active }: ProjectFilterProps) {
               <Link
                 href={`/projects?tech=${encodeURIComponent(name)}`}
                 aria-current={selected ? "true" : undefined}
-                className={cn(chip, selected ? "bg-field text-field-fg" : "bg-surface hover:bg-fg hover:text-bg")}
+                className={cn(
+                  chip,
+                  selected
+                    ? "border-accent bg-accent text-accent-fg"
+                    : "border-border-strong text-muted hover:text-fg",
+                )}
               >
                 {name}
-                <span className="ml-2 opacity-75">{count}</span>
+                <span className="ml-1.5 font-mono text-xs opacity-70">{count}</span>
               </Link>
             </li>
           );

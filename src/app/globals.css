@@ -5,314 +5,77 @@
   --color-transparent: transparent;
   --color-current: currentColor;
 
-  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; /* taste-skill-ignore: hanya untuk kode literal */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --radius-sm: 0.375rem;
   --radius-md: 0.75rem;
   --radius-lg: 1.25rem;
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
-  --color-field: var(--field);
-  --color-field-fg: var(--field-fg);
 }
 
 :root {
-  --bg: #ddd6c6;
-  --surface: #d2cab8;
-  --fg: #2a2a26;
-  --muted: #3c3b35;
-  --accent: #465833;
-  --accent-fg: #ffffff;
-  --field: #3f5a2a;
-  --field-fg: #ffffff;
-  --gutter: clamp(1.25rem, 3vw, 3rem);
-  --header-h: 4.5rem;
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
-  --bg: #171912;
-  --surface: #21241a;
-  --fg: #e9e4d4;
-  --muted: #c4bfac;
-  --accent: #a9c27f;
-  --accent-fg: #14170f;
-  --field: #2f4220;
-  --field-fg: #eef2e2;
+  --bg: #0a0f1e;
+  --surface: #0f1730;
+  --border: #1e2a4a;
+  --border-strong: #5a6ea0;
+  --fg: #e6eaf5;
+  --muted: #94a3c0;
+  --accent: #7aa2ff;
+  --accent-fg: #0a0f1e;
   color-scheme: dark;
 }
 
+:root[data-theme="light"] {
+  --bg: #f6f8fc;
+  --surface: #ffffff;
+  --border: #dde3f0;
+  --border-strong: #7a869f;
+  --fg: #0b1226;
+  --muted: #475569;
+  --accent: #1e3a8a;
+  --accent-fg: #ffffff;
+  color-scheme: light;
+}
+
 html {
-  scroll-padding-top: 2rem;
+  scroll-padding-top: 7rem;
 }
 
 body {
   background-color: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-sans);
-  font-size: 1.0625rem;
-  line-height: 1.55;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-fg);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-.gutter {
-  padding-inline: var(--gutter);
-}
-
-.section {
-  padding-block: clamp(4.5rem, 9vw, 9rem);
-}
-
-.t-display {
-  font-size: clamp(3.5rem, 7vw, 6.75rem);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-  font-weight: 500;
-}
-.t-poster {
-  font-size: clamp(4rem, 10vw, 9.375rem);
-  line-height: 0.95;
-  letter-spacing: -0.045em;
-  font-weight: 500;
-}
-.t-name {
-  font-size: clamp(2.5rem, 5.2vw, 4.875rem);
-  line-height: 1.1;
-  letter-spacing: -0.035em;
-  font-weight: 500;
-}
-.t-head {
-  font-size: clamp(2rem, 1.3rem + 3.2vw, 4rem);
-  line-height: 1.05;
-  letter-spacing: -0.035em;
-  font-weight: 500;
-}
-.t-sub {
-  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  font-weight: 500;
-}
-.t-lead {
-  font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-}
-.t-body {
-  font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
-  line-height: 1.55;
-}
-.t-small {
-  font-size: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
-  line-height: 1.5;
-}
-
-.link {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.3em;
-  transition: text-decoration-thickness 150ms, color 150ms;
-}
-.link:hover {
-  text-decoration-thickness: 3px;
-}
-
-/* Hero: setiap baris naik dari balik garis dasarnya */
-.line {
-  display: block;
-  overflow: hidden;
-  padding-block: 0.06em 0.14em;
-  margin-block: -0.06em -0.14em;
-}
-.line > span {
-  display: block;
-}
-
-/* Paragraf nama proyek */
-.work-copy ul,
-.work-copy li {
-  display: inline;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.work-copy h2 {
-  display: block;
-  color: var(--color-muted);
-  font-size: inherit;
-  line-height: inherit;
-  letter-spacing: inherit;
-  font-weight: 500;
-}
-.work-name {
-  white-space: nowrap;
-  transition: color 180ms;
-}
-.work-name:hover,
-.work-name:focus-visible {
-  color: var(--color-accent);
-}
-.work-frame {
-  display: inline-block;
-  position: relative;
-  width: 1.5em;
-  height: 0.74em;
-  overflow: hidden;
-  border-radius: 0.14em;
-  vertical-align: -0.01em;
-  margin-inline: 0.12em;
-  background: var(--color-surface);
-  transition: width 320ms cubic-bezier(0.2, 0.7, 0.1, 1);
-}
-.work-name:hover ~ .work-frame,
-.work-name:focus-visible ~ .work-frame {
-  width: 2.6em;
-}
-
-/* Satu baris poster per kelompok keahlian */
-.poster-row .poster-name {
-  transition: color 200ms;
-}
-.poster-row:hover .poster-name {
-  color: var(--color-accent);
-}
-
-/* Pita ajakan: satu kata adalah tombolnya */
-.cta-band {
-  background: var(--color-field);
-  color: var(--color-field-fg);
-  transition:
-    background-color 220ms,
-    color 220ms;
-}
-.cta-band:has(a:hover),
-.cta-band:has(a:focus-visible) {
-  background: var(--color-fg);
-  color: var(--color-bg);
-}
-.cta-band :focus-visible {
-  outline-color: currentColor;
-}
-.cta-arrow {
-  transition: transform 260ms cubic-bezier(0.2, 0.7, 0.1, 1);
-}
-.cta-band:has(a:hover) .cta-arrow,
-.cta-band:has(a:focus-visible) .cta-arrow {
-  transform: translate(6px, -6px);
-}
-
-.site-footer {
-  background: var(--color-fg);
-  color: var(--color-bg);
-}
-.site-footer :focus-visible {
-  outline-color: var(--color-bg);
-}
-
-.theme-icon-dark {
-  display: none;
-}
-:root[data-theme="dark"] .theme-icon-dark {
-  display: block;
-}
-:root[data-theme="dark"] .theme-icon-light {
-  display: none;
-}
-
-/* Diagram arsitektur: panah antar kolom */
-.flow-col + .flow-col::before {
-  content: "";
-  position: absolute;
-  background: var(--color-muted);
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E")
-    center / contain no-repeat;
-  width: 1.5rem;
-  height: 1.5rem;
-  left: 50%;
-  top: -1.75rem;
-  transform: translateX(-50%) rotate(90deg);
-}
-@media (min-width: 64rem) {
-  .flow-col + .flow-col::before {
-    left: -1.75rem;
-    top: 3.25rem;
-    transform: none;
-  }
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .line > span {
-    animation: line-up 800ms cubic-bezier(0.2, 0.7, 0.1, 1) both;
-    animation-delay: calc(var(--i, 0) * 110ms);
-  }
-  .hero-in {
-    animation: fade-up 700ms ease-out both;
-    animation-delay: 420ms;
-  }
-  .hero-in-late {
-    animation-delay: 560ms;
-  }
-  .drift {
-    animation: drift 28s ease-in-out infinite alternate;
-  }
-  .zoom-in img {
-    transition: transform 600ms cubic-bezier(0.2, 0.7, 0.1, 1);
-  }
-  .zoom-in:hover img {
-    transform: scale(1.04);
-  }
-
-  @supports (animation-timeline: view()) {
-    .reveal {
-      animation: reveal-up linear both;
-      animation-timeline: view();
-      animation-range: entry calc(var(--i, 0) * 5%) entry calc(38% + var(--i, 0) * 5%);
-    }
+  .fade-in {
+    animation: fade-in 400ms ease-out both;
   }
 }
 
-@keyframes line-up {
-  from {
-    transform: translateY(105%);
-  }
-  to {
-    transform: none;
-  }
-}
-@keyframes fade-up {
+@keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
     transform: none;
-  }
-}
-@keyframes reveal-up {
-  from {
-    transform: translateY(40px);
-  }
-  to {
-    transform: none;
-  }
-}
-@keyframes drift {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.07);
   }
 }
 
@@ -324,5 +87,63 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+.theme-icon-light {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-icon-dark {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-icon-light {
+  display: block;
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .hero-card {
+    transform-origin: 50% 0;
+    animation: sway 6s ease-in-out infinite;
+  }
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+}
+
+/* Parallax hero: hanya transform, hanya pada perangkat dengan kursor, nonaktif saat reduced-motion */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  @supports (animation-timeline: scroll()) {
+    .hero-visual {
+      animation: hero-parallax linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 60vh;
+    }
+    .hero-copy {
+      animation: hero-copy-parallax linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 60vh;
+    }
+  }
+}
+
+@keyframes hero-parallax {
+  to {
+    transform: translateY(72px);
+  }
+}
+
+@keyframes hero-copy-parallax {
+  to {
+    transform: translateY(24px);
+    opacity: 0.55;
   }
 }

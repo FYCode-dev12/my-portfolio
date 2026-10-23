@@ -1,27 +1,25 @@
-import { ArrowUpRight } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
+import { Heading } from "@/components/ui/Heading";
 import { site } from "@/content/site";
 
-export function ContactCta() {
+export function ContactCta({ cvHref }: { cvHref?: string }) {
   return (
-    <section aria-labelledby="cta-heading" className="cta-band relative min-h-[60svh]">
-      <h2 id="cta-heading" className="sr-only">
-        Kontak
-      </h2>
-      <a
-        href={`mailto:${site.links.email}`}
-        className="gutter flex min-h-[60svh] flex-col justify-between py-8 sm:py-10"
-      >
-        <span className="flex items-start justify-between gap-8">
-          <span className="max-w-[28ch] text-lg leading-snug">
-            Terbuka untuk magang dan kolaborasi pengembangan web.
-          </span>
-          <ArrowUpRight aria-hidden="true" className="cta-arrow size-12 shrink-0" strokeWidth={1.5} />
-        </span>
-        <span className="block text-[clamp(5rem,24vw,24rem)] font-medium leading-[0.8] tracking-[-0.055em]">
-          Hubungi
-        </span>
-        <span className="sr-only">saya lewat email, {site.links.email}</span>
-      </a>
+    <section aria-labelledby="cta-heading" className="border-t border-border py-16 sm:py-24">
+      <Container size="narrow" className="text-center">
+        <Heading level={2} id="cta-heading">
+          Mari berbincang
+        </Heading>
+        <p className="mt-3 text-muted">Terbuka untuk magang dan kolaborasi pengembangan web.</p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Button href={`mailto:${site.links.email}`}>Kirim email</Button>
+          {cvHref ? (
+            <Button href={cvHref} variant="secondary" download>
+              Unduh CV
+            </Button>
+          ) : null}
+        </div>
+      </Container>
     </section>
   );
 }

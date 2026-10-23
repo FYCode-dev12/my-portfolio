@@ -15,13 +15,13 @@ export default function OpengraphImage() {
         flexDirection: "column",
         justifyContent: "center",
         padding: 80,
-        background: "#ddd6c6",
-        color: "#2a2a26",
+        background: "#0a0f1e",
+        color: "#e6eaf5",
       }}
     >
-      <div style={{ fontSize: 28, color: "#465833" }}>{site.role}</div>
-      <div style={{ fontSize: 84, fontWeight: 600, letterSpacing: -3, marginTop: 16 }}>{site.name}</div>
-      <div style={{ fontSize: 30, color: "#4f4d45", marginTop: 24 }}>
+      <div style={{ fontSize: 28, color: "#7aa2ff" }}>{site.role}</div>
+      <div style={{ fontSize: 72, fontWeight: 700, marginTop: 16 }}>{site.name}</div>
+      <div style={{ fontSize: 30, color: "#94a3c0", marginTop: 24 }}>
         React · TypeScript · Next.js
       </div>
     </div>,

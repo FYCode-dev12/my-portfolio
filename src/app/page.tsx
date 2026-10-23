@@ -1,21 +1,21 @@
-import { AboutPreview } from "@/components/sections/home/AboutPreview";
 import { ContactCta } from "@/components/sections/home/ContactCta";
 import { FeaturedProjects } from "@/components/sections/home/FeaturedProjects";
 import { Hero } from "@/components/sections/home/Hero";
-import { PhotoBand } from "@/components/sections/home/PhotoBand";
+import { Highlights } from "@/components/sections/home/Highlights";
 import { SkillsSummary } from "@/components/sections/home/SkillsSummary";
-import { getAllProjects } from "@/lib/content";
+import { getFeaturedProjects } from "@/lib/content";
+import { getCvHref } from "@/lib/cv";
 
 export default async function Home() {
-  const projects = await getAllProjects();
+  const featured = await getFeaturedProjects();
+  const cvHref = getCvHref();
   return (
     <>
-      <Hero />
-      <FeaturedProjects projects={projects} />
-      <AboutPreview />
+      <Hero cvHref={cvHref} />
+      <FeaturedProjects projects={featured} />
       <SkillsSummary />
-      <PhotoBand />
-      <ContactCta />
+      <Highlights />
+      <ContactCta cvHref={cvHref} />
     </>
   );
 }

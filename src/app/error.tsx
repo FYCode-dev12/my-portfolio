@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { PageTitle } from "@/components/ui/PageTitle";
+import { Container } from "@/components/ui/Container";
+import { Heading } from "@/components/ui/Heading";
 
 export default function ErrorPage({
   error,
@@ -16,17 +17,15 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="gutter pb-24 pt-10 sm:pt-16">
-      <PageTitle lines={["Terjadi", "kesalahan."]} />
-      <p className="t-lead mt-8 max-w-[36ch] text-muted">
-        Halaman gagal dimuat. Coba lagi, atau kembali ke beranda.
-      </p>
-      <div className="mt-10 flex flex-wrap items-center gap-6">
+    <Container size="narrow" className="py-24">
+      <Heading level={1}>Terjadi kesalahan</Heading>
+      <p className="mt-4 text-muted">Halaman gagal dimuat. Coba lagi, atau kembali ke beranda.</p>
+      <div className="mt-8 flex gap-3">
         <Button onClick={reset}>Coba lagi</Button>
-        <Button href="/" variant="quiet">
-          Kembali ke beranda
+        <Button href="/" variant="secondary">
+          Beranda
         </Button>
       </div>
-    </div>
+    </Container>
   );
 }

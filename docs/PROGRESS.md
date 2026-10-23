@@ -15,18 +15,20 @@ Branch kerja: `feat/portfolio-mvp`. Tidak ada `git push` dari agent.
 | 5 SEO, a11y, performa   | Selesai                                       | `fix: correct heading order on projects page and add qa report`                      | Lighthouse (mobile) 4 kategori, axe-core 0 pelanggaran di 16 pemindaian. Accessibility, Best Practices, SEO = 100. Performance 93-98 (derau antar-jalan). Rincian di `docs/QA.md`                                            |
 | 6 Konten dan kebersihan | Selesai                                       | `docs: add owner todo list and cleanliness scan`                                     | `docs/TODO-OWNER.md` (12 item per dampak). Pemindaian secret, HP, alamat: bersih. `docs/private/`, `opencode.json`, `.env*` tidak ter-track dan tidak pernah ada di riwayat. Satu keputusan: URL repo memuat nama organisasi |
 | 7 Persiapan deploy      | Selesai, menunggu CP3                         | `docs: add deploy guide`                                                             | Build dari kondisi bersih lolos (14 halaman, `SITE_URL` terbaca di sitemap). `docs/DEPLOY.md`: langkah Vercel, checklist pasca-deploy, catatan Docker/VPS opsional. Pemilik yang `git push` dan deploy                       |
-| 8 Redesain UI (skill) | Selesai, belum di-push | `feat(ui): redesign with type-only-statement direction` | Palet, huruf, dan semua komponen diganti. Light default, dark via toggle. 4 foto berlisensi terbuka (kredit di footer). axe 0 pelanggaran (8 halaman x 2 tema). Lighthouse mobile 96-100 kecuali `/contact` 95-97 (rentang 90-97 sebelum perbaikan). Detail di bagian di bawah |
+| 8 Redesain UI (skill) | Selesai, sudah di-push, **digantikan Fase 9** | `feat(ui): redesign with type-only-statement direction` | Arah type-only-statement. Pemilik menilai tidak cocok, jadi dikembalikan di Fase 9. Data dan komponen konten dipertahankan |
+| 9 Kembali ke rencana awal | Selesai, belum di-commit/push | `feat(ui): restore technical editorial skin` | Kulit "technical editorial" navy dark-first, Geist + Geist Mono, hero dengan name tag SVG dan parallax CSS. Konten, foto berlisensi, `kind`, dan diagram arsitektur dipertahankan. axe 0 pelanggaran (8 halaman x 2 tema). Lighthouse mobile 99-100 di 4 kategori, CLS 0. Detail di bagian di bawah |
 
-## Redesain UI (Fase 8, di luar rencana awal)
+## Kembali ke rencana awal (Fase 9)
 
-- Keputusan pemilik: ikuti skill `design-taste-frontend` penuh. Token bagian 6 AGENTS.md diganti (lama: navy dark-first, Geist). Dependency `geist` dihapus.
-- Arah: `type-only-statement`. Hero judul bertopeng "Sistem web / untuk organisasi.", nama proyek sebagai satu paragraf poster dengan bingkai foto, keahlian satu baris poster per kelompok, pita hijau "Hubungi" yang seluruhnya tautan mailto, footer dengan wordmark besar.
-- Light default (menyimpang dari dark-first), karena palet yang dibagikan terang. Dark tetap berfungsi penuh.
-- Font: skill membagikan Switzer, tetapi lisensi self-host di repo publik tidak bisa dipastikan. Dipakai Hanken Grotesk (OFL). `inspect.mjs` melaporkan WARN `font-not-dealt` yang disengaja.
-- Frontmatter MDX mendapat field opsional `kind` (maks 40 karakter) untuk deskripsi satu frasa.
-- Diagram arsitektur: kolom HTML/CSS dari fakta di MDX (`src/content/diagrams.ts`).
-- Gambar: 4 foto di `public/photos/` (CC BY-SA 4.0 dan domain publik). Foto pemilik dan screenshot yang disamarkan masih menunggu dari pemilik.
-- Hasil: lint skill 0 FAIL, inspect 0 FAIL di 8 halaman. WARN tersisa: `no-footage`, `font-not-dealt`, `size-count` (10-11 ukuran huruf), `still-page` (sekitar 8 elemen bergerak), `first-action` di halaman studi kasus pada 390px.
+- Keputusan pemilik (23 Okt 2026): "Kembali penuh ke rencana awal". Bagian 6 `AGENTS.md` dan `docs/AGENTS.md` dikembalikan, dengan catatan override.
+- Konflik yang diakui: kulit ini sengaja menyimpang dari aturan rumah skill `design-taste-frontend` (monospace, garis tipis, kartu, navy). Alasan: preferensi eksplisit pemilik. Inspector skill tidak dijalankan ulang karena pasti melaporkan pelanggaran aturan tersebut.
+- Font: Geist dan Geist Mono lewat `next/font/google`. Paket npm `geist` tidak dipakai.
+- Dikembalikan dari commit `1d036d6`: token, layout, komponen `ui`, beranda (hero, proyek unggulan, keahlian, sorotan, CTA), halaman proyek dan studi kasus, kontak, OG image.
+- Dipertahankan dari redesain: field `kind`, `statusLabel`, `src/content/photos.ts` dan `diagrams.ts`, 4 foto di `public/photos/`, guard `SITE_URL`.
+- Disesuaikan: kartu proyek menampilkan `kind`, studi kasus menampilkan "Alur sistem sekilas", `/about` punya siluet profil (foto pemilik menunggu, simpan sebagai `public/photos/febrian.jpg`) dan bagian "Dari Lampung", footer punya "Kredit foto".
+- Parallax hero: CSS `transform`/`opacity` dengan `animation-timeline: scroll()`, hanya saat `no-preference` dan `hover: hover`.
+- Dihapus: `PageTitle`, `ProjectRow`, `ProjectFacts`, `SkillList`, `PhotoBand`, `PhotoStrip`, `AboutPreview`, `src/lib/style.ts`.
+
 
 ## Hasil ukur Fase 2 (token lama, sebelum redesain)
 
