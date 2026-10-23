@@ -292,7 +292,7 @@ export function Terminal({ name, role, campus, skills, context }: Props) {
   return (
     <div
       data-ui
-      className="terminal flex h-[24rem] flex-col overflow-hidden rounded-lg bg-surface font-mono text-[0.875rem] leading-6 text-muted sm:h-[26rem]"
+      className="terminal flex h-[24rem] flex-col overflow-hidden rounded-lg bg-surface font-mono text-[0.875rem] leading-6 text-muted transition-shadow has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-accent sm:h-[26rem]"
     >
       <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-2.5 text-[0.8125rem]">
         <span>febrian@itera: ~</span>
