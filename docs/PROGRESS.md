@@ -95,3 +95,12 @@ Next 16.4.2, React 19.3.0, Tailwind ^4, zod ^4.6.7, next-mdx-remote ^6.0.0, luci
 - `docs/private/SECURITY-REPORT.md` bersifat rahasia dan di-ignore git.
 
 - Guard build: `next.config.ts` menggagalkan build produksi bila `SITE_URL` kosong atau tidak valid. `/about` memakai siluet (`ProfileFrame`) sampai `public/photos/febrian.jpg` ada; bagian Keahlian dan Perjalanan diberi bidang warna agar tidak ada layar kosong.
+
+## Redesain "product performs" (23 Okt 2026)
+
+- Arah dari skill `design-taste-frontend` (`product-performs`, seed 897443290), token warna/font AGENTS.md bagian 6 dipertahankan (`--keep palette,type`). Monospace dan garis tipis tetap dipakai sesuai preferensi pemilik.
+- Beranda: judul bermasker, terminal interaktif (`help`, `proyek`, `buka <slug>`, `stack`, `kontak`, `cv`, `tema`), ledger proyek + kontribusi dengan pratinjau CSS-only, `stack.json` yang dipaku, surat singkat, angka repositori (radio + `:has`), daftar kepemimpinan + foto ITERA, panel kontak, footer tile dengan jam WIB.
+- Global: palet perintah Ctrl K / `/` (dimuat saat dipicu), transisi tema View Transitions, animasi masuk via CSS scroll-driven (tanpa JS; Firefox tanpa animasi).
+- `/api/status`: route handler ISR 5 menit yang mengecek URL live dari frontmatter. Ping dari browser tidak bisa karena situs live mengirim `Cross-Origin-Resource-Policy: same-origin`.
+- Kontak memakai form `mailto:` (GET, satu field subjek). Tidak ada backend dan tidak ada data tersimpan. Perlu konfirmasi pemilik karena AGENTS.md menyebut "tanpa form di MVP".
+- Lighthouse (build produksi, lokal): `/` 96/100/100/100, `/projects/pmk-form` 99/100/100/100, `/about` 97/100/100/100, CLS 0.

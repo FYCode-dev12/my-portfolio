@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ExternalLink } from "@/components/ui/ExternalLink";
+import { LiveStatus } from "@/components/interactive/LiveStatus";
 import type { Project } from "@/lib/content";
 import { formatProjectPeriod } from "@/lib/format";
 import { StatusBadge } from "./ProjectMeta";
@@ -12,7 +13,7 @@ const visibilityNote: Partial<Record<Project["repoVisibility"], string>> = {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="font-mono text-xs uppercase tracking-wide text-muted">{label}</dt>
+      <dt className="font-mono text-[0.8125rem] text-accent">{label.toLowerCase()}</dt>
       <dd className="mt-1">{children}</dd>
     </div>
   );
@@ -21,10 +22,13 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 export function ProjectSidebar({ project }: { project: Project }) {
   const note = visibilityNote[project.repoVisibility];
   return (
-    <Card as="aside" aria-label="Ringkasan proyek">
+    <Card as="aside" aria-label="Ringkasan proyek" data-ui>
       <dl className="space-y-5">
         <Row label="Status">
-          <StatusBadge status={project.status} />
+          <span className="flex flex-wrap items-center gap-3">
+            <StatusBadge status={project.status} />
+            {project.links.live ? <LiveStatus slug={project.slug} className="text-muted" /> : null}
+          </span>
         </Row>
         <Row label="Peran">{project.role}</Row>
         <Row label="Periode">{formatProjectPeriod(project.period.start, project.period.end)}</Row>

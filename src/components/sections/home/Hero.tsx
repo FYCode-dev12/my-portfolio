@@ -1,33 +1,55 @@
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { Heading } from "@/components/ui/Heading";
+import { Terminal } from "@/components/interactive/Terminal";
+import type { CommandContext } from "@/components/interactive/command-data";
 import { site } from "@/content/site";
-import { HeroVisual } from "./HeroVisual";
+import { skillGroups } from "@/content/skills";
 
-export function Hero({ cvHref }: { cvHref?: string }) {
+export function Hero({ context }: { context: CommandContext }) {
   return (
-    <section aria-labelledby="hero-heading" className="py-16 sm:py-24">
-      <Container className="grid items-center gap-12 lg:grid-cols-[1fr_auto]">
-        <div className="fade-in hero-copy">
-          <p className="font-mono text-sm text-accent">{site.role}</p>
-          <Heading level={1} id="hero-heading" className="mt-4">
-            {site.name}
-          </Heading>
-          <p className="mt-6 max-w-2xl text-lg text-muted">{site.tagline}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button href="/projects">Lihat proyek</Button>
-            <Button href="/contact" variant="secondary">
-              Hubungi saya
-            </Button>
-            {cvHref ? (
-              <Button href={cvHref} variant="ghost" download>
-                Unduh CV
-              </Button>
-            ) : null}
+    <section aria-labelledby="hero-heading" className="pt-12 pb-28 sm:pt-20 sm:pb-40">
+      <Container>
+        <h1 id="hero-heading" className="lines display text-fg">
+          <span className="line">
+            <span data-line style={{ "--i": 0 } as React.CSSProperties}>
+              Febrian Yoel,
+            </span>
+          </span>
+          <span className="line">
+            <span data-line style={{ "--i": 1 } as React.CSSProperties}>
+              fullstack developer
+            </span>
+          </span>
+        </h1>
+        <div className="mt-10 grid gap-12 lg:mt-14 lg:grid-cols-12 lg:gap-8">
+          <div className="after-lines lg:col-span-5">
+            <p className="max-w-[34ch] text-lg leading-relaxed text-fg sm:text-xl">
+              Saya membangun dan merilis sistem web untuk organisasi kampus dengan React dan
+              TypeScript, sekaligus memimpin tim IT-nya.
+            </p>
+            <p className="mt-4 max-w-[40ch] text-muted">
+              Mahasiswa Teknik Informatika ITERA. Terminalnya sungguhan: coba ketik{" "}
+              <code className="font-mono text-fg">proyek</code> atau tekan{" "}
+              <kbd className="font-mono text-fg">Ctrl K</kbd>.
+            </p>
+            <div className="mt-10 flex flex-wrap items-center gap-3">
+              <Button href="/projects">Lihat proyek</Button>
+              {context.cvHref ? (
+                <Button href={context.cvHref} variant="secondary" download>
+                  Unduh CV
+                </Button>
+              ) : null}
+            </div>
           </div>
-        </div>
-        <div className="hidden lg:block">
-          <HeroVisual />
+          <div className="hero-visual after-lines lg:col-span-7">
+            <Terminal
+              name={site.name}
+              role={site.role}
+              campus="Teknik Informatika ITERA"
+              skills={skillGroups.map((g) => ({ key: g.key, items: g.items }))}
+              context={context}
+            />
+          </div>
         </div>
       </Container>
     </section>

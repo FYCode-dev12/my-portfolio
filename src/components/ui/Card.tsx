@@ -9,11 +9,7 @@ type CardProps = ComponentPropsWithoutRef<"div"> & {
 export function Card({ as: Tag = "div", interactive = false, className, ...props }: CardProps) {
   return (
     <Tag
-      className={cn(
-        "rounded-md border border-border bg-surface p-5 sm:p-6",
-        interactive && "transition-colors hover:border-accent",
-        className,
-      )}
+      className={cn("rounded-lg bg-surface p-5 sm:p-6", interactive && "card-lift", className)}
       {...props}
     />
   );

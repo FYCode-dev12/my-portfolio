@@ -22,9 +22,10 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/project
 
   return (
     <Container className="py-16 sm:py-24">
-      <Heading level={1}>Proyek</Heading>
-      <p className="mt-4 max-w-2xl text-muted">
-        Studi kasus sistem web yang saya bangun dan rilis. Filter berdasarkan teknologi.
+      <Heading level={1}>Proyek & studi kasus</Heading>
+      <p className="mt-6 max-w-[48ch] text-lg text-muted">
+        Sistem web yang saya bangun dan rilis, lengkap dengan arsitektur dan alasan teknisnya.
+        Saring berdasarkan teknologi.
       </p>
       <div className="mt-8">
         <ProjectFilter stacks={stacks} active={active} />
@@ -33,8 +34,8 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/project
         {projects.length} proyek{active ? ` dengan ${active}` : ""}
       </p>
       <ul className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {projects.map((project) => (
-          <li key={project.slug}>
+        {projects.map((project, i) => (
+          <li key={project.slug} className="reveal" style={{ "--d": i % 3 } as React.CSSProperties}>
             <ProjectCard project={project} headingLevel={2} />
           </li>
         ))}
