@@ -7,8 +7,8 @@ Hal yang hanya bisa diisi pemilik. Diurutkan menurut dampak ke penilaian pelamar
 | #   | Item                                                 | Lokasi                                                                   | Cara mengisi                                                                                                                                                    |
 | --- | ---------------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | ~~`public/cv.pdf`~~ **Selesai**                      | Tombol "Unduh CV" di beranda, CTA, dan `/contact`                        | CV tanpa nomor HP dan alamat sudah ada di `public/cv.pdf`                                                                                                       |
-| 2   | **`SITE_URL` produksi**                              | Canonical, sitemap, `robots.txt`, JSON-LD, Open Graph                    | Isi di environment variable Vercel **sebelum** deploy (dibaca saat build). Lihat `.env.example`                                                                 |
-| 3   | **Keputusan: URL repositori memuat nama organisasi** | `repo:` di `content/projects/pi-core.mdx`, `pi-lynk.mdx`, `pmk-form.mdx` | Nama tidak tampil sebagai teks, hanya di tautan. Pilih: biarkan (tautan ke repo publik berguna bagi penilai) atau hapus `repo:` agar nama tidak ada sama sekali |
+| 2   | ~~`SITE_URL` produksi~~ **Dijaga build**             | Canonical, sitemap, `robots.txt`, JSON-LD, Open Graph                    | Build gagal bila `SITE_URL` kosong atau bukan URL. Isi `https://fyas.web.id` di environment variable Vercel (Production dan Preview). Lihat `.env.example` |
+| 3   | ~~URL repositori memuat nama organisasi~~ **Selesai** | `repo:` di `pi-core.mdx`, `pi-lynk.mdx`, `pmk-form.mdx`                  | Dipertahankan: `links.repo` dipakai (tautan "Lihat repositori") dan ketiga repo publik (HTTP 200). Nama tidak tampil sebagai teks |
 
 ## Dampak sedang (memperkuat studi kasus)
 
@@ -18,7 +18,7 @@ Hal yang hanya bisa diisi pemilik. Diurutkan menurut dampak ke penilaian pelamar
 | 5   | Jumlah klik atau tautan aktif            | PI-LYNK                         | Pemilik belum sempat mengecek. Bisa dibaca dari dashboard admin                                                              |
 | 6   | URL produksi dan pengguna selain pemilik | PI-CORE                         | Saat ini staging dan satu pengguna. Perbarui `status` dan `metrics` bila sudah rilis                                         |
 | 7   | Screenshot yang disamarkan               | PMK Form, PI-LYNK, PI-CORE, ARK | Diizinkan jika data pengguna disamarkan. Belum ada yang dibuat. Tambahkan via `cover:` di frontmatter dan `next/image`       |
-| 8   | Foto pemilik                             | `/about`                        | Pemilik setuju menampilkan, file belum diberikan. Taruh di `public/` dan beri `alt` bermakna                                 |
+| 8   | **Foto pemilik**                         | `/about`                        | Belum ada, situs memakai siluet. Simpan satu file JPG di `public/photos/febrian.jpg` (potret 4:5, mis. 1200x1500 px, di bawah sekitar 500 KB, wajah dan bahu di bagian atas tengah). Terpasang otomatis saat build berikutnya, alt "Foto Febrian Yoel Anggara Saputra" |
 
 ## Dampak rendah (bisa setelah pendaftaran)
 

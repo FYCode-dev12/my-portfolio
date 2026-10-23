@@ -32,7 +32,7 @@ Deploy MVP ke Vercel. Agent tidak melakukan `git push` maupun deploy. Semua lang
 4. **Node.js Version:** `package.json` meminta `>=24`. Di Project Settings > General, pastikan Node.js Version diset ke 24.x.
 5. **Environment Variables:** tambahkan `SITE_URL` (Production dan Preview) berisi URL publik tanpa garis miring akhir, contoh `https://febrianyoel.vercel.app`.
 
-   **Penting:** `SITE_URL` dibaca saat build. Canonical, sitemap, `robots.txt`, JSON-LD, dan Open Graph terbentuk dari nilai itu. Jika diisi setelah deploy pertama, lakukan **Redeploy** agar nilainya terpakai.
+   **Penting:** build produksi gagal bila `SITE_URL` kosong atau bukan URL valid (guard di `next.config.ts`). `SITE_URL` dibaca saat build. Canonical, sitemap, `robots.txt`, JSON-LD, dan Open Graph terbentuk dari nilai itu. Jika diisi setelah deploy pertama, lakukan **Redeploy** agar nilainya terpakai.
 
 6. Klik **Deploy**.
 7. Domain: pakai domain `*.vercel.app` bawaan, atau tambah domain sendiri di Settings > Domains lalu ikuti petunjuk DNS. Setelah domain final ditetapkan, perbarui `SITE_URL` dan redeploy.

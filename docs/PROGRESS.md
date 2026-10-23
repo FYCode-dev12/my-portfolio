@@ -91,3 +91,5 @@ Next 16.4.2, React 19.3.0, Tailwind ^4, zod ^4.6.7, next-mdx-remote ^6.0.0, luci
 - Figma MCP: 42 tool tersedia, termasuk tool tulis (`use_figma`, `create_new_file`, `generate_figma_design`, `send_code_to_figma`). Sesuai `AGENTS.md` bagian 2b, Figma tidak dipakai. Desain dikerjakan di kode memakai token bagian 6.
 - Supabase MCP: tidak dipakai (larangan MVP).
 - `docs/private/SECURITY-REPORT.md` bersifat rahasia dan di-ignore git.
+
+- Guard build: `next.config.ts` menggagalkan build produksi bila `SITE_URL` kosong atau tidak valid. `/about` memakai siluet (`ProfileFrame`) sampai `public/photos/febrian.jpg` ada; bagian Keahlian dan Perjalanan diberi bidang warna agar tidak ada layar kosong.

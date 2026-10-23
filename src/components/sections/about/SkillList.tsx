@@ -2,7 +2,7 @@ import { skillGroups } from "@/content/skills";
 
 export function SkillList() {
   return (
-    <div className="space-y-12">
+    <div className="space-y-16">
       {skillGroups.map((group, i) => (
         <section
           key={group.id}
@@ -14,8 +14,8 @@ export function SkillList() {
             {group.title}
           </h3>
           <div>
-            <p className="max-w-[48ch] text-lg leading-relaxed">{group.items.join(", ")}.</p>
-            {group.note ? <p className="mt-3 text-muted">{group.note}</p> : null}
+            <p className="max-w-[36ch] text-[clamp(1.25rem,1.5vw+0.4rem,1.75rem)] leading-[1.35] tracking-[-0.01em]">{group.items.join(", ")}.</p>
+            {group.note ? <p className="mt-4 text-lg opacity-90">{group.note}</p> : null}
           </div>
         </section>
       ))}

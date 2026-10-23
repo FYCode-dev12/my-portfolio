@@ -20,13 +20,13 @@ export function Timeline({ items }: { items: Achievement[] }) {
             <h3 id={id} className="t-lead font-medium lg:pr-10">
               {categoryLabels[category]}
             </h3>
-            <ol className="space-y-8">
+            <ol className="space-y-12">
               {group.map((item, i) => (
                 <li key={item.id} className="reveal" style={{ "--i": i } as React.CSSProperties}>
                   <p className="t-small text-muted">{formatAchievementPeriod(item.date, item.endDate)}</p>
-                  <p className="mt-1 text-lg font-medium leading-snug">{item.title}</p>
-                  {item.issuer ? <p className="text-muted">{item.issuer}</p> : null}
-                  {item.description ? <p className="mt-2 max-w-[60ch]">{item.description}</p> : null}
+                  <p className="mt-1 text-[clamp(1.25rem,1.2vw+0.6rem,1.625rem)] font-medium leading-snug tracking-[-0.01em]">{item.title}</p>
+                  {item.issuer ? <p className="text-lg text-muted">{item.issuer}</p> : null}
+                  {item.description ? <p className="mt-2 max-w-[56ch] text-lg">{item.description}</p> : null}
                   {item.href ? (
                     <p className="mt-1">
                       <ExternalLink href={item.href}>Kunjungi situs</ExternalLink>

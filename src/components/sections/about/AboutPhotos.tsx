@@ -18,11 +18,12 @@ function Frame({ photo, className, sizes }: { photo: Photo; className: string; s
 
 export function AboutPhotos() {
   return (
-    <div className="gutter section pt-0">
+    <div className="gutter section">
       <div className="grid gap-4 md:grid-cols-12 md:gap-6">
         <Frame photo={photos.petaTeluk} className="aspect-[4/5] md:col-span-4 md:aspect-auto md:min-h-[26rem]" sizes="(min-width: 768px) 32vw, 94vw" />
         <Frame photo={photos.pantai} className="aspect-[3/2] md:col-span-8 md:aspect-auto md:min-h-[26rem]" sizes="(min-width: 768px) 62vw, 94vw" />
-        <Frame photo={photos.petaKeyser} className="aspect-[4/3] md:col-span-12 md:aspect-[16/7]" sizes="94vw" />
+        <Frame photo={photos.itera} className="aspect-[4/3] md:col-span-8 md:aspect-auto md:min-h-[26rem]" sizes="(min-width: 768px) 62vw, 94vw" />
+        <Frame photo={photos.petaKeyser} className="aspect-[4/5] md:col-span-4 md:aspect-auto md:min-h-[26rem]" sizes="(min-width: 768px) 32vw, 94vw" />
       </div>
     </div>
   );
