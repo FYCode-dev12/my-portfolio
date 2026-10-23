@@ -1,4 +1,3 @@
-import { Heading } from "@/components/ui/Heading";
 import { ExternalLink } from "@/components/ui/ExternalLink";
 import { categoryLabels, categoryOrder, type Achievement } from "@/content/achievements";
 import { formatAchievementPeriod } from "@/lib/format";
@@ -11,31 +10,25 @@ function byRecency(a: Achievement, b: Achievement): number {
 
 export function Timeline({ items }: { items: Achievement[] }) {
   return (
-    <div className="space-y-12">
+    <div className="space-y-16">
       {categoryOrder.map((category) => {
         const group = items.filter((i) => i.category === category).sort(byRecency);
         if (group.length === 0) return null;
         const id = `timeline-${category}`;
         return (
-          <section key={category} aria-labelledby={id}>
-            <Heading level={3} id={id}>
+          <section key={category} aria-labelledby={id} className="grid gap-6 lg:grid-cols-[34%_1fr] lg:gap-0">
+            <h3 id={id} className="t-lead font-medium lg:pr-10">
               {categoryLabels[category]}
-            </Heading>
-            <ol className="mt-5 space-y-6 border-l border-border-strong pl-6">
-              {group.map((item) => (
-                <li key={item.id} className="relative">
-                  <span
-                    aria-hidden="true"
-                    className="absolute -left-[1.8125rem] top-2 size-2 rounded-full bg-accent"
-                  />
-                  <p className="font-mono text-xs text-muted">
-                    {formatAchievementPeriod(item.date, item.endDate)}
-                  </p>
-                  <p className="mt-1 font-medium">{item.title}</p>
-                  {item.issuer ? <p className="text-sm text-muted">{item.issuer}</p> : null}
-                  {item.description ? <p className="mt-2 text-muted">{item.description}</p> : null}
+            </h3>
+            <ol className="space-y-8">
+              {group.map((item, i) => (
+                <li key={item.id} className="reveal" style={{ "--i": i } as React.CSSProperties}>
+                  <p className="t-small text-muted">{formatAchievementPeriod(item.date, item.endDate)}</p>
+                  <p className="mt-1 text-lg font-medium leading-snug">{item.title}</p>
+                  {item.issuer ? <p className="text-muted">{item.issuer}</p> : null}
+                  {item.description ? <p className="mt-2 max-w-[60ch]">{item.description}</p> : null}
                   {item.href ? (
-                    <p className="mt-2 text-sm">
+                    <p className="mt-1">
                       <ExternalLink href={item.href}>Kunjungi situs</ExternalLink>
                     </p>
                   ) : null}

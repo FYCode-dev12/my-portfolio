@@ -6,6 +6,7 @@ export const projectFrontmatterSchema = z.object({
   title: z.string().min(3),
   slug: z.string().regex(/^[a-z0-9-]+$/),
   summary: z.string().max(200),
+  kind: z.string().max(40).optional(),
   role: z.string(),
   period: z.object({ start: yearMonth, end: yearMonth.optional() }),
   status: z.enum(["live", "in-progress", "archived"]),

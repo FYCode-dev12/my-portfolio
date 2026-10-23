@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import { Hanken_Grotesk } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { site } from "@/content/site";
+import { getCvHref } from "@/lib/cv";
 import { siteUrl } from "@/lib/seo";
 import "./globals.css";
+
+const hanken = Hanken_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-hanken",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -22,26 +29,22 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-const themeScript = `(function(){try{var t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark")}catch(e){}})()`;
+const themeScript = `(function(){try{var t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")}catch(e){}})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const cvHref = getCvHref();
   return (
-    <html
-      lang="id"
-      data-theme="dark"
-      suppressHydrationWarning
-      className={`${GeistSans.variable} ${GeistMono.variable}`}
-    >
+    <html lang="id" data-theme="light" suppressHydrationWarning className={hanken.variable}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="flex min-h-screen flex-col">
+      <body className="flex min-h-svh flex-col">
         <SkipLink />
-        <Header />
+        <Header cvHref={cvHref} />
         <main id="main" tabIndex={-1} className="flex-1 outline-none">
           {children}
         </main>
-        <Footer />
+        <Footer cvHref={cvHref} />
       </body>
     </html>
   );

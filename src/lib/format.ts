@@ -16,3 +16,9 @@ export function formatAchievementPeriod(date: string, endDate?: string): string 
   if (!endDate) return formatYearMonth(date);
   return `${formatYearMonth(date)} – ${endDate === "present" ? "sekarang" : formatYearMonth(endDate)}`;
 }
+
+export const statusLabel = {
+  live: "Live",
+  "in-progress": "Dalam pengerjaan",
+  archived: "Arsip",
+} as const;

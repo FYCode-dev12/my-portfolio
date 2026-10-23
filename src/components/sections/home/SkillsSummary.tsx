@@ -1,36 +1,33 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
-import { Heading } from "@/components/ui/Heading";
-import { Section } from "@/components/ui/Section";
 import { skillGroups } from "@/content/skills";
 
 export function SkillsSummary() {
   return (
-    <Section
-      id="skills"
-      title="Keahlian"
-      description="Teknologi yang dipakai pada proyek di atas, ditambah sisi desain dan media."
-    >
-      <div className="grid gap-4 sm:grid-cols-2">
-        {skillGroups.map((group) => (
-          <Card key={group.id}>
-            <Heading level={3}>{group.title}</Heading>
-            <ul className="mt-4 flex flex-wrap gap-2">
-              {group.items.slice(0, 6).map((item) => (
-                <li key={item}>
-                  <Badge>{item}</Badge>
-                </li>
-              ))}
-            </ul>
-          </Card>
+    <section aria-labelledby="skills-heading" className="section gutter">
+      <h2 id="skills-heading" className="t-sub reveal">
+        Keahlian
+      </h2>
+      <ul className="mt-10">
+        {skillGroups.map((group, i) => (
+          <li
+            key={group.id}
+            className="poster-row reveal grid gap-3 py-4 md:grid-cols-[1fr_20rem] md:items-end md:gap-10 md:py-3"
+            style={{ "--i": i } as React.CSSProperties}
+          >
+            <h3 className="poster-name text-[clamp(3rem,8vw,7rem)] font-medium leading-[0.95] tracking-[-0.045em]">
+              {group.title}
+            </h3>
+            <p className="max-w-[40ch] text-muted md:pb-3">
+              {group.items.slice(0, 5).join(", ")}
+            </p>
+          </li>
         ))}
-      </div>
-      <p className="mt-6">
-        <Link href="/about#skills" className="text-accent underline-offset-4 hover:underline">
-          Lihat semua keahlian
+      </ul>
+      <p className="mt-10">
+        <Link href="/about#skills" className="link inline-flex min-h-11 items-center font-medium">
+          Lihat daftar lengkap keahlian
         </Link>
       </p>
-    </Section>
+    </section>
   );
 }

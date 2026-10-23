@@ -7,7 +7,7 @@ const STORAGE_KEY = "theme";
 export function ThemeToggle() {
   function toggle() {
     const root = document.documentElement;
-    const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+    const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
     root.setAttribute("data-theme", next);
     try {
       localStorage.setItem(STORAGE_KEY, next);
@@ -21,7 +21,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label="Ganti tema terang atau gelap"
-      className="inline-flex size-10 items-center justify-center rounded-md border border-border-strong text-muted transition-colors hover:border-accent hover:text-fg"
+      className="inline-flex size-11 items-center justify-center rounded-md text-fg transition-colors hover:bg-surface"
     >
       <Sun aria-hidden="true" className="theme-icon-dark size-5" />
       <Moon aria-hidden="true" className="theme-icon-light size-5" />

@@ -16,10 +16,7 @@ export function ExternalLink({
     <a
       target="_blank"
       rel="noopener noreferrer"
-      className={cn(
-        "inline-flex items-center gap-1 text-accent underline-offset-4 hover:underline",
-        className,
-      )}
+      className={cn("link inline-flex items-center gap-1 py-1", className)}
       {...props}
     >
       {children}

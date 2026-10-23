@@ -8,11 +8,7 @@ type ContainerProps = ComponentPropsWithoutRef<"div"> & {
 export function Container({ size = "default", className, ...props }: ContainerProps) {
   return (
     <div
-      className={cn(
-        "mx-auto w-full px-5 sm:px-8",
-        size === "narrow" ? "max-w-3xl" : "max-w-6xl",
-        className,
-      )}
+      className={cn("gutter mx-auto w-full", size === "narrow" ? "max-w-4xl" : "max-w-[96rem]", className)}
       {...props}
     />
   );

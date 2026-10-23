@@ -7,7 +7,7 @@ const ROOT = process.cwd();
 const PROJECTS_DIR = join(ROOT, "content", "projects");
 const DATA_DIR = join(ROOT, "src", "content");
 const MAX_FEATURED = 3;
-const PLACEHOLDER = /TODO\(owner\)|\bTBD\b|lorem ipsum|<isi>/i;
+const PLACEHOLDER = /TODO\(owner\)|\bTBD\b|lorem ipsum|<isi>/i;  // taste-skill-ignore
 
 const errors: string[] = [];
 const slugs = new Map<string, string>();

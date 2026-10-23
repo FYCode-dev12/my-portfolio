@@ -15,8 +15,20 @@ Branch kerja: `feat/portfolio-mvp`. Tidak ada `git push` dari agent.
 | 5 SEO, a11y, performa   | Selesai                                       | `fix: correct heading order on projects page and add qa report`                      | Lighthouse (mobile) 4 kategori, axe-core 0 pelanggaran di 16 pemindaian. Accessibility, Best Practices, SEO = 100. Performance 93-98 (derau antar-jalan). Rincian di `docs/QA.md`                                            |
 | 6 Konten dan kebersihan | Selesai                                       | `docs: add owner todo list and cleanliness scan`                                     | `docs/TODO-OWNER.md` (12 item per dampak). Pemindaian secret, HP, alamat: bersih. `docs/private/`, `opencode.json`, `.env*` tidak ter-track dan tidak pernah ada di riwayat. Satu keputusan: URL repo memuat nama organisasi |
 | 7 Persiapan deploy      | Selesai, menunggu CP3                         | `docs: add deploy guide`                                                             | Build dari kondisi bersih lolos (14 halaman, `SITE_URL` terbaca di sitemap). `docs/DEPLOY.md`: langkah Vercel, checklist pasca-deploy, catatan Docker/VPS opsional. Pemilik yang `git push` dan deploy                       |
+| 8 Redesain UI (skill) | Selesai, belum di-push | `feat(ui): redesign with type-only-statement direction` | Palet, huruf, dan semua komponen diganti. Light default, dark via toggle. 4 foto berlisensi terbuka (kredit di footer). axe 0 pelanggaran (8 halaman x 2 tema). Lighthouse mobile 96-100 kecuali `/contact` 95-97 (rentang 90-97 sebelum perbaikan). Detail di bagian di bawah |
 
-## Hasil ukur Fase 2
+## Redesain UI (Fase 8, di luar rencana awal)
+
+- Keputusan pemilik: ikuti skill `design-taste-frontend` penuh. Token bagian 6 AGENTS.md diganti (lama: navy dark-first, Geist). Dependency `geist` dihapus.
+- Arah: `type-only-statement`. Hero judul bertopeng "Sistem web / untuk organisasi.", nama proyek sebagai satu paragraf poster dengan bingkai foto, keahlian satu baris poster per kelompok, pita hijau "Hubungi" yang seluruhnya tautan mailto, footer dengan wordmark besar.
+- Light default (menyimpang dari dark-first), karena palet yang dibagikan terang. Dark tetap berfungsi penuh.
+- Font: skill membagikan Switzer, tetapi lisensi self-host di repo publik tidak bisa dipastikan. Dipakai Hanken Grotesk (OFL). `inspect.mjs` melaporkan WARN `font-not-dealt` yang disengaja.
+- Frontmatter MDX mendapat field opsional `kind` (maks 40 karakter) untuk deskripsi satu frasa.
+- Diagram arsitektur: kolom HTML/CSS dari fakta di MDX (`src/content/diagrams.ts`).
+- Gambar: 4 foto di `public/photos/` (CC BY-SA 4.0 dan domain publik). Foto pemilik dan screenshot yang disamarkan masih menunggu dari pemilik.
+- Hasil: lint skill 0 FAIL, inspect 0 FAIL di 8 halaman. WARN tersisa: `no-footage`, `font-not-dealt`, `size-count` (10-11 ukuran huruf), `still-page` (sekitar 8 elemen bergerak), `first-action` di halaman studi kasus pada 390px.
+
+## Hasil ukur Fase 2 (token lama, sebelum redesain)
 
 Kontras teks (rasio WCAG, dihitung dari token):
 
@@ -43,7 +55,7 @@ Semua >= 3:1 (WCAG 1.4.11).
 
 ## Versi terpasang
 
-Next 16.4.2, React 19.3.0, Tailwind ^4, zod ^4.6.7, next-mdx-remote ^6.0.0, geist ^1.8.2, lucide-react ^1.61.0, gray-matter ^4.0.3, Prettier ^3.9.10, ESLint ^9. Node 24.11.0, npm 11.6.1.
+Next 16.4.2, React 19.3.0, Tailwind ^4, zod ^4.6.7, next-mdx-remote ^6.0.0, lucide-react ^1.61.0, gray-matter ^4.0.3, Prettier ^3.9.10, ESLint ^9. Node 24.11.0, npm 11.6.1.
 
 ## Catatan teknis
 
