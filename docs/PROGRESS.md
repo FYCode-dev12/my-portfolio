@@ -4,26 +4,27 @@ Branch kerja: `feat/portfolio-mvp`. Tidak ada `git push` dari agent.
 
 ## Fase selesai
 
-| Fase | Status | Commit | Catatan |
-|---|---|---|---|
-| 0 Persiapan | Selesai, satu sisa keputusan (lihat di bawah) | `f97e364` chore: add gitignore and AGENTS.md; `513ff28` docs: add plan and inventory | `AGENTS.md` disalin ke root. `.gitignore` menutup `.env*`, `_sources/`, `docs/private/`. `docs/private/` tidak ter-track (`git ls-files docs/private` kosong) |
-| 1 Scaffold dan tooling | Selesai | `feat: scaffold next.js app and tooling` | `typecheck`, `lint`, `build`, `validate:content` lolos. `GET /` pada `next start` = 200 |
-| 2 Design system | Selesai, CP1 disetujui | `feat: add design system and layout shell` | Token persis AGENTS.md bagian 6. Komponen: Container, Heading, Badge, Card, Section, ExternalLink, Button, SkipLink, ThemeToggle, Header, Footer. Halaman sementara `/design` (noindex, dihapus di Fase 4) |
-| CP1 keputusan | Diterapkan | `chore: apply cp1 decisions` | `opencode.json` di-ignore, token `--border-strong`, `engines.node >=24`, `next.config.ts` disederhanakan |
-| 3 Content layer | Selesai | `feat: add content layer and case studies` | Skema zod, loader MDX, data `site`/`skills`/`achievements`, `validate:content` (gagal bila non-draft memuat `TODO(owner)`, `TBD`, `lorem ipsum`, `<isi>`), 4 studi kasus |
-| 4 Halaman | Selesai, menunggu CP2 | `feat: add pages, seo and support routes` | `/`, `/projects` (filter `?tech=`, jalan tanpa JS), `/projects/[slug]`, `/about`, `/contact`, `not-found`, `error`, `loading`, `sitemap`, `robots`, OG image, JSON-LD Person. `/design` dihapus |
+| Fase                   | Status                                        | Commit                                                                               | Catatan                                                                                                                                                                                                    |
+| ---------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0 Persiapan            | Selesai, satu sisa keputusan (lihat di bawah) | `f97e364` chore: add gitignore and AGENTS.md; `513ff28` docs: add plan and inventory | `AGENTS.md` disalin ke root. `.gitignore` menutup `.env*`, `_sources/`, `docs/private/`. `docs/private/` tidak ter-track (`git ls-files docs/private` kosong)                                              |
+| 1 Scaffold dan tooling | Selesai                                       | `feat: scaffold next.js app and tooling`                                             | `typecheck`, `lint`, `build`, `validate:content` lolos. `GET /` pada `next start` = 200                                                                                                                    |
+| 2 Design system        | Selesai, CP1 disetujui                        | `feat: add design system and layout shell`                                           | Token persis AGENTS.md bagian 6. Komponen: Container, Heading, Badge, Card, Section, ExternalLink, Button, SkipLink, ThemeToggle, Header, Footer. Halaman sementara `/design` (noindex, dihapus di Fase 4) |
+| CP1 keputusan          | Diterapkan                                    | `chore: apply cp1 decisions`                                                         | `opencode.json` di-ignore, token `--border-strong`, `engines.node >=24`, `next.config.ts` disederhanakan                                                                                                   |
+| 3 Content layer        | Selesai                                       | `feat: add content layer and case studies`                                           | Skema zod, loader MDX, data `site`/`skills`/`achievements`, `validate:content` (gagal bila non-draft memuat `TODO(owner)`, `TBD`, `lorem ipsum`, `<isi>`), 4 studi kasus                                   |
+| 4 Halaman              | Selesai, CP2 disetujui                        | `feat: add pages, seo and support routes`                                            | `/`, `/projects` (filter `?tech=`, jalan tanpa JS), `/projects/[slug]`, `/about`, `/contact`, `not-found`, `error`, `loading`, `sitemap`, `robots`, OG image, JSON-LD Person. `/design` dihapus            |
+| 5 SEO, a11y, performa  | Selesai                                       | `fix: correct heading order on projects page and add qa report`                                          | Lighthouse (mobile) 4 kategori, axe-core 0 pelanggaran di 16 pemindaian. Accessibility, Best Practices, SEO = 100. Performance 93-98 (derau antar-jalan). Rincian di `docs/QA.md`                          |
 
 ## Hasil ukur Fase 2
 
 Kontras teks (rasio WCAG, dihitung dari token):
 
-| Pasangan | Dark | Light |
-|---|---|---|
-| fg / bg | 15,87 | 17,50 |
-| muted / bg | 7,51 | 7,13 |
-| muted / surface | 6,97 | 7,58 |
-| accent / bg | 7,67 | 9,74 |
-| accent-fg / accent | 7,67 | 10,36 |
+| Pasangan           | Dark  | Light |
+| ------------------ | ----- | ----- |
+| fg / bg            | 15,87 | 17,50 |
+| muted / bg         | 7,51  | 7,13  |
+| muted / surface    | 6,97  | 7,58  |
+| accent / bg        | 7,67  | 9,74  |
+| accent-fg / accent | 7,67  | 10,36 |
 
 Semua teks lolos AA (4,5:1). CLS = 0 saat muat dan saat ganti tema, di desktop dan 360px, kedua tema (Chromium headless). Tidak ada overflow horizontal di 360px. Tab pertama = skip link.
 
@@ -31,10 +32,10 @@ Semua teks lolos AA (4,5:1). CLS = 0 saat muat dan saat ganti tema, di desktop d
 
 `--border` (1,35:1 dark, 1,21:1 light terhadap bg) tetap untuk garis dekoratif. Batas komponen interaktif (Button secondary, ThemeToggle, chip filter, garis timeline) memakai `--border-strong`:
 
-| Pasangan | Dark (`#5a6ea0`) | Light (`#7a869f`) |
-|---|---|---|
-| border-strong / bg | 3,79 | 3,44 |
-| border-strong / surface | 3,52 | 3,66 |
+| Pasangan                | Dark (`#5a6ea0`) | Light (`#7a869f`) |
+| ----------------------- | ---------------- | ----------------- |
+| border-strong / bg      | 3,79             | 3,44              |
+| border-strong / surface | 3,52             | 3,66              |
 
 Semua >= 3:1 (WCAG 1.4.11).
 

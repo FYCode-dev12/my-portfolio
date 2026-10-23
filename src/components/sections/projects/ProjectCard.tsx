@@ -8,7 +8,9 @@ import { StatusBadge } from "./ProjectMeta";
 
 const VISIBLE_STACK = 5;
 
-export function ProjectCard({ project }: { project: Project }) {
+type ProjectCardProps = { project: Project; headingLevel?: 2 | 3 };
+
+export function ProjectCard({ project, headingLevel = 3 }: ProjectCardProps) {
   const extra = project.stack.length - VISIBLE_STACK;
   return (
     <Card as="article" interactive className="relative flex h-full flex-col">
@@ -18,7 +20,7 @@ export function ProjectCard({ project }: { project: Project }) {
           {formatProjectPeriod(project.period.start, project.period.end)}
         </p>
       </div>
-      <Heading level={3} className="mt-4">
+      <Heading level={headingLevel} look={3} className="mt-4">
         <Link
           href={`/projects/${project.slug}`}
           className="after:absolute after:inset-0 after:content-['']"
