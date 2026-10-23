@@ -57,7 +57,7 @@ Next 16.4.2, React 19.3.0, Tailwind ^4, zod ^4.6.7, next-mdx-remote ^6.0.0, geis
 
 ## Data yang masih kosong (dihilangkan dari situs, tidak ditebak)
 
-- `public/cv.pdf` (tombol unduh tersembunyi sampai file ada).
+- `public/cv.pdf`: sudah ada (CV tanpa HP dan alamat). Tombol unduh aktif.
 - File foto pemilik.
 - Bidang Lomba Kompetensi Siswa 2023.
 - Angka dampak: jumlah respons PMK Form, jumlah klik PI-LYNK, pengguna PI-CORE selain pemilik.

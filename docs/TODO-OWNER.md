@@ -4,11 +4,11 @@ Hal yang hanya bisa diisi pemilik. Diurutkan menurut dampak ke penilaian pelamar
 
 ## Dampak tinggi (isi sebelum kirim, target 28 Okt)
 
-| #   | Item                                                 | Lokasi                                                                        | Cara mengisi                                                                                                                                                    |
-| --- | ---------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **`public/cv.pdf`**                                  | Tombol "Unduh CV" di beranda, CTA, dan `/contact` tersembunyi sampai file ada | Taruh file di `public/cv.pdf`, lalu build ulang. Tanpa nomor HP dan alamat rumah                                                                                |
-| 2   | **`SITE_URL` produksi**                              | Canonical, sitemap, `robots.txt`, JSON-LD, Open Graph                         | Isi di environment variable Vercel **sebelum** deploy (dibaca saat build). Lihat `.env.example`                                                                 |
-| 3   | **Keputusan: URL repositori memuat nama organisasi** | `repo:` di `content/projects/pi-core.mdx`, `pi-lynk.mdx`, `pmk-form.mdx`      | Nama tidak tampil sebagai teks, hanya di tautan. Pilih: biarkan (tautan ke repo publik berguna bagi penilai) atau hapus `repo:` agar nama tidak ada sama sekali |
+| #   | Item                                                 | Lokasi                                                                   | Cara mengisi                                                                                                                                                    |
+| --- | ---------------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | ~~`public/cv.pdf`~~ **Selesai**                      | Tombol "Unduh CV" di beranda, CTA, dan `/contact`                        | CV tanpa nomor HP dan alamat sudah ada di `public/cv.pdf`                                                                                                       |
+| 2   | **`SITE_URL` produksi**                              | Canonical, sitemap, `robots.txt`, JSON-LD, Open Graph                    | Isi di environment variable Vercel **sebelum** deploy (dibaca saat build). Lihat `.env.example`                                                                 |
+| 3   | **Keputusan: URL repositori memuat nama organisasi** | `repo:` di `content/projects/pi-core.mdx`, `pi-lynk.mdx`, `pmk-form.mdx` | Nama tidak tampil sebagai teks, hanya di tautan. Pilih: biarkan (tautan ke repo publik berguna bagi penilai) atau hapus `repo:` agar nama tidak ada sama sekali |
 
 ## Dampak sedang (memperkuat studi kasus)
 
