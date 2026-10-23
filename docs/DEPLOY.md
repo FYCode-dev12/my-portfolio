@@ -9,7 +9,7 @@ Deploy MVP ke Vercel. Agent tidak melakukan `git push` maupun deploy. Semua lang
 
    ```bash
    rm -rf .next
-   SITE_URL=https://<domain-anda> npm run build
+   SITE_URL=https://fyas.web.id npm run build
    ```
 
    Build menjalankan `validate:content` lebih dulu dan gagal bila frontmatter tidak valid atau ada placeholder di konten non-draft.
