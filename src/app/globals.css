@@ -159,6 +159,77 @@ body::before {
   }
 }
 
+/* ---------- Intro beranda: wordmark diketik di tengah, lalu pindah ke header ----------
+   Urutan (±1,35 detik): ketik → terbang ke posisi wordmark header → latar memudar.
+   Latar baru memudar setelah wordmark mendarat, jadi wordmark header (yang tetap dirender
+   di bawah overlay agar LCP tidak tertunda) tidak pernah terlihat ganda.
+   Tanpa JS pun selesai sendiri: overlay disembunyikan di akhir animasi. */
+.brand-intro {
+  display: none;
+}
+[data-intro] .brand-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: intro-hide 1ms linear 1380ms forwards;
+}
+[data-intro] .brand-intro::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg);
+  animation: intro-fade 300ms var(--ease-reveal) 1060ms forwards;
+}
+[data-intro] .brand-intro-mark {
+  position: relative;
+  white-space: nowrap;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  transform-origin: 0 0;
+}
+/* Dimulai setelah skrip mengisi --intro-*; bila pengukuran gagal, wordmark ikut memudar. */
+[data-intro="ready"] .brand-intro-mark {
+  animation: intro-move 400ms cubic-bezier(0.65, 0, 0.35, 1) 660ms forwards;
+}
+[data-intro=""] .brand-intro-mark {
+  animation: intro-fade 300ms var(--ease-reveal) 1060ms forwards;
+}
+[data-intro] .brand-intro .brand-text {
+  clip-path: inset(0 100% 0 0);
+  animation: intro-type 540ms steps(var(--chars), end) 80ms forwards;
+}
+[data-intro] .brand-intro .caret {
+  transform: translateX(calc(var(--chars) * -1ch));
+  animation: intro-caret 540ms steps(var(--chars), end) 80ms forwards;
+}
+@keyframes intro-type {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes intro-caret {
+  to {
+    transform: none;
+  }
+}
+@keyframes intro-move {
+  to {
+    transform: translate(var(--intro-dx, 0), var(--intro-dy, 0)) scale(var(--intro-s, 1));
+  }
+}
+@keyframes intro-fade {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes intro-hide {
+  to {
+    visibility: hidden;
+  }
+}
+
 /* ---------- Umpan balik kontrol ---------- */
 .press {
   transition:

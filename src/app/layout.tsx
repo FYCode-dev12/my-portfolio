@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
+import { BrandIntro } from "@/components/layout/BrandIntro";
 import { Header } from "@/components/layout/Header";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { site } from "@/content/site";
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 // Tema sebelum paint (tanpa flash) dan atribut `data-js` untuk animasi judul yang aman tanpa JS.
-const themeScript = `(function(){var d=document.documentElement;d.setAttribute("data-js","");try{var t=localStorage.getItem("theme");d.setAttribute("data-theme",t==="light"?"light":"dark")}catch(e){}})()`;
+const themeScript = `(function(){var d=document.documentElement;d.setAttribute("data-js","");try{var t=localStorage.getItem("theme");d.setAttribute("data-theme",t==="light"?"light":"dark")}catch(e){}try{if(location.pathname==="/"&&!sessionStorage.getItem("intro")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.setAttribute("data-intro","");sessionStorage.setItem("intro","1")}}catch(e){}})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-svh flex-col">
         <SkipLink />
         <Header />
+        <BrandIntro />
         <main id="main" tabIndex={-1} className="flex-1 outline-none">
           {children}
         </main>

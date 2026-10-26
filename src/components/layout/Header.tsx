@@ -3,6 +3,7 @@ import { CommandTrigger } from "@/components/interactive/CommandTrigger";
 import { Container } from "@/components/ui/Container";
 import { site } from "@/content/site";
 import { getCommandContext } from "@/lib/command-context";
+import { BrandMark } from "./BrandMark";
 import { ThemeToggle } from "./ThemeToggle";
 
 export async function Header() {
@@ -13,13 +14,10 @@ export async function Header() {
         <Link
           href="/"
           aria-label={`${site.shortName}, beranda`}
+          data-brand
           className="font-mono text-[0.9375rem] font-medium text-fg"
         >
-          <span className="text-accent">~/</span>febrian-yoel
-          <span
-            aria-hidden="true"
-            className="caret ml-0.5 inline-block h-[1.1em] w-[0.55em] translate-y-[0.2em] bg-accent"
-          />
+          <BrandMark />
         </Link>
         <div className="order-2 flex items-center gap-2 sm:order-3">
           <div className="hidden sm:block">
