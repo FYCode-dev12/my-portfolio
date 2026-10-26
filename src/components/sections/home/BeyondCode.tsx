@@ -26,7 +26,7 @@ export function BeyondCode() {
       <Container>
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-6">
-            <Heading level={2} id="beyond-heading" className="reveal">
+            <Heading level={2} id="beyond-heading" className="rise">
               Di luar kode
             </Heading>
             <p
@@ -76,7 +76,7 @@ export function BeyondCode() {
             </div>
           </div>
           <figure className="reveal lg:col-span-5 lg:col-start-8">
-            <div className="drift-frame relative aspect-[4/5] overflow-clip rounded-lg bg-surface lg:sticky lg:top-28">
+            <div className="drift-frame window relative aspect-[4/5] overflow-clip rounded-lg bg-surface lg:sticky lg:top-28">
               <Image
                 src={photo.src}
                 alt={photo.alt}

@@ -111,7 +111,7 @@ export function WorkLedger({ projects }: { projects: Project[] }) {
       <Container>
         <div className="ledger grid gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-6">
-            <Heading level={2} id="work-heading" className="reveal">
+            <Heading level={2} id="work-heading" className="rise">
               Sistem yang sudah dirilis
             </Heading>
             <p
@@ -129,7 +129,7 @@ export function WorkLedger({ projects }: { projects: Project[] }) {
                     {rows
                       .filter((r) => r.year === year)
                       .map((row) => (
-                        <li key={row.key}>
+                        <li key={row.key} className="ledger-item">
                           <Link
                             href={row.href}
                             data-i={index.get(row.key)}

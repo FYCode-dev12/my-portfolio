@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { Badge } from "@/components/ui/Badge";
 import { Heading } from "@/components/ui/Heading";
 import { ScrollSpy } from "@/components/interactive/ScrollSpy";
 import { skillGroups } from "@/content/skills";
@@ -14,7 +15,7 @@ export function SkillsStack() {
       <Container>
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-5">
-            <Heading level={2} id="stack-heading" className="reveal">
+            <Heading level={2} id="stack-heading" className="rise">
               Stack yang saya pakai
             </Heading>
             <p
@@ -24,7 +25,7 @@ export function SkillsStack() {
               Teknologi web diambil dari repositori proyek di atas. Desain dan media dari
               dokumentasi acara.
             </p>
-            <ul className="mt-16 space-y-24 lg:space-y-[34vh] lg:pb-[20vh]">
+            <ul className="mt-16 space-y-20 lg:space-y-[22vh] lg:pb-[12vh]">
               {skillGroups.map((group) => (
                 <li key={group.id} data-step={group.key} className="stack-step reveal">
                   <Heading level={3} look={2}>
@@ -33,7 +34,14 @@ export function SkillsStack() {
                   <p className="mt-4 max-w-[38ch] text-lg leading-relaxed text-fg">
                     {group.summary}
                   </p>
-                  {group.note ? <p className="mt-3 text-muted">{group.note}</p> : null}
+                  <ul aria-label={`Teknologi ${group.title}`} className="mt-5 flex flex-wrap gap-2">
+                    {group.items.map((item) => (
+                      <li key={item}>
+                        <Badge>{item}</Badge>
+                      </li>
+                    ))}
+                  </ul>
+                  {group.note ? <p className="mt-4 text-muted">{group.note}</p> : null}
                 </li>
               ))}
             </ul>

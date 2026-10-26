@@ -35,7 +35,7 @@ export function Letter({ projects }: { projects: Project[] }) {
         <div className="mx-auto max-w-[34rem]">
           <div className="reveal flex items-center gap-4">
             <Portrait />
-            <Heading level={2} look={3} id="letter-heading">
+            <Heading level={2} look={3} id="letter-heading" className="rise">
               Halo, saya Febrian
             </Heading>
           </div>

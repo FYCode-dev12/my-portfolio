@@ -9,7 +9,7 @@ export function Hero({ context }: { context: CommandContext }) {
   return (
     <section aria-labelledby="hero-heading" className="pt-12 pb-28 sm:pt-20 sm:pb-40">
       <Container>
-        <h1 id="hero-heading" className="lines display text-fg">
+        <h1 id="hero-heading" className="lines display hero-exit text-fg">
           <span className="line">
             <span data-line style={{ "--i": 0 } as React.CSSProperties}>
               Febrian Yoel,

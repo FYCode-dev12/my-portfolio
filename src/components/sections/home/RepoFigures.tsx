@@ -37,7 +37,7 @@ export function RepoFigures({ projects }: { projects: Project[] }) {
     <section aria-labelledby="figures-heading" className="figures bg-surface">
       <style>{css}</style>
       <Container className="flex min-h-[88svh] flex-col py-24 sm:py-32">
-        <Heading level={2} id="figures-heading" className="reveal text-3xl sm:text-[2.5rem]">
+        <Heading level={2} id="figures-heading" className="rise text-3xl sm:text-[2.5rem]">
           Seberapa besar tiap sistem?
         </Heading>
         <fieldset data-ui className="reveal mt-8 max-w-full self-start">
@@ -75,7 +75,7 @@ export function RepoFigures({ projects }: { projects: Project[] }) {
               >
                 <p className="fig-number font-semibold leading-[0.8] tracking-tight text-fg tabular-nums">
                   {main.value}
-                  <span className="ml-[0.12em] text-[0.22em] font-medium tracking-normal text-muted">
+                  <span className="ml-[0.14em] text-[0.14em] font-medium tracking-normal text-muted">
                     {unit(main.label)}
                   </span>
                 </p>
