@@ -6,7 +6,7 @@ type ProjectFilterProps = {
   active?: string;
 };
 
-const chip = "inline-flex h-9 items-center rounded-md border px-3 text-sm transition-colors";
+const chip = "press inline-flex h-10 items-center rounded-md px-3 font-mono text-[0.875rem]";
 
 export function ProjectFilter({ stacks, active }: ProjectFilterProps) {
   return (
@@ -18,9 +18,7 @@ export function ProjectFilter({ stacks, active }: ProjectFilterProps) {
             aria-current={active ? undefined : "true"}
             className={cn(
               chip,
-              active
-                ? "border-border-strong text-muted hover:text-fg"
-                : "border-accent bg-accent text-accent-fg",
+              active ? "bg-surface text-muted hover:text-fg" : "bg-accent text-accent-fg",
             )}
           >
             Semua
@@ -35,13 +33,11 @@ export function ProjectFilter({ stacks, active }: ProjectFilterProps) {
                 aria-current={selected ? "true" : undefined}
                 className={cn(
                   chip,
-                  selected
-                    ? "border-accent bg-accent text-accent-fg"
-                    : "border-border-strong text-muted hover:text-fg",
+                  selected ? "bg-accent text-accent-fg" : "bg-surface text-muted hover:text-fg",
                 )}
               >
                 {name}
-                <span className="ml-1.5 font-mono text-xs opacity-70">{count}</span>
+                <span className="ml-1.5 opacity-70">{count}</span>
               </Link>
             </li>
           );

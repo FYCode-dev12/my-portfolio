@@ -14,7 +14,10 @@ export function AboutPhotos() {
     >
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((photo) => (
-          <li key={photo.src} className="relative aspect-[4/5] overflow-hidden rounded-md border border-border bg-surface">
+          <li
+            key={photo.src}
+            className="reveal relative aspect-[4/5] overflow-hidden rounded-lg bg-surface"
+          >
             <Image
               src={photo.src}
               alt={photo.alt}

@@ -33,7 +33,8 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-const themeScript = `(function(){try{var t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark")}catch(e){}})()`;
+// Tema sebelum paint (tanpa flash) dan atribut `data-js` untuk animasi judul yang aman tanpa JS.
+const themeScript = `(function(){var d=document.documentElement;d.setAttribute("data-js","");try{var t=localStorage.getItem("theme");d.setAttribute("data-theme",t==="light"?"light":"dark")}catch(e){}})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

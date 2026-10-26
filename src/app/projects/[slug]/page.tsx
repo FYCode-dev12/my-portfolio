@@ -40,13 +40,17 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
 
   return (
     <Container className="py-16 sm:py-24">
-      <Link href="/projects" className="text-sm text-muted hover:text-fg">
-        ← Semua proyek
-      </Link>
-      <Heading level={1} className="mt-6">
-        {project.title}
-      </Heading>
-      <p className="mt-4 max-w-2xl text-lg text-muted">{project.summary}</p>
+      <Heading level={1}>{project.title}</Heading>
+      <p className="mt-6 max-w-2xl text-lg text-muted">{project.summary}</p>
+      <nav aria-label="Breadcrumb" className="mt-6 font-mono text-[0.875rem] text-muted">
+        <Link href="/projects" className="hover:text-fg">
+          <span aria-hidden="true">←</span> ~/proyek
+        </Link>
+        <span aria-hidden="true">/</span>
+        <span className="text-fg" aria-current="page">
+          {project.slug}
+        </span>
+      </nav>
       <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_20rem]">
         <article className="min-w-0 max-w-2xl">
           <MDXRemote source={project.body} components={mdxComponents} />

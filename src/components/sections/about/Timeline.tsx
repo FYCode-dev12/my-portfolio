@@ -23,12 +23,12 @@ export function Timeline({ items }: { items: Achievement[] }) {
             </Heading>
             <ol className="mt-5 space-y-6 border-l border-border-strong pl-6">
               {group.map((item) => (
-                <li key={item.id} className="relative">
+                <li key={item.id} className="reveal relative">
                   <span
                     aria-hidden="true"
                     className="absolute -left-[1.8125rem] top-2 size-2 rounded-full bg-accent"
                   />
-                  <p className="font-mono text-xs text-muted">
+                  <p className="font-mono text-[0.8125rem] text-muted">
                     {formatAchievementPeriod(item.date, item.endDate)}
                   </p>
                   <p className="mt-1 font-medium">{item.title}</p>

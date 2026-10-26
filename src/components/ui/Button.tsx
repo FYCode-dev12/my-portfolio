@@ -7,7 +7,7 @@ type Size = "sm" | "md";
 
 const variants: Record<Variant, string> = {
   primary: "bg-accent text-accent-fg border-accent hover:opacity-90",
-  secondary: "bg-transparent text-fg border-border-strong hover:border-accent",
+  secondary: "bg-surface text-fg border-surface hover:text-accent",
   ghost: "bg-transparent text-muted border-transparent hover:text-fg",
 };
 
@@ -23,7 +23,7 @@ type NativeButtonProps = CommonProps & ComponentPropsWithoutRef<"button"> & { hr
 export function Button(props: AnchorProps | NativeButtonProps) {
   const { variant = "primary", size = "md", className, ...rest } = props;
   const classes = cn(
-    "inline-flex items-center justify-center gap-2 rounded-md border font-medium transition-colors disabled:opacity-50",
+    "press inline-flex items-center justify-center gap-2 rounded-md border font-medium disabled:opacity-50",
     variants[variant],
     sizes[size],
     className,

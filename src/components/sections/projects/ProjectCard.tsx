@@ -16,7 +16,7 @@ export function ProjectCard({ project, headingLevel = 3 }: ProjectCardProps) {
     <Card as="article" interactive className="relative flex h-full flex-col">
       <div className="flex items-center justify-between gap-3">
         <StatusBadge status={project.status} />
-        <p className="font-mono text-xs text-muted">
+        <p className="font-mono text-[0.8125rem] text-muted">
           {formatProjectPeriod(project.period.start, project.period.end)}
         </p>
       </div>
@@ -28,7 +28,9 @@ export function ProjectCard({ project, headingLevel = 3 }: ProjectCardProps) {
           {project.title}
         </Link>
       </Heading>
-      {project.kind ? <p className="mt-1 font-mono text-xs text-accent">{project.kind}</p> : null}
+      {project.kind ? (
+        <p className="mt-1 font-mono text-[0.8125rem] text-accent">{project.kind}</p>
+      ) : null}
       <p className="mt-2 flex-1 text-muted">{project.summary}</p>
       <ul className="mt-5 flex flex-wrap gap-2" aria-label="Teknologi">
         {project.stack.slice(0, VISIBLE_STACK).map((tech) => (
