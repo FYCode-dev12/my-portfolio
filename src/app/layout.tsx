@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 // Tema sebelum paint (tanpa flash) dan atribut `data-js` untuk animasi judul yang aman tanpa JS.
-const themeScript = `(function(){var d=document.documentElement;d.setAttribute("data-js","");try{var t=localStorage.getItem("theme");d.setAttribute("data-theme",t==="light"?"light":"dark")}catch(e){}try{if(location.pathname==="/"&&!sessionStorage.getItem("intro")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.setAttribute("data-intro","");sessionStorage.setItem("intro","1")}}catch(e){}})()`;
+const themeScript = `(function(){var d=document.documentElement;d.setAttribute("data-js","");try{var t=localStorage.getItem("theme");d.setAttribute("data-theme",t==="light"?"light":"dark")}catch(e){}if(location.pathname==="/"&&!matchMedia("(prefers-reduced-motion: reduce)").matches)d.setAttribute("data-intro","");})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

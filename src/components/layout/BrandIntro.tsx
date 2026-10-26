@@ -2,8 +2,10 @@ import { BRAND_TEXT_LENGTH, BrandMark } from "./BrandMark";
 
 /**
  * Intro beranda: wordmark diketik di tengah layar lalu terbang ke posisinya di header.
- * Hanya aktif bila `html[data-intro]` dipasang oleh skrip tema di <head> (beranda, sekali
- * per sesi, tanpa reduced-motion). Hero tetap dirender di bawahnya, jadi LCP tidak tertunda.
+ * Hanya aktif bila `html[data-intro]` dipasang oleh skrip tema di <head>: setiap kali
+ * beranda dimuat penuh (buka atau refresh), tanpa reduced-motion. Pindah halaman lewat
+ * navigasi klien tidak menjalankan ulang skrip itu, jadi intro tidak muncul. Hero tetap
+ * dirender di bawahnya, jadi LCP tidak tertunda.
  *
  * Skrip di bawah mengukur jarak ke wordmark header, menaruh hasilnya sebagai variabel CSS
  * di <html>, lalu mengubah `data-intro` menjadi "ready" agar animasi pindah baru dimulai
