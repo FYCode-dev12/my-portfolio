@@ -39,6 +39,22 @@ export type ActOut = {
   /** Geser mata ke samping (satuan viewBox), untuk menoleh atau melihat arah jalan. */
   look: number;
   feet: { l: Point; r: Point };
+  /** Blok yang posisinya diatur langsung oleh aksi (tanpa pegas), mis. pecahan yang terlempar. */
+  exact: number[];
+};
+
+/** Satu blok yang terlepas saat berserakan: posisi, laju, dan titik awal lompatan pulang. */
+type Shard = {
+  i: number;
+  x: number;
+  y: number;
+  r: number;
+  vx: number;
+  vy: number;
+  vr: number;
+  /** Detik mulai melompat pulang. */
+  home: number;
+  from: { x: number; y: number; r: number } | null;
 };
 
 export type ActState = {
@@ -50,8 +66,10 @@ export type ActState = {
   dist: number;
   /** Kekuatan aksi 0..1 (berserakan: seberapa keras Rakit menghantam lantai). */
   power: number;
-  /** Angka acak per aksi, diisi `start` (berserakan: tempat, tinggi, dan putaran tiap blok). */
-  bits?: number[];
+  /** Simulasi pecahan berserakan, diisi `start`. */
+  shards?: Shard[];
+  /** Waktu langkah simulasi terakhir. */
+  last?: number;
   /** Efek aksi ini sudah dimunculkan. */
   fxShown?: boolean;
 };
@@ -76,8 +94,8 @@ export const smooth = (t: number) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 *
 const ALL = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 const row = (i: number) => Math.floor(i / 3);
 const col = (i: number) => i % 3;
-/** Urutan merakit ulang setelah berserakan: baris bawah lebih dulu. */
-const REBUILD = [7, 6, 8, 4, 3, 5, 1, 0, 2];
+/** Pusat vertikal tiap baris blok (viewBox), untuk lantai pecahan berserakan. */
+const CELL_CY = [70, 100, 130];
 
 /** Langkah kaki, badan naik-turun, dan goyang kiri-kanan saat berjalan. */
 function step(t: number, dir: number, walking: number, out: ActOut, put: Put) {
@@ -315,40 +333,96 @@ export const ACTS: Record<ActName, Act> = {
       out.feet.r = { x: 0, y: -5 * hop };
     },
   },
-  // jatuh dari tempat tinggi: blok berhamburan ke lantai, diam sebentar, lalu merakit ulang dari
-  // baris bawah. Lantai = telapak kaki (y 158), jadi tiap blok turun sampai sisi bawahnya di sana.
+  // jatuh dari tempat tinggi: badan tergencet, 1-3 blok kepala terlepas dan melenting dengan
+  // gravitasi (memantul, tergelincir, lalu rebah), Rakit melirik ke arahnya, lalu blok-blok itu
+  // melompat pulang satu per satu. Lantai = telapak kaki (y 158 viewBox).
   berserakan: {
-    dur: 2.6,
-    fx: { name: "sparkle", at: 2.3 },
+    dur: 2.4,
+    fx: { name: "sparkle", at: 1.9 },
     start(a) {
-      const slots = [...ALL].sort(() => Math.random() - 0.5);
-      a.bits = ALL.flatMap((i) => [slots[i], Math.random(), Math.random()]);
+      // Hanya blok kepala (baris atas) yang lepas, 1-3 tergantung kerasnya benturan; wajah (baris
+      // tengah) dan kaki tetap utuh supaya Rakit masih terbaca sebagai Rakit.
+      const pool = [0, 1, 2].sort(() => Math.random() - 0.5);
+      const count = 1 + (a.power > 0.62 ? 1 : 0) + (a.power > 0.9 ? 1 : 0);
+      a.shards = pool.slice(0, count).map((i, n) => {
+        const side = col(i) === 1 ? (Math.random() < 0.5 ? -1 : 1) : col(i) - 1;
+        return {
+          i,
+          x: 0,
+          y: 0,
+          r: 0,
+          // ke arah tepi layar yang dekat (`dir` berlawanan) blok hanya terlempar pelan
+          vx:
+            (side * (45 + Math.random() * 85) * (a.dir * side < -0.3 ? 0.3 : 1) + a.dir * 40) *
+            a.power,
+          vy: -(210 + Math.random() * 140) * a.power,
+          vr: side * (200 + Math.random() * 360),
+          home: 1.25 + n * 0.16,
+          from: null,
+        };
+      });
+      a.dur = 1.25 + (count - 1) * 0.16 + 0.85;
+      a.last = 0;
     },
     run(t, a, out, put) {
-      const bits = a.bits ?? [];
-      const pw = a.power;
-      const burst = clamp(t / 0.45, 0, 1);
-      const spread = 1 - (1 - burst) ** 2;
+      const shards = a.shards ?? [];
+      const dt = Math.min(0.05, Math.max(0, t - (a.last ?? 0)));
+      a.last = t;
+      const loose = new Set(shards.map((p) => p.i));
+      // badan yang tersisa tergencet lalu memantul kembali
+      const squash = Math.exp(-t * 7) * Math.cos(t * 17) * a.power;
       for (const i of ALL) {
-        const [slot = 4, h = 0.5, r = 0.5] = bits.slice(i * 3, i * 3 + 3);
-        // `dir` -1..1: geser sebaran menjauhi tepi layar yang dekat
-        const sx = ((slot - 4) * 26 - (col(i) - 1) * 30 + a.dir * 70) * pw;
-        const sy = 74 - 30 * row(i);
-        const sr = (r - 0.5) * 34;
-        const arc = (16 + h * 30) * pw * Math.sin(Math.PI * burst);
-        const spin = (r - 0.5) * 420 * pw * Math.sin(Math.PI * burst);
-        const k = REBUILD.indexOf(i);
-        const back = smooth((t - 1.35 - k * 0.09) / 0.32);
-        const hop = Math.sin(Math.PI * back) * 20;
-        put(
-          i,
-          sx * spread * (1 - back),
-          (sy * burst - arc) * (1 - back) - hop,
-          (sr * burst + spin) * (1 - back),
-        );
+        if (loose.has(i)) continue;
+        put(i, (col(i) - 1) * 5 * squash, (2 - row(i)) * 7 * squash, 0);
       }
-      out.antenna = 30 * Math.sin(t * 9) * (1 - smooth((t - 1.2) / 0.6));
-      out.expression = t < 0.6 ? "kaget" : t < 1.35 ? "bingung" : t > 2.2 ? "senang" : null;
+      let lookX = 0;
+      let snap = 0;
+      for (const p of shards) {
+        if (t < p.home) {
+          // gravitasi (satuan viewBox), pantulan, gesekan lantai, dan rebah ke sisi terdekat
+          p.vy += 1500 * dt;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.r += p.vr * dt;
+          const rad = (p.r * Math.PI) / 180;
+          const half = 14 * (Math.abs(Math.cos(rad)) + Math.abs(Math.sin(rad)));
+          const floor = 158 - (CELL_CY[row(p.i)] + half);
+          if (p.y >= floor) {
+            p.y = floor;
+            if (p.vy > 60) {
+              p.vy = -p.vy * 0.36;
+              p.vx *= 0.7;
+              p.vr *= 0.55;
+            } else {
+              p.vy = 0;
+              p.vx *= Math.exp(-dt * 7);
+              p.vr *= Math.exp(-dt * 12);
+              p.r += (Math.round(p.r / 90) * 90 - p.r) * Math.min(1, dt * 9);
+            }
+          }
+          lookX += p.x;
+        } else {
+          // lompat pulang dalam busur, putarannya kembali ke kelipatan 360 terdekat
+          p.from ??= { x: p.x, y: p.y, r: p.r };
+          const q = smooth((t - p.home) / 0.38);
+          const turns = Math.round(p.from.r / 360) * 360;
+          p.x = p.from.x * (1 - q);
+          p.y = p.from.y * (1 - q) - (24 + Math.abs(p.from.x) * 0.2) * Math.sin(Math.PI * q);
+          p.r = p.from.r + (turns - p.from.r) * q;
+          if (q >= 1) {
+            p.r = 0;
+            snap = Math.max(snap, 1 - (t - p.home - 0.38) / 0.3);
+          }
+        }
+        put(p.i, p.x, p.y, p.r);
+      }
+      out.exact = [...loose];
+      out.hands = shards.filter((p) => t < p.home + 0.38).map((p) => p.i);
+      // melirik ke pecahannya, lalu antena tersentak tiap blok terpasang kembali
+      out.look = t > 0.45 ? clamp(lookX / (shards.length || 1) / 12, -4, 4) : 0;
+      out.antenna = 26 * Math.exp(-t * 4) * Math.sin(t * 22) + 10 * Math.max(0, snap);
+      const done = shards.at(-1)?.home ?? 0;
+      out.expression = t < 0.5 ? "kaget" : t < done + 0.4 ? "bingung" : "senang";
     },
   },
 };

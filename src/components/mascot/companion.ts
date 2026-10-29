@@ -764,6 +764,7 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     hands: [],
     look: 0,
     feet: { l: { x: 0, y: 0 }, r: { x: 0, y: 0 } },
+    exact: [],
   };
   const put = (index: number, x: number, y: number, r: number) => {
     const c = cells[index];
@@ -784,6 +785,7 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     out.expression = null;
     out.hands = [];
     out.feet = { l: { x: 0, y: 0 }, r: { x: 0, y: 0 } };
+    out.exact = [];
     for (const c of cells) c.ex = c.ey = c.er = 0;
     if (S.act) {
       S.act.t += dt;
@@ -862,6 +864,14 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     for (const c of cells) {
       if (rm) {
         c.ox = c.oy = c.vx = c.vy = c.rot = c.vr = c.rx = c.ry = 0;
+        continue;
+      }
+      if (out.exact.includes(cells.indexOf(c))) {
+        // pecahan berserakan: posisinya hasil simulasi aksi, pegas tidak ikut campur
+        c.ox = c.rx = c.ex;
+        c.oy = c.ry = c.ey;
+        c.rot = c.er;
+        c.vx = c.vy = c.vr = 0;
         continue;
       }
       const d = moving && S.grab ? Math.hypot(c.cx - S.grab.x, c.cy - S.grab.y) / 30 : 1;
