@@ -18,6 +18,7 @@
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-brand-glyph: var(--brand-glyph);
 }
 
 :root {
@@ -29,6 +30,13 @@
   --muted: #94a3c0;
   --accent: #7aa2ff;
   --accent-fg: #0a0f1e;
+  /* Warna brand FY dan maskot Rakit (brand/final/guideline.md). Khusus logo dan maskot,
+     bukan untuk UI lain. Di tema gelap navy hanya 1,34:1, jadi tubuh memakai biru malam. */
+  --brand-glyph: #eaf0fb;
+  --rakit-body: #4263af;
+  --rakit-stem: #4263af;
+  --rakit-caret: #8fb0f0;
+  --rakit-eye: #f2b44a;
   color-scheme: dark;
 }
 
@@ -41,6 +49,10 @@
   --muted: #475569;
   --accent: #1e3a8a;
   --accent-fg: #ffffff;
+  --brand-glyph: #1b2a4a;
+  --rakit-body: #1b2a4a;
+  --rakit-stem: #1b2a4a;
+  --rakit-caret: #3f5fa8;
   color-scheme: light;
 }
 
@@ -669,6 +681,82 @@ body::before {
 @keyframes hero-parallax {
   to {
     translate: 0 -48px;
+  }
+}
+
+/* ---------- Maskot Rakit ---------- */
+.rakit {
+  display: block;
+  overflow: visible;
+}
+.rk-body {
+  fill: var(--rakit-body);
+}
+.rk-stem {
+  fill: var(--rakit-stem);
+}
+.rk-caret {
+  fill: var(--rakit-caret);
+}
+.rk-eye {
+  fill: var(--rakit-eye);
+}
+/* Transform dari engine diputar di sekitar kaki. touch-action hanya di maskot, scroll halaman aman. */
+.rakit-interactive {
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  transform-origin: 50% 94%;
+}
+.rakit-dragging {
+  cursor: grabbing;
+}
+.rakit-blink,
+.rakit-breathe {
+  transform-box: fill-box;
+}
+.rakit-blink {
+  transform-origin: center;
+}
+.rakit-breathe {
+  transform-origin: 50% 100%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rakit-breathe {
+    animation: rakit-breathe 3.6s ease-in-out infinite;
+  }
+  .rakit-caret {
+    animation: rakit-caret 1.4s steps(1) infinite;
+  }
+  .rakit-loading .rakit-caret {
+    animation-duration: 0.5s;
+  }
+  .rakit-blink {
+    animation: rakit-blink 5.2s ease-in-out infinite;
+  }
+  .rakit-paused * {
+    animation-play-state: paused;
+  }
+}
+@keyframes rakit-breathe {
+  50% {
+    transform: scale(0.992, 1.018);
+  }
+}
+@keyframes rakit-caret {
+  50% {
+    opacity: 0.15;
+  }
+}
+@keyframes rakit-blink {
+  0%,
+  95%,
+  100% {
+    transform: none;
+  }
+  97% {
+    transform: scaleY(0.12);
   }
 }
 

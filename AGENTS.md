@@ -98,6 +98,8 @@ Hanya info profesional. Nomor HP dan alamat rumah **tidak boleh** tampil di situ
 
 Gunakan skill `tasteskill` untuk keputusan visual, **tetapi** wajib patuh pada token di bawah. Dilarang menambah warna di luar token.
 
+**Pengecualian brand (29 Okt 2026):** logo FY dan maskot Rakit memakai palet brand sendiri lewat token `--brand-glyph` dan `--rakit-*` di `globals.css` (navy `#1b2a4a`, biru `#3f5fa8`, biru malam `#4263af`, biru muda `#8fb0f0`, putih kebiruan `#eaf0fb`, amber `#f2b44a` hanya untuk mata). Token ini **khusus** logo dan maskot, jangan dipakai untuk UI lain. Sumber dan aturannya: repo `MaskotYoel`, `brand/final/guideline.md`.
+
 - Tipografi jelas dengan hierarki kuat; whitespace lega; basis spacing 4px; radius sedang.
 - Dark = default; light tersedia lewat toggle (`data-theme`), dengan script inline kecil agar tidak flash.
 - Motion halus (fade/translate), hormati `prefers-reduced-motion`. Tanpa animasi yang membebani LCP/CLS.
@@ -110,6 +112,7 @@ Pemilik ingin portofolio yang interaktif (name tag gantung ala lanyard yang bisa
 - **Parallax:** hanya CSS `transform`/`opacity` (tanpa library), hanya di hero, nonaktif saat `prefers-reduced-motion` dan di perangkat sentuh.
 - **Paket interaksi (Fase 8A, opsional, bukan bagian MVP):** diagram arsitektur interaktif di studi kasus, status badge website live, command palette ala terminal, dan transisi ganti tema (View Transitions API dengan fallback). Semuanya tanpa dependency baru kecuali disetujui pemilik.
 - **DILARANG:** efek yang mengikuti kursor (cursor spotlight, custom cursor, magnetic button, trail), karena memicu lag/delay pointer. Pemilik secara eksplisit menolaknya.
+- **Maskot Rakit (29 Okt 2026):** `src/components/mascot/`. Bisa diseret (tanpa blok jangkar, blok tertinggal paling jauh satu blok lalu pulang ke tempatnya) dan memainkan aksi idle (lambai, jalan, lompat, toleh, geliat). **Tidak mengikuti kursor** dan tidak memasang listener `pointermove` global, sesuai larangan di atas. SVG dirender server (ruang tetap, tanpa CLS). Mesin fisika `engine.ts` adalah chunk lazy sekitar 4,2 KB gzip, dimuat setelah idle dan saat terlihat. rAF berhenti saat diam, di luar viewport, dan saat tab tidak aktif. `prefers-reduced-motion`: tanpa pegas dan aksi idle, tetap bisa digeser. Hero memakai versi interaktif; 404 dan loading memakai `RakitSvg` statis tanpa JS.
 - **Name tag lanyard:** diimplementasikan di **Fase 8B (opsional)**, bukan bagian MVP. Gunakan simulasi fisika 2D ringan (verlet rope) dengan SVG/canvas dan Pointer Events, **tanpa dependency baru**. Dilarang memakai three.js, `@react-three/fiber`, atau physics engine WASM kecuali pemilik menyetujui secara eksplisit.
 - **Anggaran:** tambahan JS maksimal sekitar 12 KB gzipped untuk seluruh Fase 8A dan sekitar 8 KB gzipped untuk Fase 8B, masing-masing dimuat lazy (`next/dynamic`, `ssr: false` bila client-only) setelah idle, saat terlihat di viewport, atau saat dipicu pengguna. Tidak boleh menurunkan skor Lighthouse di bawah 95 atau menambah CLS.
 - **Wajib:** ruang hero dicadangkan dengan tinggi tetap (tanpa CLS), ada fallback statis (gambar/SVG name tag) untuk SSR, `prefers-reduced-motion`, dan perangkat lemah. Animasi dijeda saat di luar viewport dan saat tab tidak aktif. Komponen `aria-hidden` (dekoratif), tidak menjebak fokus keyboard, dan `touch-action: none` hanya pada name tag agar scroll halaman tidak terganggu.
@@ -175,3 +178,13 @@ Pemilik ingin portofolio yang interaktif (name tag gantung ala lanyard yang bisa
 - Jangan menjalankan perintah destruktif (`rm -rf` di luar folder build, `git reset --hard`, `git clean`) tanpa izin.
 - Laporan akhir tiap fase maksimal 8 baris: apa yang selesai, hasil pemeriksaan, hal yang butuh keputusan pemilik.
 - Jika ragu antara dua pendekatan, pilih yang lebih sederhana dan catat trade-off-nya, bukan berhenti bertanya untuk hal kecil.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

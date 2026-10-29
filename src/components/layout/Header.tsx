@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { site } from "@/content/site";
 import { getCommandContext } from "@/lib/command-context";
 import { BrandMark } from "./BrandMark";
+import { FyGlyph } from "./FyGlyph";
 import { NavLinks } from "./NavLinks";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -16,10 +17,13 @@ export async function Header() {
         <Link
           href="/"
           aria-label={`${site.shortName}, beranda`}
-          data-brand
-          className="font-mono text-[0.9375rem] font-medium text-fg"
+          className="flex items-center gap-2.5 font-mono text-[0.9375rem] font-medium text-fg"
         >
-          <BrandMark />
+          <FyGlyph />
+          {/* `data-brand` hanya di wordmark: intro beranda mendarat tepat di sini (BrandIntro). */}
+          <span data-brand>
+            <BrandMark />
+          </span>
         </Link>
         <div className="order-2 flex items-center gap-2 sm:order-3">
           <div className="hidden sm:block">

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<title>FY</title>
+<style>.t{fill:#1B2A4A}@media (prefers-color-scheme:dark){.t{fill:#4263AF}}</style>
+<rect class="t" width="16" height="16" rx="3"/>
+<rect x="3" y="3" width="2" height="2" fill="#EAF0FB"/>
+<rect x="7" y="3" width="2" height="2" fill="#EAF0FB"/>
+<rect x="9" y="3" width="2" height="2" fill="#EAF0FB"/>
+<rect x="11" y="3" width="2" height="2" fill="#EAF0FB"/>
+<rect x="5" y="5" width="2" height="2" fill="#EAF0FB"/>
+<rect x="7" y="5" width="2" height="2" fill="#EAF0FB"/>
+<rect x="7" y="7" width="2" height="2" fill="#EAF0FB"/>
+<rect x="9" y="7" width="2" height="2" fill="#EAF0FB"/>
+<rect x="7" y="9" width="2" height="2" fill="#EAF0FB"/>
+<rect x="7" y="11" width="2" height="2" fill="#EAF0FB"/>
+</svg>
