@@ -324,7 +324,7 @@ body::before {
   @supports (animation-timeline: scroll()) {
     .scroll-progress {
       position: absolute;
-      inset: auto 1rem -1px;
+      inset: auto 2rem -1px;
       display: block;
       height: 2px;
       border-radius: 9999px;
@@ -419,7 +419,8 @@ body::before {
 
 /* ---------- Navbar kaca ----------
    Di puncak halaman: bilah kaca selebar layar dengan garis tipis di bawahnya. Begitu digulir
-   (`html[data-scrolled]`, ScrollState): bilah menyempit, turun 10 px, membulat, dan melayang.
+   (`html[data-scrolled]`, ScrollState): bilah menyusut menjadi kapsul yang melayang 10 px di
+   bawah tepi atas. Radius kapsul ditulis sebagai angka (bukan 9999px) supaya transisinya halus.
    Tinggi header tidak berubah, jadi konten di bawahnya tidak bergeser. */
 .scroll-marker {
   position: absolute;
@@ -447,9 +448,10 @@ body::before {
     box-shadow 480ms;
 }
 :root[data-scrolled] .nav-shell {
-  width: min(100% - 1.5rem, 74rem);
+  width: min(100% - 1.5rem, 60rem);
   translate: 0 10px;
-  border-radius: var(--radius-lg);
+  /* ponsel: dua baris, jadi sudutnya membulat besar tanpa memotong logo */
+  border-radius: 1.75rem;
   border-color: color-mix(in srgb, var(--color-border-strong) 40%, transparent);
   background: color-mix(in srgb, var(--color-surface) 58%, transparent);
   box-shadow:
@@ -464,9 +466,11 @@ body::before {
     0 18px 40px -26px color-mix(in srgb, var(--color-fg) 35%, transparent);
 }
 @media (min-width: 40rem) {
+  /* satu baris setinggi 64 px: radius >= setengah tinggi = kapsul penuh */
   :root[data-scrolled] .nav-shell {
-    width: min(100% - 2rem, 74rem);
+    width: min(100% - 2rem, 60rem);
     translate: 0 12px;
+    border-radius: 2.25rem;
   }
 }
 
