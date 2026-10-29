@@ -1,15 +1,15 @@
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
-import { RakitSvg } from "@/components/mascot/RakitSvg";
+import { RakitSeat } from "@/components/mascot/RakitSeat";
 
 export default function NotFound() {
   return (
     <Container className="py-24 sm:py-32">
       <div aria-hidden="true" className="flex items-end gap-5">
         <p className="display font-mono text-accent">404</p>
-        {/* Rakit bingung, statis (tanpa JS). Antena miring adalah bagian ekspresinya. */}
-        <RakitSvg expression="bingung" className="mb-2 h-[84px] w-16 shrink-0" />
+        {/* Rakit bingung. Tampil statis dari server, lalu hidup setelah mesin dimuat. */}
+        <RakitSeat fallback expression="bingung" arrive="toleh" className="mb-2 w-32 shrink-0" />
       </div>
       <Heading level={1} look={2} className="mt-6">
         Halaman tidak ditemukan

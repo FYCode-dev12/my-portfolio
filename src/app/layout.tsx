@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { BrandIntro } from "@/components/layout/BrandIntro";
 import { Header } from "@/components/layout/Header";
 import { SkipLink } from "@/components/layout/SkipLink";
+import { RakitCompanion } from "@/components/mascot/RakitCompanion";
 import { site } from "@/content/site";
 import { siteUrl } from "@/lib/seo";
 import "./globals.css";
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <Footer />
+        <RakitCompanion />
       </body>
     </html>
   );

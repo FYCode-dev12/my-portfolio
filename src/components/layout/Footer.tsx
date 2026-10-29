@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LocalClock } from "@/components/interactive/LocalClock";
+import { RakitSeat } from "@/components/mascot/RakitSeat";
 import { Container } from "@/components/ui/Container";
 import { credits } from "@/content/photos";
 import { site } from "@/content/site";
@@ -80,13 +81,31 @@ export function Footer() {
             {site.links.email}
           </a>
         </div>
+        {/* Tanpa overflow-clip: Rakit terbang dan diseret keluar dari tile ini. Rakit berdiri di
+            garis dasar tepat setelah kursor, di luar span teks yang dianimasikan (clip-path). */}
         <div
           aria-hidden="true"
-          className="footer-wordmark col-span-2 flex min-h-40 items-center justify-center overflow-clip rounded-lg bg-fg px-6 text-bg lg:col-span-8 lg:min-h-80"
+          className="footer-wordmark col-span-2 flex min-h-40 items-center justify-center rounded-lg bg-fg px-6 text-bg lg:col-span-8 lg:min-h-80"
         >
-          <span className="font-mono text-[17vw] leading-none font-semibold tracking-tighter sm:text-[13vw] lg:text-[7.5rem]">
-            febrian<span className="text-accent">_</span>
-          </span>
+          <div className="flex items-baseline">
+            <span className="wordmark font-mono text-[13vw] leading-none font-semibold tracking-tighter sm:text-[11vw] lg:text-[6.5rem]">
+              febrian<span className="text-accent">_</span>
+            </span>
+            <RakitSeat
+              size={72}
+              tone="inverse"
+              expression="loading"
+              arrive="geliat"
+              className="ml-2 w-20 lg:hidden"
+            />
+            <RakitSeat
+              size={104}
+              tone="inverse"
+              expression="loading"
+              arrive="geliat"
+              className="ml-4 hidden w-32 lg:block"
+            />
+          </div>
         </div>
         <Link
           href="/contact"

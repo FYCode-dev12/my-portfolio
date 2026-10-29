@@ -3,7 +3,6 @@ import { CommandTrigger } from "@/components/interactive/CommandTrigger";
 import { Container } from "@/components/ui/Container";
 import { site } from "@/content/site";
 import { getCommandContext } from "@/lib/command-context";
-import { BrandMark } from "./BrandMark";
 import { FyGlyph } from "./FyGlyph";
 import { NavLinks } from "./NavLinks";
 import { ThemeToggle } from "./ThemeToggle";
@@ -17,12 +16,11 @@ export async function Header() {
         <Link
           href="/"
           aria-label={`${site.shortName}, beranda`}
-          className="flex items-center gap-2.5 font-mono text-[0.9375rem] font-medium text-fg"
+          className="brand-link -m-2 flex items-center rounded-md p-2"
         >
-          <FyGlyph />
-          {/* `data-brand` hanya di wordmark: intro beranda mendarat tepat di sini (BrandIntro). */}
-          <span data-brand>
-            <BrandMark />
+          {/* `data-brand`: intro beranda (BrandIntro) mendarat tepat di logo ini. */}
+          <span data-brand className="block">
+            <FyGlyph />
           </span>
         </Link>
         <div className="order-2 flex items-center gap-2 sm:order-3">

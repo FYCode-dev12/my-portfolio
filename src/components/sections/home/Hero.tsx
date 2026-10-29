@@ -1,15 +1,29 @@
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Terminal } from "@/components/interactive/Terminal";
-import { Mascot } from "@/components/mascot/Mascot";
+import { RakitSeat } from "@/components/mascot/RakitSeat";
 import type { CommandContext } from "@/components/interactive/command-data";
 import { site } from "@/content/site";
 import { skillGroups } from "@/content/skills";
 
+/** Fakta ringkas di bawah tombol hero. Semua dari AGENTS.md bagian 5 dan frontmatter proyek. */
+function heroFacts(context: CommandContext) {
+  const live = context.projects.filter((p) => p.status === "live").length;
+  return [
+    { value: `${live} sistem`, label: "live dan dipakai organisasi" },
+    { value: "Kepala CMIT", label: "BPH PMK ITERA 2026" },
+    { value: "Asisten dosen", label: "Pengenalan Komputasi" },
+  ];
+}
+
 export function Hero({ context }: { context: CommandContext }) {
   return (
-    <section aria-labelledby="hero-heading" className="pt-12 pb-28 sm:pt-20 sm:pb-40">
+    <section aria-labelledby="hero-heading" className="pt-10 pb-20 sm:pt-16 sm:pb-28">
       <Container>
+        <p className="after-lines mb-6 inline-flex items-center gap-2.5 rounded-full border border-border bg-surface/70 py-1.5 pr-4 pl-3 text-sm text-fg sm:mb-8">
+          <span aria-hidden="true" className="pulse-dot size-2 rounded-full bg-accent" />
+          Mencari magang fullstack web developer
+        </p>
         <h1 id="hero-heading" className="lines display hero-exit text-fg">
           <span className="line">
             <span data-line style={{ "--i": 0 } as React.CSSProperties}>
@@ -22,7 +36,7 @@ export function Hero({ context }: { context: CommandContext }) {
             </span>
           </span>
         </h1>
-        <div className="mt-10 grid gap-12 lg:mt-14 lg:grid-cols-12 lg:gap-8">
+        <div className="mt-10 grid gap-12 lg:mt-12 lg:grid-cols-12 lg:gap-8">
           <div className="after-lines lg:col-span-5">
             <p className="max-w-[34ch] text-lg leading-relaxed text-fg sm:text-xl">
               Saya membangun dan merilis sistem web untuk organisasi kampus dengan React dan
@@ -30,7 +44,7 @@ export function Hero({ context }: { context: CommandContext }) {
             </p>
             <p className="mt-4 max-w-[40ch] text-muted">
               Mahasiswa Teknik Informatika ITERA. Terminalnya sungguhan: coba ketik{" "}
-              <code className="font-mono text-fg">proyek</code> atau tekan{" "}
+              <code className="font-mono text-fg">proyek</code>, seret Rakit ke dalamnya, atau tekan{" "}
               <kbd className="font-mono text-fg">Ctrl K</kbd>.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-3">
@@ -41,20 +55,36 @@ export function Hero({ context }: { context: CommandContext }) {
                 </Button>
               ) : null}
             </div>
+            <dl className="mt-12 grid grid-cols-3 gap-4 border-t border-border pt-6">
+              {heroFacts(context).map((fact) => (
+                <div key={fact.value} className="flex flex-col-reverse justify-end">
+                  <dt className="mt-1 text-sm leading-snug text-muted">{fact.label}</dt>
+                  <dd className="text-base leading-tight font-semibold tracking-tight text-fg sm:text-xl">
+                    {fact.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
           <div className="hero-visual after-lines lg:col-span-7">
-            {/* Tepi atas terminal jadi pijakan Rakit: ruang 80 px dicadangkan agar tidak ada CLS.
-                Kaki ada di y=158 dari viewBox 168, jadi di tinggi 84 px telapak kaki jatuh di 79 px. */}
-            <div className="relative pt-20">
-              <Mascot className="absolute top-px right-6 z-10 h-[84px] w-16" />
-              <Terminal
-                name={site.name}
-                role={site.role}
-                campus="Teknik Informatika ITERA"
-                skills={skillGroups.map((g) => ({ key: g.key, items: g.items }))}
-                context={context}
+            {/* Tepi atas terminal jadi pijakan Rakit. Kursinya berukuran tetap (tanpa CLS) dan
+                lebarnya jadi jalur jalan Rakit. Rakit bereaksi pada setiap perintah terminal. */}
+            <div className="flex justify-end pr-2 sm:pr-8">
+              <RakitSeat
+                fallback
+                size={140}
+                expression="netral"
+                arrive="lambai"
+                className="w-64 sm:w-96"
               />
             </div>
+            <Terminal
+              name={site.name}
+              role={site.role}
+              campus="Teknik Informatika ITERA"
+              skills={skillGroups.map((g) => ({ key: g.key, items: g.items }))}
+              context={context}
+            />
           </div>
         </div>
       </Container>

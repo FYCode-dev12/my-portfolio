@@ -1,3 +1,5 @@
+import { RakitListen } from "@/components/mascot/RakitListen";
+import { RakitSeat } from "@/components/mascot/RakitSeat";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import type { Project } from "@/lib/content";
@@ -36,33 +38,47 @@ export function RepoFigures({ projects }: { projects: Project[] }) {
   return (
     <section aria-labelledby="figures-heading" className="figures bg-surface">
       <style>{css}</style>
-      <Container className="flex min-h-[88svh] flex-col py-24 sm:py-32">
-        <Heading level={2} id="figures-heading" className="rise text-3xl sm:text-[2.5rem]">
-          Seberapa besar tiap sistem?
-        </Heading>
-        <fieldset data-ui className="reveal mt-8 max-w-full self-start">
-          <legend className="sr-only">Pilih proyek</legend>
-          <div className="flex flex-wrap gap-1 rounded-md bg-bg p-1">
-            {items.map(({ project }, i) => (
-              <span key={project.slug}>
-                <input
-                  type="radio"
-                  name="figure-project"
-                  id={`fig-${project.slug}`}
-                  defaultChecked={i === 0}
-                  className="peer sr-only"
-                />
-                <label
-                  htmlFor={`fig-${project.slug}`}
-                  className="press inline-flex h-11 cursor-pointer items-center rounded-sm px-4 font-mono text-[0.875rem] text-muted transition-colors peer-checked:bg-accent peer-checked:text-accent-fg peer-focus-visible:outline-2 peer-focus-visible:outline-accent hover:text-fg"
-                >
-                  {project.slug}
-                </label>
-              </span>
-            ))}
-          </div>
-        </fieldset>
-        <div className="mt-auto pt-24">
+      <Container className="flex min-h-[72svh] flex-col py-20 sm:py-28">
+        <div className="flex items-end justify-between gap-6">
+          <Heading level={2} id="figures-heading" className="rise text-3xl sm:text-[2.5rem]">
+            Seberapa besar tiap sistem?
+          </Heading>
+          <RakitSeat expression="fokus" arrive="lompat" className="w-32 shrink-0 lg:hidden" />
+        </div>
+        {/* Di desktop Rakit berdiri di samping tab; jatuhkan dia di sebuah tab untuk memilihnya. */}
+        <div className="mt-8 flex items-end gap-6">
+          <fieldset data-ui className="reveal max-w-full">
+            <legend className="sr-only">Pilih proyek</legend>
+            <RakitListen on="change" reaction={{ act: "lompat" }} />
+            <div className="flex flex-wrap gap-1 rounded-md bg-bg p-1">
+              {items.map(({ project }, i) => (
+                <span key={project.slug}>
+                  <input
+                    type="radio"
+                    name="figure-project"
+                    id={`fig-${project.slug}`}
+                    defaultChecked={i === 0}
+                    className="peer sr-only"
+                  />
+                  <label
+                    htmlFor={`fig-${project.slug}`}
+                    data-rakit-drop="click"
+                    className="press inline-flex h-11 cursor-pointer items-center rounded-sm px-4 font-mono text-[0.875rem] text-muted transition-colors peer-checked:bg-accent peer-checked:text-accent-fg peer-focus-visible:outline-2 peer-focus-visible:outline-accent hover:text-fg"
+                  >
+                    {project.slug}
+                  </label>
+                </span>
+              ))}
+            </div>
+          </fieldset>
+          <RakitSeat
+            size={128}
+            expression="fokus"
+            arrive="lompat"
+            className="hidden w-72 shrink-0 lg:block"
+          />
+        </div>
+        <div className="mt-auto pt-16">
           {items.map(({ project, figures }, i) => {
             const [main, ...rest] = figures;
             const all = figures.map((f) => `${f.value} ${unit(f.label)}`);

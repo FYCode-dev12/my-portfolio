@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { RakitSeat } from "@/components/mascot/RakitSeat";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { achievements, type AchievementCategory } from "@/content/achievements";
@@ -22,13 +23,17 @@ function sortKey(endDate: string | undefined, date: string) {
 export function BeyondCode() {
   const photo = photos.itera;
   return (
-    <section aria-labelledby="beyond-heading" className="py-28 sm:py-40">
+    <section aria-labelledby="beyond-heading" className="py-20 sm:py-28">
       <Container>
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-6">
-            <Heading level={2} id="beyond-heading" className="rise">
-              Di luar kode
-            </Heading>
+            <div className="flex items-end justify-between gap-6">
+              <Heading level={2} id="beyond-heading" className="rise">
+                Di luar kode
+              </Heading>
+              {/* Di mobile foto baru muncul setelah daftar panjang ini. */}
+              <RakitSeat expression="senang" arrive="lambai" className="w-32 shrink-0 lg:hidden" />
+            </div>
             <p
               className="reveal mt-4 max-w-[44ch] text-muted"
               style={{ "--d": 1 } as React.CSSProperties}
@@ -76,15 +81,23 @@ export function BeyondCode() {
             </div>
           </div>
           <figure className="reveal lg:col-span-5 lg:col-start-8">
-            <div className="drift-frame window relative aspect-[4/5] overflow-clip rounded-lg bg-surface lg:sticky lg:top-28">
-              <Image
-                src={photo.src}
-                alt={photo.alt}
-                fill
-                sizes="(min-width: 1024px) 40vw, 92vw"
-                className="drift object-cover"
-                style={{ objectPosition: photo.position }}
+            <div className="lg:sticky lg:top-20">
+              <RakitSeat
+                size={128}
+                expression="senang"
+                arrive="geliat"
+                className="mr-8 ml-auto w-72"
               />
+              <div className="drift-frame window relative aspect-[4/5] overflow-clip rounded-lg bg-surface">
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  sizes="(min-width: 1024px) 40vw, 92vw"
+                  className="drift object-cover"
+                  style={{ objectPosition: photo.position }}
+                />
+              </div>
             </div>
             <figcaption className="mt-3 text-sm text-muted">
               Kampus ITERA saat senja, Lampung Selatan.

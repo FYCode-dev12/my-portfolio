@@ -103,6 +103,42 @@ export const EXPRESSIONS = {
     antenna: 0,
     fastCaret: true,
   },
+  // mata terpejam jadi garis tipis; antena terkulai
+  tidur: {
+    spread: 15,
+    w: 12,
+    h: 4,
+    dyl: 0,
+    dyr: 0,
+    tilt: 0,
+    anchor: "bottom",
+    antenna: -18,
+    fastCaret: false,
+  },
+  // mata membulat besar
+  kaget: {
+    spread: 16,
+    w: 14,
+    h: 30,
+    dyl: -2,
+    dyr: -2,
+    tilt: 0,
+    anchor: "center",
+    antenna: 0,
+    fastCaret: true,
+  },
+  // mata ditutup tangan saat cilukba (tidak terlihat)
+  tutup: {
+    spread: 15,
+    w: 10,
+    h: 0,
+    dyl: 0,
+    dyr: 0,
+    tilt: 0,
+    anchor: "bottom",
+    antenna: 0,
+    fastCaret: false,
+  },
 } as const satisfies Record<string, ExpressionSpec>;
 
 export type Expression = keyof typeof EXPRESSIONS;

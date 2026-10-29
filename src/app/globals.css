@@ -171,10 +171,10 @@ body::before {
   }
 }
 
-/* ---------- Intro beranda: wordmark diketik di tengah, lalu pindah ke header ----------
-   Urutan (±1,35 detik): ketik → terbang ke posisi wordmark header → latar memudar.
-   Latar baru memudar setelah wordmark mendarat, jadi wordmark header (yang tetap dirender
-   di bawah overlay agar LCP tidak tertunda) tidak pernah terlihat ganda.
+/* ---------- Intro beranda: logo FY dirakit, lalu pindah ke header ----------
+   Urutan (±1,5 detik): sepuluh blok muncul berurutan → logo terbang ke posisi logo header →
+   latar memudar. Latar baru memudar setelah logo mendarat, jadi logo header (yang tetap
+   dirender di bawah overlay agar LCP tidak tertunda) tidak pernah terlihat ganda.
    Tanpa JS pun selesai sendiri: overlay disembunyikan di akhir animasi. */
 .brand-intro {
   display: none;
@@ -186,43 +186,40 @@ body::before {
   display: grid;
   place-items: center;
   pointer-events: none;
-  animation: intro-hide 1ms linear 1380ms forwards;
+  animation: intro-hide 1ms linear 1520ms forwards;
 }
 [data-intro] .brand-intro::before {
   content: "";
   position: absolute;
   inset: 0;
   background: var(--color-bg);
-  animation: intro-fade 300ms var(--ease-reveal) 1060ms forwards;
+  animation: intro-fade 300ms var(--ease-reveal) 1200ms forwards;
 }
 [data-intro] .brand-intro-mark {
   position: relative;
-  white-space: nowrap;
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  display: block;
   transform-origin: 0 0;
 }
-/* Dimulai setelah skrip mengisi --intro-*; bila pengukuran gagal, wordmark ikut memudar. */
+[data-intro] .brand-intro-mark svg {
+  display: block;
+}
+/* Dimulai setelah skrip mengisi --intro-*; bila pengukuran gagal, logo ikut memudar. */
 [data-intro="ready"] .brand-intro-mark {
-  animation: intro-move 400ms cubic-bezier(0.65, 0, 0.35, 1) 660ms forwards;
+  animation: intro-move 440ms cubic-bezier(0.65, 0, 0.35, 1) 780ms forwards;
 }
 [data-intro=""] .brand-intro-mark {
-  animation: intro-fade 300ms var(--ease-reveal) 1060ms forwards;
+  animation: intro-fade 300ms var(--ease-reveal) 1200ms forwards;
 }
-[data-intro] .brand-intro .brand-text {
-  clip-path: inset(0 100% 0 0);
-  animation: intro-type 540ms steps(var(--chars), end) 80ms forwards;
+[data-intro] .brand-intro rect {
+  opacity: 0;
+  transform: translateY(-14px) scale(0.4);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: intro-cell 260ms var(--ease-reveal) calc(var(--c) * 48ms + 60ms) forwards;
 }
-[data-intro] .brand-intro .caret {
-  transform: translateX(calc(var(--chars) * -1ch));
-  animation: intro-caret 540ms steps(var(--chars), end) 80ms forwards;
-}
-@keyframes intro-type {
+@keyframes intro-cell {
   to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-@keyframes intro-caret {
-  to {
+    opacity: 1;
     transform: none;
   }
 }
@@ -239,6 +236,18 @@ body::before {
 @keyframes intro-hide {
   to {
     visibility: hidden;
+  }
+}
+
+/* Logo header: blok-bloknya sedikit "bernapas" saat disorot. */
+.brand-link rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 260ms var(--ease-reveal);
+}
+@media (hover: hover) {
+  .brand-link:hover rect {
+    transform: translateY(calc((var(--c) - 4.5) * -0.35px)) scale(1.08);
   }
 }
 
@@ -292,7 +301,7 @@ body::before {
       animation-range: entry 0% cover 35%;
     }
     /* Wordmark footer naik saat footer masuk layar. */
-    .footer-wordmark > span {
+    .footer-wordmark .wordmark {
       animation: rise linear both;
       animation-timeline: view();
       animation-range: entry 10% entry 90%;
@@ -407,10 +416,6 @@ body::before {
   .pulse-dot {
     animation: pulse 2.4s ease-out infinite;
   }
-  .blink,
-  .caret {
-    animation: blink 1.1s steps(1) infinite;
-  }
 }
 @keyframes pulse {
   0% {
@@ -419,11 +424,6 @@ body::before {
   70%,
   100% {
     box-shadow: 0 0 0 7px transparent;
-  }
-}
-@keyframes blink {
-  50% {
-    opacity: 0;
   }
 }
 
@@ -436,7 +436,8 @@ body::before {
   transition: transform 200ms var(--ease-reveal);
 }
 .ledger-row:hover .ledger-arrow,
-.ledger-row:focus-visible .ledger-arrow {
+.ledger-row:focus-visible .ledger-arrow,
+.ledger-row[data-picked] .ledger-arrow {
   transform: translateX(4px);
   color: var(--color-accent);
 }
@@ -454,7 +455,8 @@ body::before {
     transform 300ms var(--ease-reveal),
     visibility 180ms;
 }
-.ledger:not(:has(.ledger-row:is(:hover, :focus-visible))) .ledger-preview[data-i="0"] {
+.ledger:not(:has(.ledger-row:is(:hover, :focus-visible, [data-picked])))
+  .ledger-preview[data-i="0"] {
   opacity: 1;
   visibility: visible;
   transform: none;
@@ -701,16 +703,65 @@ body::before {
 .rk-eye {
   fill: var(--rakit-eye);
 }
+/* Kursi Rakit: kotak tetap (tanpa CLS); Rakit berdiri di tepi bawahnya. Di ponsel 20% lebih kecil. */
+@layer components {
+  .rakit-seat {
+    --rakit-w: calc(var(--rakit-size, 112px) * 0.8);
+    position: relative;
+    display: block;
+    min-height: calc(var(--rakit-w) * 1.3125);
+    pointer-events: none;
+  }
+  @media (min-width: 40rem) {
+    .rakit-seat {
+      --rakit-w: var(--rakit-size, 112px);
+    }
+  }
+}
+.rakit-seat > .rakit {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: var(--rakit-w, 64px);
+  height: calc(var(--rakit-w, 64px) * 1.3125);
+  margin-left: calc(var(--rakit-w, 64px) / -2);
+  /* telapak kaki di y=158 dari viewBox 168: geser turun agar kaki menapak tepi kursi */
+  translate: 0 calc(var(--rakit-w, 64px) * 0.0781);
+}
+/* Saat Rakit hidup sudah berjalan, Rakit statis cadangan disembunyikan. */
+:root.rakit-live .rakit-static {
+  display: none;
+}
 /* Transform dari engine diputar di sekitar kaki. touch-action hanya di maskot, scroll halaman aman. */
-.rakit-interactive {
+.rakit-live-svg {
+  pointer-events: auto;
   touch-action: none;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
   transform-origin: 50% 94%;
+  z-index: 20;
+  transition: opacity 220ms;
 }
 .rakit-dragging {
   cursor: grabbing;
+}
+/* Di atas bidang terang, Rakit memakai palet terang supaya tetap kontras. */
+.rakit-tone-light {
+  --rakit-body: #1b2a4a;
+  --rakit-stem: #1b2a4a;
+  --rakit-caret: #3f5fa8;
+}
+/* Di atas bidang warna teks (kebalikan tema, mis. tile "febrian_"), palet tema kebalikannya. */
+:root:not([data-theme="light"]) .rakit-tone-inverse {
+  --rakit-body: #1b2a4a;
+  --rakit-stem: #1b2a4a;
+  --rakit-caret: #3f5fa8;
+}
+:root[data-theme="light"] .rakit-tone-inverse {
+  --rakit-body: #4263af;
+  --rakit-stem: #4263af;
+  --rakit-caret: #8fb0f0;
 }
 .rakit-blink,
 .rakit-breathe {
@@ -749,6 +800,142 @@ body::before {
     opacity: 0.15;
   }
 }
+/* Tidur: murni CSS (mesin fisika diam). Badan merosot dan bernapas pelan, antena diatur mesin. */
+@media (prefers-reduced-motion: no-preference) {
+  .rakit-sleeping .rakit-breathe {
+    animation: rakit-doze 4.2s ease-in-out infinite;
+  }
+  .rakit-sleeping .rakit-blink {
+    animation: none;
+  }
+}
+@keyframes rakit-doze {
+  0%,
+  100% {
+    transform: rotate(3deg) scale(1.01, 0.95);
+  }
+  50% {
+    transform: rotate(3deg) scale(1.03, 0.91);
+  }
+}
+
+/* Efek di atas kepala: tampil hanya saat mesin memasang `data-fx` di <svg>. */
+.rk-fx-layer {
+  fill: var(--rakit-caret);
+}
+.rk-fx-layer > g {
+  display: none;
+}
+.rk-fx-text text {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.rk-fx-item {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+/* Animasi hanya dipasang saat kelompoknya aktif, jadi setiap `data-fx` baru memutarnya dari awal. */
+@media (prefers-reduced-motion: no-preference) {
+  .rakit[data-fx="heart"] [data-fxg="heart"],
+  .rakit[data-fx="note"] [data-fxg="note"],
+  .rakit[data-fx="sparkle"] [data-fxg="sparkle"],
+  .rakit[data-fx="alert"] [data-fxg="alert"],
+  .rakit[data-fx="question"] [data-fxg="question"],
+  .rakit[data-fx="zzz"] [data-fxg="zzz"] {
+    display: inline;
+  }
+  .rakit[data-fx="heart"] [data-fxg="heart"] .rk-fx-item {
+    animation: rk-float 1.5s var(--ease-reveal) both;
+    animation-delay: calc(var(--k) * 160ms);
+  }
+  .rakit[data-fx="note"] [data-fxg="note"] .rk-fx-item {
+    animation: rk-float 1.5s var(--ease-reveal) both;
+    animation-delay: calc(var(--k) * 160ms);
+  }
+  .rakit[data-fx="sparkle"] [data-fxg="sparkle"] .rk-fx-item {
+    animation: rk-twinkle 0.9s var(--ease-reveal) both;
+    animation-delay: calc(var(--k) * 110ms);
+  }
+  .rakit[data-fx="alert"] [data-fxg="alert"] .rk-fx-item {
+    animation: rk-pop 1.5s var(--ease-reveal) both;
+    animation-delay: calc(var(--k) * 200ms);
+  }
+  .rakit[data-fx="question"] [data-fxg="question"] .rk-fx-item {
+    animation: rk-pop 1.5s var(--ease-reveal) both;
+    animation-delay: calc(var(--k) * 200ms);
+  }
+  .rakit[data-fx="zzz"] [data-fxg="zzz"] .rk-fx-item {
+    animation: rk-zzz 3s ease-in-out infinite both;
+    animation-delay: calc(var(--k) * 1s);
+  }
+  .rakit-paused .rk-fx-item {
+    animation-play-state: paused;
+  }
+}
+@keyframes rk-float {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.4);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(0) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-26px) scale(0.9);
+  }
+}
+@keyframes rk-twinkle {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-45deg);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.15) rotate(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3) rotate(45deg);
+  }
+}
+@keyframes rk-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+  30%,
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.9);
+  }
+}
+@keyframes rk-zzz {
+  0% {
+    opacity: 0;
+    transform: translate(-4px, 8px) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(8px, -16px) scale(1);
+  }
+}
+
 @keyframes rakit-blink {
   0%,
   95%,
