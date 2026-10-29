@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/cn";
-import type { Companion, SeatInfo } from "./companion";
 import { RakitSvg } from "./RakitSvg";
+
+type Engine = typeof import("./companion");
 
 /** Tunggu browser idle; fallback setTimeout untuk Safari yang belum punya requestIdleCallback. */
 function whenIdle(cb: () => void) {
@@ -18,58 +16,46 @@ function whenIdle(cb: () => void) {
 }
 
 /**
- * Satu Rakit hidup untuk seluruh situs. Dipasang sekali di layout; mesin fisikanya
- * (companion.ts) diambil sebagai chunk terpisah setelah halaman idle, jadi konten dan LCP
- * tidak menunggu. SVG-nya dirender lewat portal ke kursi aktif, sehingga Rakit ikut tergulir
- * bersama halaman tanpa kerja JS. Sampai mesin siap, kursi dengan `fallback` menampilkan
- * Rakit statis dari server.
+ * Satu Rakit hidup untuk seluruh situs, bebas ditaruh di mana saja di layar. Dipasang sekali di
+ * layout; mesin fisikanya (companion.ts) diambil sebagai chunk terpisah setelah halaman idle, jadi
+ * konten dan LCP tidak menunggu. Lapisan `fixed` dan gelembung percakapannya baru dirender setelah
+ * mesin siap; mesin menaruh Rakit di luar layar lebih dulu, lalu menyambut pengunjung.
+ * Dekoratif: seluruh lapisan `aria-hidden`.
  */
 export function RakitCompanion() {
-  const pathname = usePathname();
-  const [seat, setSeat] = useState<SeatInfo | null>(null);
+  const [engine, setEngine] = useState<Engine | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const companion = useRef<Companion | null>(null);
+  const bubbleRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     let cancelled = false;
     const cancelIdle = whenIdle(() => {
       import("./companion")
-        .then(({ createCompanion }) => {
-          if (cancelled) return;
-          companion.current = createCompanion({ onSeat: setSeat });
+        .then((mod) => {
+          if (!cancelled) setEngine(mod);
         })
         .catch((error: unknown) => {
-          // Rakit statis di kursi tetap tampil; situs tidak bergantung pada maskot.
-          console.warn("Rakit: gagal memuat animasi, maskot tetap statis.", error);
+          // Situs tidak bergantung pada maskot; tanpa mesin, Rakit tidak ditampilkan.
+          console.warn("Rakit: gagal memuat animasi, maskot tidak ditampilkan.", error);
         });
     });
     return () => {
       cancelled = true;
       cancelIdle();
-      companion.current?.destroy();
-      companion.current = null;
-      document.documentElement.classList.remove("rakit-live");
     };
   }, []);
 
-  useEffect(() => {
-    companion.current?.rescan();
-  }, [pathname]);
-
   useLayoutEffect(() => {
-    if (!seat || !svgRef.current) return;
-    document.documentElement.classList.add("rakit-live");
-    companion.current?.attach(svgRef.current, seat);
-  }, [seat]);
+    if (!engine || !svgRef.current || !bubbleRef.current) return;
+    const companion = engine.createCompanion(svgRef.current, bubbleRef.current);
+    return () => companion.destroy();
+  }, [engine]);
 
-  if (!seat) return null;
-  return createPortal(
-    <RakitSvg
-      key={seat.id}
-      ref={svgRef}
-      expression={seat.expression}
-      className={cn("rakit-live-svg", seat.tone && `rakit-tone-${seat.tone}`)}
-    />,
-    seat.el,
+  if (!engine) return null;
+  return (
+    <div aria-hidden="true" className="rakit-stage">
+      <RakitSvg ref={svgRef} className="rakit-live-svg" />
+      <p ref={bubbleRef} className="rakit-bubble" />
+    </div>
   );
 }

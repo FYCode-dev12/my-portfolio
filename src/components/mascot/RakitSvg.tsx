@@ -7,7 +7,9 @@ import {
   EXPRESSIONS,
   FEET,
   VIEWBOX,
+  eyeArc,
   eyeGeometry,
+  eyeShape,
   type Expression,
 } from "./rakit";
 
@@ -25,6 +27,7 @@ function Eye({ expression, side }: { expression: Expression; side: -1 | 1 }) {
     <g data-eye={side < 0 ? "l" : "r"}>
       <g data-tilt="" transform={g.tilt ? `rotate(${g.tilt} ${g.cx} ${g.cy})` : undefined}>
         <rect className="rk-eye rakit-blink" x={g.x} y={g.y} width={g.w} height={g.h} rx={5} />
+        <path className="rk-eye-arc" d={eyeArc(side)} />
       </g>
     </g>
   );
@@ -144,6 +147,7 @@ export function RakitSvg({ expression = "netral", className, ref }: Props) {
       aria-hidden="true"
       focusable="false"
       data-expression={expression}
+      data-eyes={eyeShape(expression)}
       className={cn("rakit", spec.fastCaret && "rakit-loading", className)}
     >
       <g className="rakit-breathe">

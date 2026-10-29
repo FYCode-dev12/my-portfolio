@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
-import { RakitSeat } from "@/components/mascot/RakitSeat";
 import { site } from "@/content/site";
 import type { Project } from "@/lib/content";
 import { getProfilePhoto } from "@/lib/profile";
@@ -80,12 +79,6 @@ export function Letter({ projects }: { projects: Project[] }) {
           </div>
           <div className="lg:col-span-5 lg:col-start-8">
             <div className="lg:sticky lg:top-20">
-              <RakitSeat
-                size={128}
-                expression="senang"
-                arrive="lambai"
-                className="mr-8 ml-auto w-72"
-              />
               <div
                 data-ui
                 className="reveal overflow-hidden rounded-lg bg-surface font-mono text-[0.875rem] leading-6 text-muted"

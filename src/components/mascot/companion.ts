@@ -7,65 +7,60 @@ import {
   type ActState,
   type FxName,
 } from "./acts";
-import { ANTENNA, BLOCK, CELLS, EXPRESSIONS, eyeGeometry, type Expression } from "./rakit";
+import {
+  BLOCK,
+  CELLS,
+  ANTENNA,
+  EXPRESSIONS,
+  VIEWBOX,
+  eyeGeometry,
+  eyeShape,
+  type Expression,
+} from "./rakit";
+import { connectRakit } from "./react";
 
 /**
- * Rakit pendamping: satu Rakit hidup yang menemani pengunjung dari kursi ke kursi
- * (`[data-rakit-seat]`, lihat RakitSeat). Dimuat lazy oleh RakitCompanion setelah halaman idle.
+ * Rakit pendamping: satu Rakit hidup yang bebas ditaruh di mana saja di layar (keputusan pemilik
+ * 30 Okt 2026, menggantikan sistem kursi). Dimuat lazy oleh RakitCompanion setelah halaman idle.
  *
- * - Pindah kursi: kursi yang paling dekat dengan pandangan menang (dengan histeresis). Rakit
- *   dipindah lewat portal React, lalu terbang dari posisi lamanya ke kursi baru (FLIP) dengan efek
- *   magnet: sisi depan memimpin, blok lain tertinggal paling jauh satu blok lalu menyatu.
- * - Diseret: tanpa blok jangkar. Dijatuhkan di atas `[data-rakit-drop]` (bingkai karya), elemen itu
- *   menerima event `rakit:drop`; Rakit lalu pulang ke kursinya.
- * - Strip karya yang digeser mengirim `rakit:walk`: Rakit berjalan di tempat seperti di treadmill.
- * - Halaman bisa mengirim `rakit:react` (misalnya perintah terminal): ekspresi sementara dan/atau
- *   satu aksi, hanya bila kursi Rakit ada di dalam `zone` yang dikirim.
- * - Elemen `[data-rakit-drop="click"]` diklik saat Rakit dijatuhkan di atasnya (misalnya tab).
- * - Mata melirik kursor (keputusan pemilik 29 Okt 2026, pengecualian AGENTS.md 6b).
- * - Diketuk: satu aksi lucu acak; diketuk beruntun atau diguncang saat diseret: pusing. Disentuh
- *   kursor: geli. Efek kecil di atas kepala (hati, not, tanda seru) lewat `data-fx` dan CSS.
- * - Dibiarkan: aksi idle acak, lalu tertidur setelah lama tanpa interaksi. Tidur murni CSS
- *   (`rakit-sleeping`), jadi rAF tetap berhenti; dibangunkan kursor yang mendekat, Rakit kaget.
- * - Hanya `transform`. rAF berhenti saat diam, di luar viewport, dan saat tab tidak aktif.
- *   `prefers-reduced-motion`: tanpa terbang, pegas, lirikan, aksi idle, dan tidur.
+ * - Posisi: lapisan `fixed`, jadi Rakit tetap menemani saat halaman digulir. Tempat terakhir ia
+ *   dijatuhkan disimpan (rasio terhadap layar) di localStorage dan dipakai lagi saat kunjungan
+ *   berikutnya. Bawaan: pojok kanan bawah.
+ * - Sambutan: Rakit naik dari tepi bawah layar setelah intro beranda selesai, melambai dengan dua
+ *   tangan, dan menyapa sesuai waktu setempat lewat gelembung percakapan.
+ * - Diseret: tanpa blok jangkar. Dijatuhkan di atas `[data-rakit-drop]`, elemen itu menerima event
+ *   `rakit:drop`; `[data-rakit-drop="click"]` diklik. Rakit tinggal di tempat ia dijatuhkan.
+ * - Halaman bisa memanggil `rakitReact` (react.ts): ekspresi sementara, satu aksi, dan/atau kalimat
+ *   di gelembung. Reaksi ber-`zone` hanya berlaku saat zonanya terlihat di layar.
+ * - Mata selalu mengikuti kursor, juga saat sedang beraksi (pengecualian AGENTS.md 6b). Posisinya
+ *   dihitung dari keadaan mesin, tanpa membaca layout tiap frame.
+ * - Diketuk: aksi lucu acak plus celetukan; diketuk beruntun atau diguncang saat diseret: pusing.
+ *   Disentuh kursor: geli, tanpa memutus aksi yang sedang berjalan.
+ * - Dibiarkan (pengunjung tidak bergerak): aksi idle acak, lalu tertidur. Tidur murni CSS
+ *   (`rakit-sleeping`), jadi rAF berhenti; setelah tidur sebentar ia bangun sendiri dan menggeliat.
+ *   Disentuh, diketuk, atau didekati kursor saat tidur: kaget.
+ * - Hanya `transform`. rAF berhenti saat diam dan saat tab tidak aktif. `prefers-reduced-motion`:
+ *   tanpa terbang, pegas, lirikan, aksi, dan tidur; tetap bisa digeser dan tetap bicara.
  */
 
-/** "light": di atas bidang terang. "inverse": di atas bidang warna teks (kebalikan tema). */
-export type SeatTone = "light" | "inverse";
-
 export type RakitReaction = {
-  /** Hanya bereaksi bila kursi Rakit ada di dalam elemen ini. */
+  /** Hanya bereaksi bila elemen ini sedang terlihat di layar. */
   zone?: Element;
   expression?: Expression;
   /** Lama ekspresi sementara (ms). */
   ms?: number;
   act?: ActName;
+  /** Kalimat di gelembung percakapan. */
+  say?: string;
 };
 
-export type SeatInfo = {
-  id: number;
-  el: HTMLElement;
-  expression: Expression;
-  tone?: SeatTone;
-  arrive?: ActName;
-};
-
-export type Companion = {
-  /** Dipanggil RakitCompanion setelah SVG Rakit terpasang di kursi baru. */
-  attach(svg: SVGSVGElement, seat: SeatInfo): void;
-  /** Cari ulang kursi (misalnya setelah pindah halaman). */
-  rescan(): void;
-  destroy(): void;
-};
+export type Companion = { destroy(): void };
 
 type Mode = "idle" | "drag" | "travel" | "settle";
 type Point = { x: number; y: number };
 
 type CellState = {
   g: SVGGElement | null;
-  col: number;
-  row: number;
   cx: number;
   cy: number;
   ox: number;
@@ -91,11 +86,38 @@ type Eye = {
 
 const STEP = 1 / 240;
 const IDLE_AFTER = 3500;
+/** Pengunjung tidak bergerak selama ini: Rakit tertidur. */
 const SLEEP_AFTER = 28000;
+/** Lama tidur sebelum bangun sendiri (ms), acak di antara dua angka ini. */
+const NAP_MIN = 18000;
+const NAP_MAX = 34000;
 /** Aksi yang tidak diputus oleh sentuhan kursor (geli). */
-const BIG_ACTS: ReadonlySet<ActName> = new Set(["salto", "cilukba", "kaget", "pusing", "geli"]);
-const LOOK_RADIUS = 360;
+const BIG_ACTS: ReadonlySet<ActName> = new Set([
+  "salto",
+  "cilukba",
+  "kaget",
+  "pusing",
+  "geli",
+  "sambut",
+]);
+/** Kursor sedekat ini: Rakit menyapa, atau kaget bila sedang tidur. */
+const NEAR = 360;
+/** Jeda minimum antar celetukan yang tidak diminta (ms). */
+const CHATTER_GAP = 8000;
+const POS_KEY = "rakit-pos";
+const SEEN_KEY = "rakit-seen";
+const ASPECT = VIEWBOX.height / VIEWBOX.width;
+
+const LINES = {
+  startled: ["Eh! Aku nggak tidur, kok!", "Waa! Kaget aku."],
+  wake: ["Hoaam… eh, kamu masih di sini!", "Hoaam… tadi cuma merem sebentar."],
+  back: ["Eh, kamu kembali!", "Hai lagi! Lanjut lihat-lihat?"],
+  drag: ["Wiii, terbang!", "Pelan-pelan, ya!"],
+  drop: ["Di sini juga enak.", "Oke, aku tunggu di sini."],
+};
+
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+const pick = <T>(list: readonly T[]): T => list[Math.floor(Math.random() * list.length)];
 
 function spring(
   x: number,
@@ -110,15 +132,37 @@ function spring(
   return [x + v * dt, v];
 }
 
-export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }): Companion {
+/** localStorage bisa kosong atau melempar (mode privat, data situs diblokir). */
+function readStore(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+function writeStore(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Posisi dan sapaan hanya kenyamanan; tanpa penyimpanan Rakit kembali ke bawaan.
+  }
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h >= 4 && h < 11) return "Selamat pagi";
+  if (h >= 11 && h < 15) return "Selamat siang";
+  if (h >= 15 && h < 18) return "Selamat sore";
+  return "Selamat malam";
+}
+
+export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Companion {
   const mqReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const reduced = () => mqReduced.matches;
+  const q = <T extends Element>(sel: string) => svg.querySelector<T>(sel);
 
-  // Keadaan fisika bertahan saat Rakit pindah elemen, jadi gerakannya tidak putus.
   const cells: CellState[] = CELLS.map((c) => ({
-    g: null,
-    col: c.col,
-    row: c.row,
+    g: q<SVGGElement>(`[data-cell="${c.col}-${c.row}"]`),
     cx: c.x + BLOCK / 2,
     cy: c.y + BLOCK / 2,
     ox: 0,
@@ -134,25 +178,40 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
     er: 0,
   }));
   const cell = (col: number, row: number) => cells[row * 3 + col];
+  const antenna = q<SVGGElement>("[data-antenna]");
+  const feetEls = { l: q<SVGGElement>('[data-foot="l"]'), r: q<SVGGElement>('[data-foot="r"]') };
+  const eyes: Eye[] = (["l", "r"] as const).flatMap((side) => {
+    const wrap = q<SVGGElement>(`[data-eye="${side}"]`);
+    const tilt = wrap?.querySelector<SVGGElement>("[data-tilt]");
+    const rect = wrap?.querySelector<SVGRectElement>("rect");
+    return wrap && tilt && rect
+      ? [{ side: side === "l" ? (-1 as const) : (1 as const), wrap, tilt, rect, hosts: [] }]
+      : [];
+  });
 
-  let svg: SVGSVGElement | null = null;
-  let antenna: SVGGElement | null = null;
-  let feetEls: { l: SVGGElement | null; r: SVGGElement | null } = { l: null, r: null };
-  let eyes: Eye[] = [];
-  let seat: SeatInfo | null = null;
-  let fromRect: DOMRect | null = null;
-  let pendingArrive: ActName | null = null;
-
-  const seatIds = new WeakMap<Element, number>();
-  let nextSeatId = 1;
+  // ---- ukuran dan tempat
+  const view = { w: 0, h: 0, W: 0, H: 0, margin: 24 };
+  function measure() {
+    view.w = document.documentElement.clientWidth;
+    view.h = window.innerHeight;
+    view.W = parseFloat(getComputedStyle(svg).width) || 100;
+    view.H = view.W * ASPECT;
+    view.margin = view.w < 640 ? 12 : 24;
+  }
+  /** Batas posisi kiri-atas Rakit; telapak kaki (6% dari bawah) boleh menyentuh tepi bawah. */
+  const bounds = () => ({
+    x0: 0,
+    x1: Math.max(0, view.w - view.W),
+    y0: 0,
+    y1: Math.max(0, view.h - view.H * 0.95),
+  });
 
   const S = {
     mode: "idle" as Mode,
     expr: "netral" as Expression,
-    baseExpr: "netral" as Expression,
     mood: "netral" as Expression,
     moodUntil: 0,
-    scale: 0.5,
+    scale: 1,
     px: 0,
     py: 0,
     bvx: 0,
@@ -160,10 +219,12 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
     tx: 0,
     ty: 0,
     restX: 0,
+    restY: 0,
+    /** Tempat istirahat sebagai rasio terhadap layar, supaya tetap pas saat layar berubah. */
+    ratio: { x: 1, y: 1 },
     grab: null as Point | null,
     grabDX: 0,
     grabDY: 0,
-    bounds: { x0: -Infinity, x1: Infinity, y0: -Infinity, y1: Infinity },
     hopY: 0,
     tilt: 0,
     vtilt: 0,
@@ -177,16 +238,53 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
     pointer: null as Point | null,
     act: null as ActState | null,
     lastAct: null as ActName | null,
+    /** Interaksi terakhir dengan Rakit (menunda aksi idle). */
     lastInput: performance.now(),
+    /** Gerak terakhir pengunjung di mana pun (menunda tidur). */
+    lastActive: performance.now(),
     nextActAt: performance.now() + IDLE_AFTER,
-    visible: true,
+    wakeAt: 0,
     pageVisible: document.visibilityState === "visible",
+    hiddenAt: 0,
+    entering: true,
     hands: [] as number[],
     spin: 0,
     sleeping: false,
-    look: 0,
     feet: { l: { x: 0, y: 0 }, r: { x: 0, y: 0 } },
   };
+
+  function applyRatio() {
+    const b = bounds();
+    S.restX = b.x0 + S.ratio.x * (b.x1 - b.x0);
+    S.restY = b.y0 + S.ratio.y * (b.y1 - b.y0);
+  }
+  function rememberRest() {
+    const b = bounds();
+    S.ratio = {
+      x: b.x1 > b.x0 ? clamp((S.restX - b.x0) / (b.x1 - b.x0), 0, 1) : 1,
+      y: b.y1 > b.y0 ? clamp((S.restY - b.y0) / (b.y1 - b.y0), 0, 1) : 1,
+    };
+    writeStore(POS_KEY, JSON.stringify(S.ratio));
+  }
+  function loadRest() {
+    measure();
+    S.scale = view.W / VIEWBOX.width;
+    const b = bounds();
+    // bawaan: pojok kanan bawah, berjarak `margin` dari tepi
+    S.ratio = {
+      x: b.x1 > 0 ? (b.x1 - view.margin) / b.x1 : 1,
+      y: b.y1 > 0 ? (b.y1 - view.margin) / b.y1 : 1,
+    };
+    try {
+      const saved = JSON.parse(readStore(POS_KEY) ?? "null") as Partial<Point> | null;
+      if (typeof saved?.x === "number" && typeof saved.y === "number") {
+        S.ratio = { x: clamp(saved.x, 0, 1), y: clamp(saved.y, 0, 1) };
+      }
+    } catch {
+      // nilai rusak: pakai bawaan
+    }
+    applyRatio();
+  }
 
   // ---- ekspresi
   function setEyes(name: Expression, force = false) {
@@ -205,17 +303,18 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
       const min = Math.min(...ds);
       e.hosts = cells.filter((_, i) => ds[i] < min + 0.5);
     }
-    svg?.classList.toggle("rakit-loading", EXPRESSIONS[name].fastCaret);
+    svg.dataset.eyes = eyeShape(name);
+    svg.classList.toggle("rakit-loading", EXPRESSIONS[name].fastCaret);
   }
 
-  /** Ekspresi dasar: ekspresi kursi, atau ekspresi sementara dari `rakit:react`. */
+  /** Ekspresi dasar: netral, ekspresi sementara dari `rakitReact`, atau tidur. */
   const base = (): Expression =>
-    S.sleeping ? "tidur" : performance.now() < S.moodUntil ? S.mood : S.baseExpr;
+    S.sleeping ? "tidur" : performance.now() < S.moodUntil ? S.mood : "netral";
 
   // ---- efek di atas kepala: diputar ulang dengan melepas lalu memasang `data-fx`
   let fxTimer = 0;
   function showFx(name: FxName, ms = 1700) {
-    if (!svg || reduced()) return;
+    if (reduced()) return;
     window.clearTimeout(fxTimer);
     delete svg.dataset.fx;
     void svg.getBoundingClientRect();
@@ -224,59 +323,120 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
   }
   function clearFx() {
     window.clearTimeout(fxTimer);
-    if (svg) delete svg.dataset.fx;
+    delete svg.dataset.fx;
   }
 
-  // ---- tidur: pose dan zzz dari CSS, mesin fisika diam
+  // ---- gelembung percakapan: satu kalimat tampil, sisanya antre (paling banyak tiga)
+  const talk = {
+    queue: [] as string[],
+    busy: false,
+    timer: 0,
+    w: 0,
+    h: 0,
+    lastAuto: -Infinity,
+    pos: "",
+  };
+  function placeBubble(force = false) {
+    const cx = S.px + view.W / 2;
+    let top = S.py + view.H * 0.03 - talk.h - 12;
+    const below = top < 8;
+    if (below) top = S.py + view.H * 0.95 + 10;
+    const left = clamp(cx - talk.w / 2, 8, Math.max(8, view.w - talk.w - 8));
+    const tail = clamp(cx - left, 14, Math.max(14, talk.w - 14));
+    const key = `${Math.round(left)},${Math.round(top)},${Math.round(tail)},${below}`;
+    if (!force && key === talk.pos) return;
+    talk.pos = key;
+    bubble.style.translate = `${Math.round(left)}px ${Math.round(top)}px`;
+    bubble.style.setProperty("--tail", `${Math.round(tail)}px`);
+    bubble.toggleAttribute("data-below", below);
+  }
+  function showLine(text: string) {
+    talk.busy = true;
+    bubble.textContent = text;
+    talk.w = bubble.offsetWidth;
+    talk.h = bubble.offsetHeight;
+    placeBubble(true);
+    bubble.dataset.show = "";
+    window.clearTimeout(talk.timer);
+    talk.timer = window.setTimeout(hideLine, Math.min(5200, 1700 + text.length * 55));
+  }
+  function hideLine() {
+    delete bubble.dataset.show;
+    const next = talk.queue.shift();
+    if (next) talk.timer = window.setTimeout(() => showLine(next), 380);
+    else talk.busy = false;
+  }
+  function say(text: string) {
+    if (!text) return;
+    if (!talk.busy) return showLine(text);
+    if (talk.queue.at(-1) !== text && talk.queue.length < 3) talk.queue.push(text);
+  }
+  /** Celetukan yang tidak diminta: dibatasi supaya Rakit tidak cerewet. */
+  function chatter(lines: readonly string[] | undefined, chance = 1) {
+    const now = performance.now();
+    if (!lines?.length || talk.busy || Math.random() > chance) return;
+    if (now - talk.lastAuto < CHATTER_GAP) return;
+    talk.lastAuto = now;
+    say(pick(lines));
+  }
+
+  // ---- tidur dan bangun
   function sleep() {
-    if (!svg || S.sleeping || reduced()) return;
+    if (S.sleeping || reduced()) return;
     endAct();
     S.sleeping = true;
+    S.wakeAt = performance.now() + NAP_MIN + Math.random() * (NAP_MAX - NAP_MIN);
     svg.classList.add("rakit-sleeping");
     setEyes("tidur");
     showFx("zzz", 0);
     wake();
   }
-  function wakeUp(startled: boolean) {
+  /** "quiet": bangun tanpa reaksi. "startled": disentuh atau didekati, kaget. "self": bangun sendiri. */
+  function wakeUp(how: "quiet" | "startled" | "self") {
     if (!S.sleeping) return;
     S.sleeping = false;
-    S.lastInput = performance.now();
-    svg?.classList.remove("rakit-sleeping");
+    const now = performance.now();
+    S.lastInput = now;
+    S.lastActive = now;
+    svg.classList.remove("rakit-sleeping");
     clearFx();
     setEyes(base());
-    if (startled) playAct("kaget");
+    if (how === "startled") {
+      playAct("kaget");
+      say(pick(LINES.startled));
+    } else if (how === "self") {
+      playAct("geliat");
+      say(pick(LINES.wake));
+    }
   }
 
   // ---- aksi
-  function seatRange() {
-    if (!seat || !svg) return { min: 0, max: 0 };
-    const room = Math.max(
-      0,
-      (seat.el.getBoundingClientRect().width - svg.getBoundingClientRect().width) / 2,
-    );
-    return { min: -room, max: room };
-  }
   function playAct(name: ActName, dir = 1) {
-    if (reduced() || !svg || S.mode !== "idle") return;
-    wakeUp(false);
+    if (reduced() || S.mode !== "idle") return;
+    wakeUp("quiet");
     const a: ActState = { name, t: 0, dur: ACTS[name].dur, dir, from: S.px, dist: 0 };
-    ACTS[name].start?.(a, seatRange(), S.px);
+    ACTS[name].start?.(a, { min: view.margin, max: view.w - view.W - view.margin }, S.px);
     S.act = a;
-    if (name !== "treadmill") S.lastAct = name;
-    if (name === "lambai") lastWave = performance.now();
+    S.lastAct = name;
+    if (name === "lambai" || name === "sambut") lastWave = performance.now();
     wake();
   }
   function endAct() {
     if (!S.act) return;
-    if (S.act.name === "jalan") S.restX = S.px;
+    const ended = S.act.name;
+    if (ended === "jalan") {
+      S.restX = S.px;
+      rememberRest();
+    }
     S.act = null;
     for (const c of cells) c.ex = c.ey = c.er = 0;
     S.hopY = 0;
     S.spin = 0;
     S.tx = S.restX;
-    S.ty = 0;
+    S.ty = S.restY;
     setEyes(base());
     S.nextActAt = performance.now() + 3000 + Math.random() * 3000;
+    if (ended === "sambut") flushEarly();
   }
   function pickAct(): ActName {
     const names = (Object.keys(IDLE_WEIGHTS) as ActName[]).filter((n) => n !== S.lastAct);
@@ -286,11 +446,17 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
   }
   const scheduler = window.setInterval(() => {
     const now = performance.now();
-    if (!svg || !S.visible || !S.pageVisible || reduced() || S.act || S.mode !== "idle") return;
-    if (S.sleeping) return;
-    if (now - S.lastInput > SLEEP_AFTER) return sleep();
+    if (!S.pageVisible || reduced() || S.entering || S.mode !== "idle") return;
+    if (S.sleeping) {
+      if (now >= S.wakeAt) wakeUp("self");
+      return;
+    }
+    if (S.act) return;
+    if (now - S.lastActive > SLEEP_AFTER) return sleep();
     if (now - S.lastInput < IDLE_AFTER || now < S.nextActAt) return;
-    playAct(pickAct());
+    const act = pickAct();
+    playAct(act);
+    chatter(ACTS[act].say, 0.25);
   }, 500);
   const tuing = (dir = 1) => {
     if (!reduced()) {
@@ -299,93 +465,85 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
     }
   };
 
-  // ---- kursi: yang paling dekat dengan 62% tinggi layar menang
-  function seatInfo(el: HTMLElement): SeatInfo {
-    let id = seatIds.get(el);
-    if (!id) {
-      id = nextSeatId++;
-      seatIds.set(el, id);
+  // ---- sambutan
+  let introWatch: MutationObserver | null = null;
+  function enter() {
+    introWatch?.disconnect();
+    introWatch = null;
+    measure();
+    applyRatio();
+    S.tx = S.restX;
+    S.ty = S.restY;
+    pendingArrive = "sambut";
+    if (reduced()) {
+      S.px = S.restX;
+      S.py = S.restY;
+      S.mode = "settle";
+    } else {
+      // naik dari bawah layar; sisi atas memimpin, blok bawah tertinggal
+      S.px = S.restX;
+      S.py = view.h + 24;
+      S.mode = "travel";
+      S.grab = { x: 64, y: 56 };
     }
-    return {
-      id,
-      el,
-      expression: (el.dataset.expression as Expression | undefined) ?? "netral",
-      tone: el.dataset.tone as SeatTone | undefined,
-      arrive: el.dataset.arrive as ActName | undefined,
-    };
+    prevPX = S.px;
+    prevPY = S.py;
+    render();
+    wake();
   }
-  function pickSeat() {
-    if (S.mode === "drag") return;
-    const vh = window.innerHeight;
-    const anchor = vh * 0.62;
-    let best: HTMLElement | null = null;
-    let bestScore = Infinity;
-    let currentScore = Infinity;
-    for (const el of document.querySelectorAll<HTMLElement>("[data-rakit-seat]")) {
-      const r = el.getBoundingClientRect();
-      if (r.width === 0 && r.height === 0) continue; // disembunyikan di breakpoint ini
-      // Rakit berdiri di tepi bawah kursi setinggi kira-kira kursinya: kursi dihitung terlihat hanya
-      // bila separuh tubuh Rakit di atasnya ada di layar (di bawah header, di atas tepi bawah)
-      const visible = r.bottom - r.height * 0.5 > 72 && r.bottom - r.height * 0.5 < vh;
-      const score = Math.abs(r.bottom - anchor);
-      if (seat?.el === el) currentScore = visible ? score : Infinity;
-      if (visible && score < bestScore) {
-        best = el;
-        bestScore = score;
-      }
+  function greet() {
+    const seen = Number(readStore(SEEN_KEY) ?? 0);
+    const now = Date.now();
+    if (!seen) {
+      say(`${greeting()}! Selamat datang.`);
+      say("Aku Rakit. Seret aku ke mana saja, ya!");
+    } else if (now - seen < 30 * 60 * 1000) {
+      say("Hai lagi!");
+    } else {
+      say(`${greeting()}! Selamat datang kembali.`);
     }
-    if (!best || best === seat?.el) return;
-    // histeresis: kursi sekarang yang masih terlihat dipertahankan kecuali kalah jauh
-    if (seat?.el.isConnected && currentScore < bestScore + 140) return;
-    fromRect = svg?.isConnected ? svg.getBoundingClientRect() : null;
-    endAct();
-    S.sleeping = false;
-    S.lastInput = performance.now();
-    onSeat(seatInfo(best));
+    writeStore(SEEN_KEY, String(now));
   }
-  let pickTimer = 0;
-  const schedulePick = () => {
-    if (pickTimer) return;
-    pickTimer = window.setTimeout(() => {
-      pickTimer = 0;
-      pickSeat();
-    }, 160);
-  };
+  // Reaksi yang datang selama sambutan diputar setelah sambutan selesai.
+  let early: RakitReaction[] = [];
+  function flushEarly() {
+    const list = early;
+    early = [];
+    for (const r of list) onReact(r);
+  }
 
   // ---- seret, ketuk, guncang
-  const press = { at: 0, x: 0, y: 0, moved: 0, lastX: 0, dirX: 0, flips: 0 };
+  const press = { at: 0, x: 0, y: 0, moved: 0, lastX: 0, dirX: 0, flips: 0, spoke: false };
   let taps: number[] = [];
   let lastTapAct: ActName | null = null;
+  let pendingArrive: ActName | null = null;
+  let pendingSay = false;
   function onDown(ev: PointerEvent) {
-    if (ev.button !== 0 || !svg) return;
+    if (ev.button !== 0 || S.entering) return;
     ev.preventDefault();
-    wakeUp(false);
+    const now = performance.now();
+    S.lastInput = now;
+    S.lastActive = now;
+    // tersentuh saat tidur: kaget dulu, baru bisa diseret pada sentuhan berikutnya
+    if (S.sleeping) return wakeUp("startled");
     endAct();
     clearFx();
-    S.lastInput = performance.now();
     Object.assign(press, {
-      at: S.lastInput,
+      at: now,
       x: ev.clientX,
       y: ev.clientY,
       moved: 0,
       lastX: ev.clientX,
       dirX: 0,
       flips: 0,
+      spoke: false,
     });
     svg.setPointerCapture(ev.pointerId);
     svg.classList.add("rakit-dragging");
-    const r = svg.getBoundingClientRect();
-    S.scale = r.width / 128 || S.scale;
-    const homeLeft = r.left - S.px;
-    const homeTop = r.top - S.py - S.hopY * S.scale;
-    S.bounds = {
-      x0: -homeLeft,
-      x1: window.innerWidth - (homeLeft + r.width),
-      y0: -homeTop + 64,
-      y1: window.innerHeight - (homeTop + r.height),
-    };
+    measure();
+    S.scale = view.W / VIEWBOX.width;
     S.mode = "drag";
-    S.grab = { x: (ev.clientX - r.left) / S.scale, y: (ev.clientY - r.top) / S.scale };
+    S.grab = { x: (ev.clientX - S.px) / S.scale, y: (ev.clientY - S.py) / S.scale };
     S.grabDX = ev.clientX - S.px;
     S.grabDY = ev.clientY - S.py;
     S.tx = S.px;
@@ -396,6 +554,10 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
   function onMove(ev: PointerEvent) {
     if (S.mode !== "drag") return;
     press.moved = Math.max(press.moved, Math.hypot(ev.clientX - press.x, ev.clientY - press.y));
+    if (press.moved > 40 && !press.spoke) {
+      press.spoke = true;
+      chatter(LINES.drag, 0.35);
+    }
     // guncangan: arah gerak horizontal berbalik berkali-kali
     const dx = ev.clientX - press.lastX;
     if (Math.abs(dx) > 14) {
@@ -404,15 +566,14 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
       press.dirX = dir;
       press.lastX = ev.clientX;
     }
-    S.tx = clamp(ev.clientX - S.grabDX, S.bounds.x0, S.bounds.x1);
-    S.ty = clamp(ev.clientY - S.grabDY, S.bounds.y0, S.bounds.y1);
+    const b = bounds();
+    S.tx = clamp(ev.clientX - S.grabDX, b.x0, b.x1);
+    S.ty = clamp(ev.clientY - S.grabDY, b.y0, b.y1);
   }
   /** Elemen `[data-rakit-drop]` di bawah kaki Rakit, kalau ada. */
   function dropTarget(): Element | null {
-    if (!svg) return null;
-    const r = svg.getBoundingClientRect();
-    const x = r.left + r.width / 2;
-    const y = r.top + r.height * 0.97;
+    const x = S.tx + view.W / 2;
+    const y = S.ty + view.H * 0.97;
     for (const el of document.elementsFromPoint(x, y)) {
       if (svg.contains(el)) continue;
       const hit = el.closest("[data-rakit-drop]");
@@ -420,11 +581,18 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
     }
     return null;
   }
+  let lastUp = -Infinity;
   function onUp() {
-    if (S.mode !== "drag" || !svg) return;
+    if (S.mode !== "drag") return;
     svg.classList.remove("rakit-dragging");
-    S.lastInput = performance.now();
+    const now = performance.now();
+    lastUp = now;
+    S.lastInput = now;
     setEyes(base());
+    // Rakit tinggal di tempat ia dijatuhkan
+    S.restX = S.tx;
+    S.restY = S.ty;
+    rememberRest();
     const target = dropTarget();
     const handled = !target?.dispatchEvent(
       new CustomEvent("rakit:drop", { bubbles: true, cancelable: true }),
@@ -432,7 +600,6 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
     if (!handled && target instanceof HTMLElement && target.dataset.rakitDrop === "click") {
       target.click();
     }
-    const now = performance.now();
     if (press.moved < 6 && now - press.at < 400) {
       // diketuk: aksi lucu acak; empat ketukan beruntun membuatnya pusing
       taps = [...taps.filter((t) => now - t < 1600), now];
@@ -441,46 +608,38 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
         pendingArrive = "pusing";
       } else {
         const options = TAP_ACTS.filter((n) => n !== lastTapAct);
-        lastTapAct = options[Math.floor(Math.random() * options.length)];
+        lastTapAct = pick(options);
         pendingArrive = lastTapAct;
       }
+      pendingSay = true;
     } else if (press.flips >= 5) {
       pendingArrive = "pusing";
+      pendingSay = true;
     } else if (target) {
       showFx("heart");
+    } else if (press.moved > 60) {
+      chatter(LINES.drop, 0.3);
     }
-    goHome();
+    S.mode = "settle";
+    wake();
   }
   /** Kursor menyentuh Rakit: geli, paling sering sekali tiap 2,5 detik. */
   let lastTickle = -Infinity;
   function onEnter(ev: PointerEvent) {
-    if (ev.pointerType !== "mouse" || S.mode !== "idle" || reduced()) return;
-    if (S.sleeping) return wakeUp(true);
-    if (S.act && BIG_ACTS.has(S.act.name)) return;
+    if (ev.pointerType !== "mouse" || S.mode !== "idle" || S.entering || reduced()) return;
+    if (S.sleeping) return wakeUp("startled");
     const now = performance.now();
-    if (now - lastTickle < 2500) return;
+    // melepas pointer capture setelah diseret ikut memicu pointerenter: bukan sentuhan baru
+    if (now - lastUp < 1500 || now - lastTickle < 2500) return;
     lastTickle = now;
-    endAct();
-    playAct("geli");
-  }
-  /** Pulang ke tempat duduk: sisi yang menghadap rumah memimpin, sisanya tertinggal. */
-  function goHome() {
-    const dx = S.restX - S.px;
-    const dy = -S.py;
-    const len = Math.hypot(dx, dy);
-    S.tx = S.restX;
-    S.ty = 0;
-    if (reduced()) {
-      S.px = S.tx;
-      S.py = S.ty;
-      S.mode = "settle";
-    } else if (len < 4) {
-      S.mode = "settle";
-    } else {
-      S.mode = "travel";
-      S.grab = { x: 64 + (dx / len) * 44, y: 100 + (dy / len) * 44 };
+    S.lastInput = now;
+    // aksi yang sedang berjalan tidak diputus; Rakit cukup tersipu
+    if (S.act) {
+      if (!BIG_ACTS.has(S.act.name)) showFx("heart");
+      return;
     }
-    wake();
+    playAct("geli");
+    chatter(ACTS.geli.say, 0.5);
   }
 
   // ---- simulasi
@@ -529,7 +688,6 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
     S.hopY = out.hopY;
     S.spin = out.spin;
     S.hands = out.hands;
-    S.look = out.look;
     S.feet = out.feet;
 
     // tubuh
@@ -587,9 +745,9 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
         const hx = c.cx - S.grab.x;
         const hy = c.cy - S.grab.y;
         const hl = Math.hypot(hx, hy) || 1;
-        const press = -(lx * hx + ly * hy) / hl;
-        if (press > BLOCK / 3) {
-          const k = (press - BLOCK / 3) / hl;
+        const push = -(lx * hx + ly * hy) / hl;
+        if (push > BLOCK / 3) {
+          const k = (push - BLOCK / 3) / hl;
           c.ox += hx * k;
           c.oy += hy * k;
           lx += hx * k;
@@ -638,20 +796,21 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
       }
     }
 
-    // mata: melirik kursor dalam radius, atau ke arah yang diminta aksi
+    // mata: arah dari aksi ditambah lirikan ke kursor, kapan pun (juga saat beraksi)
     let lx = out.look;
     let ly = 0;
-    if (!rm && S.pointer && svg && !S.act) {
-      const r = svg.getBoundingClientRect();
-      const vx = S.pointer.x - (r.left + r.width / 2);
-      const vy = S.pointer.y - (r.top + r.height * 0.57);
+    if (!rm && S.pointer && !S.sleeping) {
+      const vx = S.pointer.x - (S.px + view.W / 2);
+      const vy = S.pointer.y - (S.py + S.hopY * S.scale + view.H * 0.57);
       const dist = Math.hypot(vx, vy);
-      if (dist < LOOK_RADIUS && dist > 1) {
+      if (dist > 1) {
         const k = Math.min(4, dist / 40) / dist;
-        lx = vx * k;
-        ly = vy * k;
+        lx += vx * k;
+        ly += vy * k;
       }
     }
+    lx = clamp(lx, -6, 6);
+    ly = clamp(ly, -4.5, 4.5);
     S.lookTX = lx;
     S.lookTY = ly;
     const ease = 1 - Math.exp(-dt * 10);
@@ -668,10 +827,17 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
     ) {
       S.mode = "idle";
       S.grab = null;
+      if (S.entering) {
+        S.entering = false;
+        greet();
+      }
       if (pendingArrive) {
         const act = pendingArrive;
         pendingArrive = null;
         playAct(act);
+        if (pendingSay) say(pick(ACTS[act].say ?? [""]));
+        pendingSay = false;
+        if (reduced() && act === "sambut") flushEarly();
       }
     }
   }
@@ -681,16 +847,15 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
     (Math.abs(rot) > 0.01 ? ` rotate(${rot.toFixed(2)} ${cx} ${cy})` : "");
 
   function render() {
-    if (!svg) return;
-    const moved = S.px || S.py || S.hopY || S.tilt || S.spin;
     // transform-origin di kaki (94%); salto berputar di pusat tubuh (57%), 37% tinggi di atasnya
-    const lift = 0.37 * 168 * S.scale;
+    const lift = 0.37 * view.H;
     const spin = S.spin
       ? ` translateY(${-lift}px) rotate(${S.spin.toFixed(2)}deg) translateY(${lift}px)`
       : "";
-    svg.style.transform = moved
-      ? `translate(${S.px.toFixed(2)}px, ${(S.py + S.hopY * S.scale).toFixed(2)}px) rotate(${S.tilt.toFixed(2)}deg)${spin}`
-      : "";
+    svg.style.transform =
+      `translate(${S.px.toFixed(2)}px, ${(S.py + S.hopY * S.scale).toFixed(2)}px)` +
+      (Math.abs(S.tilt) > 0.01 ? ` rotate(${S.tilt.toFixed(2)}deg)` : "") +
+      spin;
     for (const c of cells) c.g?.setAttribute("transform", tf(c.rx, c.ry, c.rot, c.cx, c.cy));
     for (const e of eyes) {
       const free = e.hosts.filter((c) => !S.hands.includes(cells.indexOf(c)));
@@ -708,6 +873,7 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
     const fr = cell(2, 2);
     feetEls.l?.setAttribute("transform", tf(fl.rx + S.feet.l.x, fl.ry + S.feet.l.y));
     feetEls.r?.setAttribute("transform", tf(fr.rx + S.feet.r.x, fr.ry + S.feet.r.y));
+    if (talk.busy) placeBubble();
   }
 
   function atRest() {
@@ -744,77 +910,101 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
       return;
     }
     render();
-    raf = svg && S.visible && S.pageVisible ? requestAnimationFrame(frame) : 0;
+    raf = S.pageVisible ? requestAnimationFrame(frame) : 0;
   }
   function wake() {
-    if (raf || !svg || !S.visible || !S.pageVisible) return;
+    if (raf || !S.pageVisible) return;
     last = performance.now();
     acc = 0;
     raf = requestAnimationFrame(frame);
   }
 
   // ---- event global
-  // Pantau kursinya, bukan SVG: SVG yang sedang terbang dari posisi jauh tergeser keluar layar,
-  // sehingga dianggap tidak terlihat dan loop berhenti di tengah jalan.
-  const io = new IntersectionObserver((entries) => {
-    const entry = entries.find((e) => e.target === seat?.el);
-    if (!entry) return;
-    S.visible = entry.isIntersecting;
-    svg?.classList.toggle("rakit-paused", !S.visible);
-    if (S.visible) wake();
-  });
-  // Tinggi halaman berubah (konten halaman baru tampil, gambar dimuat): pilih ulang kursi.
-  const ro = new ResizeObserver(schedulePick);
-  ro.observe(document.body);
   const onVisibility = () => {
     S.pageVisible = document.visibilityState === "visible";
-    if (S.pageVisible) wake();
+    const now = performance.now();
+    if (!S.pageVisible) {
+      S.hiddenAt = now;
+      return;
+    }
+    S.lastActive = now;
+    // kembali setelah lebih dari semenit di tab lain: disapa lagi
+    if (S.hiddenAt && now - S.hiddenAt > 60000 && !S.entering) {
+      if (S.sleeping) wakeUp("quiet");
+      if (S.mode === "idle" && !S.act) playAct("lambai");
+      chatter(LINES.back);
+    }
+    wake();
   };
   let wasNear = false;
   let lastWave = -Infinity;
   const onPointer = (ev: PointerEvent) => {
+    const now = performance.now();
     S.pointer = { x: ev.clientX, y: ev.clientY };
-    if (!svg || reduced() || !S.visible) return;
-    const r = svg.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const near = Math.hypot(ev.clientX - cx, ev.clientY - (r.top + r.height / 2)) < LOOK_RADIUS;
+    S.lastActive = now;
+    if (reduced() || S.entering) return;
+    const cx = S.px + view.W / 2;
+    const near = Math.hypot(ev.clientX - cx, ev.clientY - (S.py + view.H / 2)) < NEAR;
     if (near) {
-      // ada orang di dekatnya: berhenti bermain sendiri, antena tuing, lalu menoleh;
-      // melambai menyapa paling sering sekali tiap 12 detik
       if (S.sleeping) {
-        if (S.mode === "idle") wakeUp(true);
+        if (S.mode === "idle") wakeUp("startled");
         wasNear = true;
         return;
       }
-      S.lastInput = performance.now();
-      if (!wasNear && S.mode === "idle") {
-        if (S.act && S.act.name !== "lambai") endAct();
+      S.lastInput = now;
+      // ada orang mendekat: antena tuing; melambai paling sering sekali tiap 15 detik
+      if (!wasNear && S.mode === "idle" && !S.act) {
         tuing(ev.clientX > cx ? -1 : 1);
-        if (!S.act && performance.now() - lastWave > 12000) playAct("lambai");
+        if (now - lastWave > 15000) playAct("lambai");
       }
     }
     wasNear = near;
-    if (near || S.lookX || S.lookY) wake();
+    wake();
   };
-  const onWalk = (ev: Event) => {
-    const detail = (ev as CustomEvent<{ zone: Element; dir: number }>).detail;
-    if (!seat || !svg || reduced() || S.mode !== "idle" || !detail?.zone.contains(seat.el)) return;
-    wakeUp(false);
-    if (S.act?.name === "treadmill") {
-      S.act.dir = detail.dir;
-      S.act.dur = Math.max(S.act.dur, S.act.t + 0.45);
-      return;
+  const onLeave = () => {
+    S.pointer = null;
+    wake();
+  };
+  const onActive = () => {
+    S.lastActive = performance.now();
+  };
+  const onResize = () => {
+    measure();
+    S.scale = view.W / VIEWBOX.width;
+    applyRatio();
+    // masih menunggu intro di luar layar: cukup perbarui tujuan sambutannya
+    if (S.entering && S.mode === "idle") {
+      S.px = S.restX;
+      S.py = view.h + 24;
+      return render();
     }
-    if (S.act) endAct();
-    playAct("treadmill", detail.dir);
+    if (S.mode === "idle" || S.mode === "settle") {
+      if (S.act?.name === "jalan") endAct();
+      S.tx = S.restX;
+      S.ty = S.restY;
+      S.mode = "settle";
+    } else if (S.mode === "travel") {
+      S.tx = S.restX;
+      S.ty = S.restY;
+    }
+    wake();
+  };
+  const onScreen = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
   };
   let moodTimer = 0;
-  const onReact = (ev: Event) => {
-    const d = (ev as CustomEvent<RakitReaction>).detail;
-    if (!d || !seat || !svg || S.mode === "drag") return;
-    if (d.zone && !d.zone.contains(seat.el)) return;
-    wakeUp(false);
+  function onReact(d: RakitReaction) {
+    if (S.mode === "drag") return;
+    if (d.zone && !onScreen(d.zone)) return;
+    if (S.entering || S.act?.name === "sambut") {
+      early = [...early, d].slice(-3);
+      return;
+    }
+    wakeUp("quiet");
     S.lastInput = performance.now();
+    if (d.say) say(d.say);
+    if (!d.act && !d.expression) return;
     if (d.expression) {
       const ms = d.ms ?? 1800;
       S.mood = d.expression;
@@ -834,110 +1024,72 @@ export function createCompanion({ onSeat }: { onSeat: (seat: SeatInfo) => void }
       tuing();
     }
     wake();
-  };
+  }
   const onReduced = () => {
     if (reduced()) {
       endAct();
-      wakeUp(false);
+      wakeUp("quiet");
       clearFx();
     }
     wake();
   };
-  window.addEventListener("scroll", schedulePick, { passive: true });
-  window.addEventListener("resize", schedulePick);
+
+  svg.addEventListener("pointerdown", onDown);
+  svg.addEventListener("pointermove", onMove);
+  svg.addEventListener("pointerup", onUp);
+  svg.addEventListener("pointercancel", onUp);
+  svg.addEventListener("pointerenter", onEnter);
   window.addEventListener("pointermove", onPointer, { passive: true });
-  window.addEventListener("rakit:walk", onWalk);
-  window.addEventListener("rakit:react", onReact);
+  document.documentElement.addEventListener("pointerleave", onLeave);
+  window.addEventListener("scroll", onActive, { passive: true });
+  window.addEventListener("keydown", onActive, { passive: true });
+  window.addEventListener("resize", onResize);
   document.addEventListener("visibilitychange", onVisibility);
   mqReduced.addEventListener("change", onReduced);
-  pickSeat();
+  const disconnect = connectRakit(onReact);
 
-  function detachSvg() {
-    if (seat) io.unobserve(seat.el);
-    if (!svg) return;
-    svg.removeEventListener("pointerdown", onDown);
-    svg.removeEventListener("pointermove", onMove);
-    svg.removeEventListener("pointerup", onUp);
-    svg.removeEventListener("pointercancel", onUp);
-    svg.removeEventListener("pointerenter", onEnter);
+  // Mulai di luar layar (di bawah), lalu naik setelah intro beranda selesai.
+  loadRest();
+  S.px = S.restX;
+  S.py = view.h + 24;
+  S.tx = S.restX;
+  S.ty = S.restY;
+  setEyes("netral", true);
+  render();
+  const root = document.documentElement;
+  if (root.hasAttribute("data-intro")) {
+    introWatch = new MutationObserver(() => {
+      if (!root.hasAttribute("data-intro")) enter();
+    });
+    introWatch.observe(root, { attributes: true, attributeFilter: ["data-intro"] });
+  } else {
+    enter();
   }
 
   return {
-    attach(next, info) {
-      detachSvg();
-      svg = next;
-      seat = info;
-      const q = <T extends Element>(sel: string) => next.querySelector<T>(sel);
-      for (const c of cells) c.g = q<SVGGElement>(`[data-cell="${c.col}-${c.row}"]`);
-      antenna = q<SVGGElement>("[data-antenna]");
-      feetEls = { l: q<SVGGElement>('[data-foot="l"]'), r: q<SVGGElement>('[data-foot="r"]') };
-      eyes = (["l", "r"] as const).flatMap((side) => {
-        const wrap = q<SVGGElement>(`[data-eye="${side}"]`);
-        const tilt = wrap?.querySelector<SVGGElement>("[data-tilt]");
-        const rect = wrap?.querySelector<SVGRectElement>("rect");
-        return wrap && tilt && rect
-          ? [{ side: side === "l" ? (-1 as const) : (1 as const), wrap, tilt, rect, hosts: [] }]
-          : [];
-      });
-      S.baseExpr = info.expression;
-      S.sleeping = false;
-      setEyes(info.expression, true);
-      next.addEventListener("pointerdown", onDown);
-      next.addEventListener("pointermove", onMove);
-      next.addEventListener("pointerup", onUp);
-      next.addEventListener("pointercancel", onUp);
-      next.addEventListener("pointerenter", onEnter);
-      S.visible = true;
-      io.observe(info.el);
-
-      const home = next.getBoundingClientRect();
-      S.scale = home.width / 128 || S.scale;
-      S.restX = 0;
-      S.tx = 0;
-      S.ty = 0;
-      S.hopY = 0;
-      if (fromRect && !reduced()) {
-        // FLIP: mulai dari posisi lama (dibatasi ke tepi layar), terbang ke kursi baru
-        S.px = clamp(fromRect.left - home.left, -window.innerWidth * 0.6, window.innerWidth * 0.6);
-        S.py = clamp(fromRect.top - home.top, -window.innerHeight * 0.6, window.innerHeight * 0.6);
-        const len = Math.hypot(S.px, S.py) || 1;
-        S.mode = "travel";
-        S.grab = { x: 64 - (S.px / len) * 44, y: 100 - (S.py / len) * 44 };
-      } else {
-        S.px = 0;
-        S.py = 0;
-        S.mode = "settle";
-      }
-      S.bvx = S.bvy = 0;
-      prevPX = S.px;
-      prevPY = S.py;
-      pendingArrive = info.arrive ?? null;
-      fromRect = null;
-      render();
-      wake();
-    },
-    rescan() {
-      window.setTimeout(pickSeat, 60);
-    },
     destroy() {
       cancelAnimationFrame(raf);
       raf = 0;
       window.clearInterval(scheduler);
-      window.clearTimeout(pickTimer);
       window.clearTimeout(moodTimer);
       window.clearTimeout(fxTimer);
-      detachSvg();
-      io.disconnect();
-      ro.disconnect();
-      window.removeEventListener("scroll", schedulePick);
-      window.removeEventListener("resize", schedulePick);
+      window.clearTimeout(talk.timer);
+      introWatch?.disconnect();
+      disconnect();
+      svg.removeEventListener("pointerdown", onDown);
+      svg.removeEventListener("pointermove", onMove);
+      svg.removeEventListener("pointerup", onUp);
+      svg.removeEventListener("pointercancel", onUp);
+      svg.removeEventListener("pointerenter", onEnter);
       window.removeEventListener("pointermove", onPointer);
-      window.removeEventListener("rakit:walk", onWalk);
-      window.removeEventListener("rakit:react", onReact);
+      document.documentElement.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("scroll", onActive);
+      window.removeEventListener("keydown", onActive);
+      window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
       mqReduced.removeEventListener("change", onReduced);
-      if (svg) svg.style.transform = "";
-      svg = null;
+      svg.style.transform = "";
+      delete bubble.dataset.show;
     },
   };
 }

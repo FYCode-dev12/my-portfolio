@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { RakitSeat } from "@/components/mascot/RakitSeat";
+import { RakitCue } from "@/components/mascot/RakitCue";
 import { AboutPhotos } from "@/components/sections/about/AboutPhotos";
 import { ProfileFrame } from "@/components/sections/about/ProfileFrame";
 import { SkillGroups } from "@/components/sections/about/SkillGroups";
@@ -30,15 +30,8 @@ export default function AboutPage() {
       <Container className="pt-16 sm:pt-24">
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_20rem]">
           <div>
-            <div className="flex items-end justify-between gap-6">
-              <Heading level={1}>Tentang</Heading>
-              <RakitSeat
-                fallback
-                expression="senang"
-                arrive="lambai"
-                className="w-32 shrink-0 sm:w-56"
-              />
-            </div>
+            <Heading level={1}>Tentang</Heading>
+            <RakitCue act="lambai" say="Ini cerita singkat Febrian. Perjalanannya ada di bawah." />
             <div className="mt-6 max-w-2xl space-y-4 text-lg text-muted">
               <p>
                 Saya {site.name}, mahasiswa S1 Teknik Informatika di Institut Teknologi Sumatera
@@ -54,19 +47,10 @@ export default function AboutPage() {
           <ProfileFrame />
         </div>
       </Container>
-      <Section
-        id="skills"
-        title="Keahlian"
-        seat={<RakitSeat expression="fokus" arrive="lompat" className="w-32 shrink-0 sm:w-56" />}
-      >
+      <Section id="skills" title="Keahlian">
         <SkillGroups />
       </Section>
-      <Section
-        id="timeline"
-        title="Perjalanan"
-        className="pt-0 sm:pt-0"
-        seat={<RakitSeat expression="netral" arrive="toleh" className="w-32 shrink-0 sm:w-56" />}
-      >
+      <Section id="timeline" title="Perjalanan" className="pt-0 sm:pt-0">
         <Timeline items={achievements} />
       </Section>
       <AboutPhotos />

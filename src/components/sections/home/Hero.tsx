@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Terminal } from "@/components/interactive/Terminal";
-import { RakitSeat } from "@/components/mascot/RakitSeat";
 import type { CommandContext } from "@/components/interactive/command-data";
 import { site } from "@/content/site";
 import { skillGroups } from "@/content/skills";
@@ -67,17 +66,7 @@ export function Hero({ context }: { context: CommandContext }) {
             </dl>
           </div>
           <div className="hero-visual after-lines lg:col-span-7">
-            {/* Tepi atas terminal jadi pijakan Rakit. Kursinya berukuran tetap (tanpa CLS) dan
-                lebarnya jadi jalur jalan Rakit. Rakit bereaksi pada setiap perintah terminal. */}
-            <div className="flex justify-end pr-2 sm:pr-8">
-              <RakitSeat
-                fallback
-                size={140}
-                expression="netral"
-                arrive="lambai"
-                className="w-64 sm:w-96"
-              />
-            </div>
+            {/* Rakit bereaksi pada setiap perintah terminal selama terminal terlihat. */}
             <Terminal
               name={site.name}
               role={site.role}

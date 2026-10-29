@@ -1,6 +1,5 @@
 import { ArrowRight } from "lucide-react";
 import { RakitListen } from "@/components/mascot/RakitListen";
-import { RakitSeat } from "@/components/mascot/RakitSeat";
 import { ExternalLink } from "@/components/ui/ExternalLink";
 import { Heading } from "@/components/ui/Heading";
 import { site } from "@/content/site";
@@ -10,7 +9,7 @@ type Props = {
   cvHref?: string;
   /** Tingkat heading: 1 di halaman /contact, 2 di beranda. */
   level?: 1 | 2;
-  /** Beranda: form di kiri, kartu kontak dengan Rakit di kanan. /contact: satu kolom. */
+  /** Beranda: form di kiri, kartu kontak di kanan. /contact: satu kolom. */
   split?: boolean;
 };
 
@@ -63,22 +62,16 @@ export function ContactPanel({ cvHref, level = 2, split = false }: Props) {
       : []),
   ];
 
-  const seat = (
-    <RakitSeat
-      size={split ? 128 : 112}
-      expression="senang"
-      arrive="lambai"
-      className={split ? "mr-8 ml-auto w-72" : "mr-2 ml-auto w-48"}
-    />
-  );
-
   const form = (
     <>
       <Heading
         level={level}
         look={3}
         id="contact-heading"
-        className={cn("reveal", split ? "text-3xl text-balance sm:text-[2.25rem]" : "text-2xl sm:text-[1.75rem]")}
+        className={cn(
+          "reveal",
+          split ? "text-3xl text-balance sm:text-[2.25rem]" : "text-2xl sm:text-[1.75rem]",
+        )}
       >
         <span className="block text-muted">Butuh developer untuk tim Anda?</span>
         <span className="block">Tulis subjeknya, saya balas lewat email.</span>
@@ -88,7 +81,6 @@ export function ContactPanel({ cvHref, level = 2, split = false }: Props) {
         method="get"
         className={cn("reveal", split ? "mt-10" : "mt-4")}
       >
-        {split ? null : seat}
         <RakitListen on="input" reaction={{ expression: "fokus", ms: 1600 }} />
         <div data-ui className="contact-field relative">
           <label htmlFor="contact-subject" className="sr-only">
@@ -137,7 +129,6 @@ export function ContactPanel({ cvHref, level = 2, split = false }: Props) {
     <div className="grid items-end gap-14 lg:grid-cols-12 lg:gap-8">
       <div className="lg:col-span-6">{form}</div>
       <div className="lg:col-span-5 lg:col-start-8">
-        {seat}
         <div
           data-ui
           className="reveal overflow-hidden rounded-lg bg-surface font-mono text-[0.875rem] leading-6 text-muted"

@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 
 // Glyph "satu batang" FY (brand/final/guideline.md): grid 5 x 5, F dan Y berbagi batang tengah.
 // Urutannya mengikuti cara glyph "dirakit" di intro: batang atas, lalu turun ke kaki Y.
-const CELLS = [
+export const CELLS = [
   [0, 0],
   [2, 0],
   [3, 0],

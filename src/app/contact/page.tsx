@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { RakitCue } from "@/components/mascot/RakitCue";
 import { ContactPanel } from "@/components/sections/ContactPanel";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
@@ -17,6 +18,7 @@ export default function ContactPage() {
   return (
     <Container className="py-16 sm:py-24">
       <Heading level={1}>Kontak</Heading>
+      <RakitCue act="lambai" say="Mau ngobrol? Tulis subjeknya, nanti dibalas lewat email." />
       <p className="mt-6 max-w-[44ch] text-lg text-muted">
         Cara tercepat menghubungi saya adalah lewat email. Saya biasanya membalas dalam beberapa
         hari.

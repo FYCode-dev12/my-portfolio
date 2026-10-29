@@ -16,11 +16,15 @@ export async function Header() {
         <Link
           href="/"
           aria-label={`${site.shortName}, beranda`}
-          className="brand-link -m-2 flex items-center rounded-md p-2"
+          className="brand-link -m-2 flex items-center gap-3 rounded-md p-2"
         >
           {/* `data-brand`: intro beranda (BrandIntro) mendarat tepat di logo ini. */}
           <span data-brand className="block">
             <FyGlyph />
+          </span>
+          {/* Nama hanya di tablet dan desktop; di ponsel baris header terlalu sempit. */}
+          <span className="brand-name hidden text-[0.9375rem] font-semibold tracking-tight whitespace-nowrap text-fg md:block">
+            {site.shortName}
           </span>
         </Link>
         <div className="order-2 flex items-center gap-2 sm:order-3">

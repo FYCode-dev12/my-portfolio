@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { BrandIntro } from "@/components/layout/BrandIntro";
 import { Header } from "@/components/layout/Header";
+import { Particles } from "@/components/layout/Particles";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { RakitCompanion } from "@/components/mascot/RakitCompanion";
 import { site } from "@/content/site";
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-svh flex-col">
         <SkipLink />
+        <Particles />
         <Header />
         <BrandIntro />
         <main id="main" tabIndex={-1} className="flex-1 outline-none">

@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { RakitSeat } from "@/components/mascot/RakitSeat";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { achievements, type AchievementCategory } from "@/content/achievements";
@@ -27,13 +26,9 @@ export function BeyondCode() {
       <Container>
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-6">
-            <div className="flex items-end justify-between gap-6">
-              <Heading level={2} id="beyond-heading" className="rise">
-                Di luar kode
-              </Heading>
-              {/* Di mobile foto baru muncul setelah daftar panjang ini. */}
-              <RakitSeat expression="senang" arrive="lambai" className="w-32 shrink-0 lg:hidden" />
-            </div>
+            <Heading level={2} id="beyond-heading" className="rise">
+              Di luar kode
+            </Heading>
             <p
               className="reveal mt-4 max-w-[44ch] text-muted"
               style={{ "--d": 1 } as React.CSSProperties}
@@ -82,12 +77,6 @@ export function BeyondCode() {
           </div>
           <figure className="reveal lg:col-span-5 lg:col-start-8">
             <div className="lg:sticky lg:top-20">
-              <RakitSeat
-                size={128}
-                expression="senang"
-                arrive="geliat"
-                className="mr-8 ml-auto w-72"
-              />
               <div className="drift-frame window relative aspect-[4/5] overflow-clip rounded-lg bg-surface">
                 <Image
                   src={photo.src}

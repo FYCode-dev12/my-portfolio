@@ -1,5 +1,4 @@
 import { RakitListen } from "@/components/mascot/RakitListen";
-import { RakitSeat } from "@/components/mascot/RakitSeat";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import type { Project } from "@/lib/content";
@@ -39,14 +38,11 @@ export function RepoFigures({ projects }: { projects: Project[] }) {
     <section aria-labelledby="figures-heading" className="figures bg-surface">
       <style>{css}</style>
       <Container className="flex min-h-[72svh] flex-col py-20 sm:py-28">
-        <div className="flex items-end justify-between gap-6">
-          <Heading level={2} id="figures-heading" className="rise text-3xl sm:text-[2.5rem]">
-            Seberapa besar tiap sistem?
-          </Heading>
-          <RakitSeat expression="fokus" arrive="lompat" className="w-32 shrink-0 lg:hidden" />
-        </div>
-        {/* Di desktop Rakit berdiri di samping tab; jatuhkan dia di sebuah tab untuk memilihnya. */}
-        <div className="mt-8 flex items-end gap-6">
+        <Heading level={2} id="figures-heading" className="rise text-3xl sm:text-[2.5rem]">
+          Seberapa besar tiap sistem?
+        </Heading>
+        {/* Jatuhkan Rakit di sebuah tab untuk memilihnya; ia melompat setiap tab berganti. */}
+        <div className="mt-8">
           <fieldset data-ui className="reveal max-w-full">
             <legend className="sr-only">Pilih proyek</legend>
             <RakitListen on="change" reaction={{ act: "lompat" }} />
@@ -71,12 +67,6 @@ export function RepoFigures({ projects }: { projects: Project[] }) {
               ))}
             </div>
           </fieldset>
-          <RakitSeat
-            size={128}
-            expression="fokus"
-            arrive="lompat"
-            className="hidden w-72 shrink-0 lg:block"
-          />
         </div>
         <div className="mt-auto pt-16">
           {items.map(({ project, figures }, i) => {

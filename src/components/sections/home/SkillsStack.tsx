@@ -3,12 +3,9 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { Heading } from "@/components/ui/Heading";
 import { ScrollSpy } from "@/components/interactive/ScrollSpy";
-import { RakitSeat } from "@/components/mascot/RakitSeat";
 import { skillGroups } from "@/content/skills";
 
 const ROOT_ID = "stack";
-/** Di mobile kartu stack.json baru muncul di bawah daftar, jadi tiap kelompok punya kursi. */
-const ARRIVE = ["toleh", "lompat", "geliat", "lambai"] as const;
 
 /** Fragmen `stack.json` dipaku di satu sisi; tiap pernyataan menyorot kuncinya saat dibaca. */
 export function SkillsStack() {
@@ -29,18 +26,11 @@ export function SkillsStack() {
               dokumentasi acara.
             </p>
             <ul className="mt-12 space-y-16 lg:space-y-[14vh] lg:pb-[8vh]">
-              {skillGroups.map((group, i) => (
+              {skillGroups.map((group) => (
                 <li key={group.id} data-step={group.key} className="stack-step reveal">
-                  <div className="flex items-end justify-between gap-6">
-                    <Heading level={3} look={2}>
-                      {group.title}
-                    </Heading>
-                    <RakitSeat
-                      expression="fokus"
-                      arrive={ARRIVE[i % ARRIVE.length]}
-                      className="w-32 shrink-0 lg:hidden"
-                    />
-                  </div>
+                  <Heading level={3} look={2}>
+                    {group.title}
+                  </Heading>
                   <p className="mt-4 max-w-[38ch] text-lg leading-relaxed text-fg">
                     {group.summary}
                   </p>
@@ -63,12 +53,6 @@ export function SkillsStack() {
           </div>
           <div className="lg:col-span-7">
             <figure className="lg:sticky lg:top-20">
-              <RakitSeat
-                size={128}
-                expression="fokus"
-                arrive="lompat"
-                className="mr-8 ml-auto w-72"
-              />
               <div
                 data-ui
                 className="overflow-hidden rounded-lg bg-bg font-mono text-[0.875rem] leading-7 text-muted"

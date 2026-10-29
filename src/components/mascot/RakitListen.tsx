@@ -11,8 +11,8 @@ type Props = {
 };
 
 /**
- * Rakit menanggapi isian di elemen induknya (tab dipilih, kolom diketik). Hanya Rakit yang
- * duduk di bagian yang sama yang bereaksi, paling sering sekali tiap 400 ms.
+ * Rakit menanggapi isian di elemen induknya (tab dipilih, kolom diketik), hanya selama bagian itu
+ * terlihat di layar, paling sering sekali tiap 400 ms.
  */
 export function RakitListen({ on, reaction }: Props) {
   const ref = useRef<HTMLSpanElement>(null);

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { RakitSeat } from "@/components/mascot/RakitSeat";
+import { RakitCue } from "@/components/mascot/RakitCue";
 import { ProjectCard } from "@/components/sections/projects/ProjectCard";
 import { ProjectFilter } from "@/components/sections/projects/ProjectFilter";
 import { Container } from "@/components/ui/Container";
@@ -23,10 +23,8 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/project
 
   return (
     <Container className="py-16 sm:py-24">
-      <div className="flex items-end justify-between gap-6">
-        <Heading level={1}>Proyek & studi kasus</Heading>
-        <RakitSeat fallback expression="fokus" arrive="lompat" className="w-32 shrink-0 sm:w-56" />
-      </div>
+      <Heading level={1}>Proyek & studi kasus</Heading>
+      <RakitCue expression="fokus" ms={2400} say="Coba saring proyeknya per teknologi." />
       <p className="mt-6 max-w-[48ch] text-lg text-muted">
         Sistem web yang saya bangun dan rilis, lengkap dengan arsitektur dan alasan teknisnya.
         Saring berdasarkan teknologi.

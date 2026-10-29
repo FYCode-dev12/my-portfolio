@@ -277,7 +277,7 @@ export function Terminal({ name, role, campus, skills, context }: Props) {
         return (
           <p>
             <span className="text-fg">Rakit</span>: sembilan blok dan satu kursor. Seret dia ke mana
-            saja, dia selalu pulang. Ketuk dia, atau coba{" "}
+            saja, dia akan menunggu di sana. Ketuk dia, atau coba{" "}
             <span className="text-fg">rakit joget</span>.
           </p>
         );

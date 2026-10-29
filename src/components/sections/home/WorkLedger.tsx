@@ -3,7 +3,6 @@ import { ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { LiveStatus } from "@/components/interactive/LiveStatus";
-import { RakitSeat } from "@/components/mascot/RakitSeat";
 import { LedgerPick } from "./LedgerPick";
 import { contributions } from "@/content/contributions";
 import { diagrams } from "@/content/diagrams";
@@ -124,7 +123,6 @@ export function WorkLedger({ projects }: { projects: Project[] }) {
               Empat proyek dengan studi kasus, lalu sistem kepanitiaan tempat saya memegang frontend
               atau backend. Arahkan ke baris untuk melihat isinya, atau jatuhkan Rakit di sana.
             </p>
-            <RakitSeat expression="fokus" arrive="toleh" className="mt-6 ml-auto w-56 lg:hidden" />
             <div className="mt-4 space-y-8 lg:mt-10">
               {years.map((year) => (
                 <div key={year} className="reveal">
@@ -178,14 +176,7 @@ export function WorkLedger({ projects }: { projects: Project[] }) {
             </div>
           </div>
           <div className="relative hidden lg:col-span-6 lg:block">
-            {/* Rakit berdiri di atas kartu pratinjau dan ikut menempel saat digulir. */}
             <div className="sticky top-20">
-              <RakitSeat
-                size={128}
-                expression="fokus"
-                arrive="toleh"
-                className="mr-8 ml-auto w-80"
-              />
               <div inert className="relative h-[22rem]">
                 {rows.map((row, i) => (
                   <div

@@ -10,13 +10,13 @@ export type ActName =
   | "lompat"
   | "toleh"
   | "geliat"
-  | "treadmill"
   | "joget"
   | "salto"
   | "cilukba"
   | "kaget"
   | "pusing"
-  | "geli";
+  | "geli"
+  | "sambut";
 
 /** Efek kecil di atas kepala Rakit (lihat RakitSvg). */
 export type FxName = "heart" | "zzz" | "alert" | "question" | "note" | "sparkle";
@@ -59,7 +59,9 @@ type Act = {
   expression?: Expression;
   /** Efek yang dimunculkan saat aksi mencapai detik `at`. */
   fx?: { name: FxName; at?: number };
-  /** Rentang jalan di kursi (px relatif ke posisi duduk) dan posisi sekarang. */
+  /** Celetukan di gelembung saat aksi ini dimainkan karena diketuk (satu dipilih acak). */
+  say?: string[];
+  /** Rentang jalan di layar (px, posisi kiri Rakit) dan posisi sekarang. */
   start?(a: ActState, range: { min: number; max: number }, px: number): void;
   run(t: number, a: ActState, out: ActOut, put: Put): void;
 };
@@ -70,7 +72,7 @@ const ALL = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 const row = (i: number) => Math.floor(i / 3);
 const col = (i: number) => i % 3;
 
-/** Langkah kaki, badan naik-turun, dan goyang kiri-kanan; dipakai jalan dan treadmill. */
+/** Langkah kaki, badan naik-turun, dan goyang kiri-kanan saat berjalan. */
 function step(t: number, dir: number, walking: number, out: ActOut, put: Put) {
   const ph = t * Math.PI * 2 * 1.9;
   const bob = Math.abs(Math.sin(ph)) * 3.6 * walking;
@@ -99,7 +101,7 @@ export const ACTS: Record<ActName, Act> = {
       out.antenna = -6 * env;
     },
   },
-  // berjalan ke titik lain di sepanjang kursinya
+  // berjalan ke titik lain di layar
   jalan: {
     dur: 0,
     start(a, range, px) {
@@ -117,16 +119,10 @@ export const ACTS: Record<ActName, Act> = {
       step(t, a.dir, smooth(t / 0.3) * smooth((a.dur - t) / 0.3), out, put);
     },
   },
-  // berjalan di tempat saat strip karya di bawahnya digeser (durasi diperpanjang selama digeser)
-  treadmill: {
-    dur: 0.5,
-    run(t, a, out, put) {
-      step(t, a.dir, smooth(t / 0.2) * smooth((a.dur - t) / 0.25), out, put);
-    },
-  },
   // jongkok, lompat, mendarat sedikit gepeng
   lompat: {
     dur: 1.3,
+    say: ["Hop!", "Hup, hup!"],
     run(t, _a, out, put) {
       const crouch = smooth(t / 0.22) * (1 - smooth((t - 0.22) / 0.08));
       const air = t > 0.28 && t < 0.78 ? Math.sin(((t - 0.28) / 0.5) * Math.PI) : 0;
@@ -180,6 +176,7 @@ export const ACTS: Record<ActName, Act> = {
   joget: {
     dur: 3.4,
     expression: "senang",
+    say: ["Ayo joget!", "La la la~"],
     fx: { name: "note", at: 0.2 },
     run(t, a, out, put) {
       const env = smooth(t / 0.3) * smooth((a.dur - t) / 0.35);
@@ -203,6 +200,7 @@ export const ACTS: Record<ActName, Act> = {
   // jongkok, melenting tinggi sambil berputar satu kali, mendarat gepeng
   salto: {
     dur: 1.6,
+    say: ["Lihat, salto!", "Hiyaa!"],
     fx: { name: "sparkle", at: 1.05 },
     start(a) {
       a.dir = Math.random() < 0.5 ? -1 : 1;
@@ -233,6 +231,7 @@ export const ACTS: Record<ActName, Act> = {
   // cilukba: kedua tangan menutup mata, lalu terbuka lebar sambil melompat kecil
   cilukba: {
     dur: 2.8,
+    say: ["Cilukba!"],
     fx: { name: "sparkle", at: 1.55 },
     run(t, _a, out, put) {
       const cover = smooth((t - 0.15) / 0.3) * (1 - smooth((t - 1.45) / 0.12));
@@ -264,6 +263,7 @@ export const ACTS: Record<ActName, Act> = {
   pusing: {
     dur: 2.6,
     expression: "bingung",
+    say: ["Pusiiing…", "Dunia berputar…"],
     fx: { name: "question", at: 0.3 },
     run(t, a, out, put) {
       const env = smooth(t / 0.3) * smooth((a.dur - t) / 0.5);
@@ -279,12 +279,33 @@ export const ACTS: Record<ActName, Act> = {
   geli: {
     dur: 1.2,
     expression: "senang",
+    say: ["Hihi, geli!", "Aduh, geli!"],
     fx: { name: "heart" },
     run(t, a, out, put) {
       const s = Math.sin(t * Math.PI * 2 * 5) * (1 - smooth(t / a.dur));
       for (const i of ALL) put(i, s * 2 * (row(i) === 1 ? 1 : 0.5), -Math.abs(s) * 1.5, s * 4);
       out.tilt = s * 3;
       out.antenna = s * 12;
+    },
+  },
+  // menyambut pengunjung: lompat kecil, lalu kedua tangan terangkat dan melambai bergantian
+  sambut: {
+    dur: 3,
+    expression: "senang",
+    fx: { name: "heart", at: 0.45 },
+    run(t, a, out, put) {
+      const hop = t < 0.5 ? Math.sin((t / 0.5) * Math.PI) : 0;
+      const env = smooth((t - 0.3) / 0.35) * smooth((a.dur - t) / 0.45);
+      const wave = Math.sin(t * Math.PI * 2 * 2.2);
+      put(5, 11 * env, -16 * env, env * (-20 + 26 * wave));
+      put(3, -11 * env, -16 * env, env * (20 + 26 * wave));
+      for (const i of [0, 1, 2]) put(i, wave * 1.2 * env, -1.5 * env, 0);
+      out.hands = [3, 5];
+      out.hopY = -30 * hop;
+      out.tilt = 2.5 * wave * env;
+      out.antenna = -10 * env + 6 * wave * env;
+      out.feet.l = { x: 0, y: -5 * hop };
+      out.feet.r = { x: 0, y: -5 * hop };
     },
   },
 };

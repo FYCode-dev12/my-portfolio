@@ -45,6 +45,8 @@ type ExpressionSpec = {
   anchor: "center" | "bottom";
   antenna: number;
   fastCaret: boolean;
+  /** "arc": mata lengkung `^ ^` (senyum mata), menggantikan batang. */
+  shape?: "bar" | "arc";
 };
 
 export const EXPRESSIONS = {
@@ -59,16 +61,18 @@ export const EXPRESSIONS = {
     antenna: 0,
     fastCaret: false,
   },
+  // Mata lengkung `^ ^`. Versi lama (batang pendek miring) terbaca seperti alis marah.
   senang: {
     spread: 15,
     w: 10,
     h: 17,
-    dyl: -3,
-    dyr: -3,
-    tilt: -14,
+    dyl: 0,
+    dyr: 0,
+    tilt: 0,
     anchor: "center",
-    antenna: 0,
+    antenna: -6,
     fastCaret: false,
+    shape: "arc",
   },
   fokus: {
     spread: 8,
@@ -168,4 +172,15 @@ export function eyeGeometry(expression: Expression, side: -1 | 1): EyeGeometry {
     cy: y + e.h / 2,
     tilt: e.tilt ? e.tilt * -side : 0,
   };
+}
+
+/** Bentuk mata sebuah ekspresi. */
+export const eyeShape = (expression: Expression) =>
+  (EXPRESSIONS[expression] as ExpressionSpec).shape ?? "bar";
+
+/** Lengkung mata senang `^`, berpusat di mata netral sisi `side`. */
+export function eyeArc(side: -1 | 1): string {
+  const cx = CENTER_X + side * 15;
+  const cy = EYE_Y - 1;
+  return `M${cx - 8} ${cy + 4}Q${cx} ${cy - 11} ${cx + 8} ${cy + 4}`;
 }
