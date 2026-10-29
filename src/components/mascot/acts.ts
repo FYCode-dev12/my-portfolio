@@ -16,7 +16,8 @@ export type ActName =
   | "kaget"
   | "pusing"
   | "geli"
-  | "sambut";
+  | "sambut"
+  | "berserakan";
 
 /** Efek kecil di atas kepala Rakit (lihat RakitSvg). */
 export type FxName = "heart" | "zzz" | "alert" | "question" | "note" | "sparkle";
@@ -47,6 +48,10 @@ export type ActState = {
   dir: number;
   from: number;
   dist: number;
+  /** Kekuatan aksi 0..1 (berserakan: seberapa keras Rakit menghantam lantai). */
+  power: number;
+  /** Angka acak per aksi, diisi `start` (berserakan: tempat, tinggi, dan putaran tiap blok). */
+  bits?: number[];
   /** Efek aksi ini sudah dimunculkan. */
   fxShown?: boolean;
 };
@@ -71,6 +76,8 @@ export const smooth = (t: number) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 *
 const ALL = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 const row = (i: number) => Math.floor(i / 3);
 const col = (i: number) => i % 3;
+/** Urutan merakit ulang setelah berserakan: baris bawah lebih dulu. */
+const REBUILD = [7, 6, 8, 4, 3, 5, 1, 0, 2];
 
 /** Langkah kaki, badan naik-turun, dan goyang kiri-kanan saat berjalan. */
 function step(t: number, dir: number, walking: number, out: ActOut, put: Put) {
@@ -306,6 +313,42 @@ export const ACTS: Record<ActName, Act> = {
       out.antenna = -10 * env + 6 * wave * env;
       out.feet.l = { x: 0, y: -5 * hop };
       out.feet.r = { x: 0, y: -5 * hop };
+    },
+  },
+  // jatuh dari tempat tinggi: blok berhamburan ke lantai, diam sebentar, lalu merakit ulang dari
+  // baris bawah. Lantai = telapak kaki (y 158), jadi tiap blok turun sampai sisi bawahnya di sana.
+  berserakan: {
+    dur: 2.6,
+    fx: { name: "sparkle", at: 2.3 },
+    start(a) {
+      const slots = [...ALL].sort(() => Math.random() - 0.5);
+      a.bits = ALL.flatMap((i) => [slots[i], Math.random(), Math.random()]);
+    },
+    run(t, a, out, put) {
+      const bits = a.bits ?? [];
+      const pw = a.power;
+      const burst = clamp(t / 0.45, 0, 1);
+      const spread = 1 - (1 - burst) ** 2;
+      for (const i of ALL) {
+        const [slot = 4, h = 0.5, r = 0.5] = bits.slice(i * 3, i * 3 + 3);
+        // `dir` -1..1: geser sebaran menjauhi tepi layar yang dekat
+        const sx = ((slot - 4) * 26 - (col(i) - 1) * 30 + a.dir * 70) * pw;
+        const sy = 74 - 30 * row(i);
+        const sr = (r - 0.5) * 34;
+        const arc = (16 + h * 30) * pw * Math.sin(Math.PI * burst);
+        const spin = (r - 0.5) * 420 * pw * Math.sin(Math.PI * burst);
+        const k = REBUILD.indexOf(i);
+        const back = smooth((t - 1.35 - k * 0.09) / 0.32);
+        const hop = Math.sin(Math.PI * back) * 20;
+        put(
+          i,
+          sx * spread * (1 - back),
+          (sy * burst - arc) * (1 - back) - hop,
+          (sr * burst + spin) * (1 - back),
+        );
+      }
+      out.antenna = 30 * Math.sin(t * 9) * (1 - smooth((t - 1.2) / 0.6));
+      out.expression = t < 0.6 ? "kaget" : t < 1.35 ? "bingung" : t > 2.2 ? "senang" : null;
     },
   },
 };

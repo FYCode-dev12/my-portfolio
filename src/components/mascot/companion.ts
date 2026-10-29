@@ -17,19 +17,23 @@ import {
   eyeShape,
   type Expression,
 } from "./rakit";
+import { scanSurfaces, surfaceBelow, type Surface } from "./ground";
 import { connectRakit } from "./react";
 
 /**
  * Rakit pendamping: satu Rakit hidup yang bebas ditaruh di mana saja di layar (keputusan pemilik
  * 30 Okt 2026, menggantikan sistem kursi). Dimuat lazy oleh RakitCompanion setelah halaman idle.
  *
- * - Posisi: lapisan `fixed`, jadi Rakit tetap menemani saat halaman digulir. Tempat terakhir ia
- *   dijatuhkan disimpan (rasio terhadap layar) di localStorage dan dipakai lagi saat kunjungan
- *   berikutnya. Bawaan: pojok kanan bawah.
+ * - Posisi: lapisan `fixed`. Rakit tidak melayang: ia berdiri di tepi bawah layar (seperti di
+ *   bingkai laptop) atau di atas elemen halaman (ground.ts). Saat halaman digulir ia ikut terbawa
+ *   pijakannya; pijakan yang keluar layar atau hilang membuatnya jatuh lagi. Posisi horizontal
+ *   terakhir disimpan (rasio terhadap lebar layar) di localStorage. Bawaan: kanan bawah.
  * - Sambutan: Rakit naik dari tepi bawah layar setelah intro beranda selesai, melambai dengan dua
  *   tangan, dan menyapa sesuai waktu setempat lewat gelembung percakapan.
- * - Diseret: tanpa blok jangkar. Dijatuhkan di atas `[data-rakit-drop]`, elemen itu menerima event
- *   `rakit:drop`; `[data-rakit-drop="click"]` diklik. Rakit tinggal di tempat ia dijatuhkan.
+ * - Diseret: tanpa blok jangkar. Dilepas: jatuh dengan gravitasi (membawa laju lemparan) sampai
+ *   kakinya menapak pijakan. Jatuh dari tempat tinggi: blok-bloknya berserakan lalu merakit ulang.
+ *   Dilepas di atas `[data-rakit-drop]`, elemen itu menerima event `rakit:drop`;
+ *   `[data-rakit-drop="click"]` diklik.
  * - Halaman bisa memanggil `rakitReact` (react.ts): ekspresi sementara, satu aksi, dan/atau kalimat
  *   di gelembung. Reaksi ber-`zone` hanya berlaku saat zonanya terlihat di layar.
  * - Mata selalu mengikuti kursor, juga saat sedang beraksi (pengecualian AGENTS.md 6b). Posisinya
@@ -56,7 +60,9 @@ export type RakitReaction = {
 
 export type Companion = { destroy(): void };
 
-type Mode = "idle" | "drag" | "travel" | "settle";
+type Mode = "idle" | "drag" | "travel" | "settle" | "fall";
+/** Elemen yang sedang dipijak; `offset` = jarak tepi pijakan dari tepi atas elemen. */
+type Support = { el: Element; offset: number; left: number; right: number };
 type Point = { x: number; y: number };
 
 type CellState = {
@@ -107,6 +113,13 @@ const CHATTER_GAP = 8000;
 const POS_KEY = "rakit-pos";
 const SEEN_KEY = "rakit-seen";
 const ASPECT = VIEWBOX.height / VIEWBOX.width;
+/** Telapak kaki: y 158 dari tinggi viewBox 168. */
+const FOOT = 158 / VIEWBOX.height;
+/** Gravitasi dan laju jatuh maksimum (px/s², px/s). */
+const GRAVITY = 3200;
+const MAX_FALL = 2600;
+/** Menghantam pijakan lebih cepat dari ini (±0,7 tinggi layar laptop): blok berserakan. */
+const SCATTER_SPEED = 1500;
 
 const LINES = {
   startled: ["Eh! Aku nggak tidur, kok!", "Waa! Kaget aku."],
@@ -114,6 +127,7 @@ const LINES = {
   back: ["Eh, kamu kembali!", "Hai lagi! Lanjut lihat-lihat?"],
   drag: ["Wiii, terbang!", "Pelan-pelan, ya!"],
   drop: ["Di sini juga enak.", "Oke, aku tunggu di sini."],
+  scatter: ["Aduuh, berantakan!", "Bruk! Rakit ulang dulu…"],
 };
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
@@ -198,12 +212,12 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     view.H = view.W * ASPECT;
     view.margin = view.w < 640 ? 12 : 24;
   }
-  /** Batas posisi kiri-atas Rakit; telapak kaki (6% dari bawah) boleh menyentuh tepi bawah. */
+  /** Batas posisi kiri-atas Rakit; telapak kaki menapak tepi bawah layar paling rendah. */
   const bounds = () => ({
     x0: 0,
     x1: Math.max(0, view.w - view.W),
     y0: 0,
-    y1: Math.max(0, view.h - view.H * 0.95),
+    y1: Math.max(0, view.h - view.H * FOOT),
   });
 
   const S = {
@@ -220,8 +234,11 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     ty: 0,
     restX: 0,
     restY: 0,
-    /** Tempat istirahat sebagai rasio terhadap layar, supaya tetap pas saat layar berubah. */
-    ratio: { x: 1, y: 1 },
+    /** Posisi horizontal sebagai rasio terhadap lebar layar, supaya tetap pas saat layar berubah. */
+    ratio: 1,
+    /** Laju jatuh (px/s). */
+    fvx: 0,
+    fvy: 0,
     grab: null as Point | null,
     grabDX: 0,
     grabDY: 0,
@@ -253,37 +270,120 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     feet: { l: { x: 0, y: 0 }, r: { x: 0, y: 0 } },
   };
 
+  /** Tempat istirahat bawaan: di posisi horizontal tersimpan, berdiri di tepi bawah layar. */
   function applyRatio() {
     const b = bounds();
-    S.restX = b.x0 + S.ratio.x * (b.x1 - b.x0);
-    S.restY = b.y0 + S.ratio.y * (b.y1 - b.y0);
+    S.restX = b.x0 + S.ratio * (b.x1 - b.x0);
+    S.restY = b.y1;
   }
   function rememberRest() {
     const b = bounds();
-    S.ratio = {
-      x: b.x1 > b.x0 ? clamp((S.restX - b.x0) / (b.x1 - b.x0), 0, 1) : 1,
-      y: b.y1 > b.y0 ? clamp((S.restY - b.y0) / (b.y1 - b.y0), 0, 1) : 1,
-    };
-    writeStore(POS_KEY, JSON.stringify(S.ratio));
+    S.ratio = b.x1 > b.x0 ? clamp((S.restX - b.x0) / (b.x1 - b.x0), 0, 1) : 1;
+    writeStore(POS_KEY, JSON.stringify({ x: S.ratio }));
   }
   function loadRest() {
     measure();
     S.scale = view.W / VIEWBOX.width;
     const b = bounds();
-    // bawaan: pojok kanan bawah, berjarak `margin` dari tepi
-    S.ratio = {
-      x: b.x1 > 0 ? (b.x1 - view.margin) / b.x1 : 1,
-      y: b.y1 > 0 ? (b.y1 - view.margin) / b.y1 : 1,
-    };
+    // bawaan: kanan bawah, berjarak `margin` dari tepi kanan
+    S.ratio = b.x1 > 0 ? (b.x1 - view.margin) / b.x1 : 1;
     try {
       const saved = JSON.parse(readStore(POS_KEY) ?? "null") as Partial<Point> | null;
-      if (typeof saved?.x === "number" && typeof saved.y === "number") {
-        S.ratio = { x: clamp(saved.x, 0, 1), y: clamp(saved.y, 0, 1) };
-      }
+      if (typeof saved?.x === "number") S.ratio = clamp(saved.x, 0, 1);
     } catch {
       // nilai rusak: pakai bawaan
     }
     applyRatio();
+  }
+
+  // ---- pijakan dan gravitasi
+  let support: Support | null = null;
+  let surfaces: Surface[] = [];
+  let surfacesStale = false;
+  /** Rentang kaki (tengah 40% lebar) di posisi `x`. */
+  const feetAt = (x: number) => [x + view.W * 0.3, x + view.W * 0.7] as const;
+  /** Tepi pijakan di bawah `fromY` (tepi bawah layar bila tidak ada). */
+  function floorBelow(fromY: number): { y: number; surface: Surface | null } {
+    const [l, r] = feetAt(S.px);
+    const s = surfaceBelow(surfaces, l, r, fromY);
+    return s && s.top < view.h ? { y: s.top, surface: s } : { y: view.h, surface: null };
+  }
+  /** Tepi atas pijakan sekarang, atau null bila elemennya hilang atau tidak terlihat lagi. */
+  function supportTop(): number | null {
+    if (!support?.el.isConnected) return null;
+    const el = support.el;
+    if (
+      typeof el.checkVisibility === "function" &&
+      !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+    ) {
+      return null;
+    }
+    const r = el.getBoundingClientRect();
+    return r.height > 0 ? r.top + support.offset : null;
+  }
+  /** Lepas dari pijakan dan jatuh dengan laju awal (vx, vy). */
+  function startFall(vx = 0, vy = 0) {
+    endAct();
+    support = null;
+    surfaces = scanSurfaces(svg);
+    surfacesStale = false;
+    S.grab = null;
+    if (reduced()) {
+      land(floorBelow(S.py + view.H * FOOT), 0);
+      render();
+      return;
+    }
+    S.fvx = clamp(vx, -1400, 1400);
+    S.fvy = clamp(vy, -900, MAX_FALL);
+    S.mode = "fall";
+    wake();
+  }
+  function land(floor: { y: number; surface: Surface | null }, speed: number) {
+    S.py = floor.y - view.H * FOOT;
+    S.restX = S.tx = S.px;
+    S.restY = S.ty = S.py;
+    S.bvx = S.bvy = S.fvx = S.fvy = 0;
+    const s = floor.surface;
+    support = s
+      ? { el: s.el, offset: s.top - s.el.getBoundingClientRect().top, left: s.left, right: s.right }
+      : null;
+    S.mode = "settle";
+    rememberRest();
+    if (speed > SCATTER_SPEED && !reduced()) {
+      // berhamburan tepat saat menghantam pijakan, tanpa menunggu blok tenang
+      S.mode = "idle";
+      pendingArrive = null;
+      pendingSay = false;
+      // dekat tepi layar: blok dihamburkan ke arah yang lapang
+      const room = view.w - view.W - 2 * S.px;
+      playAct(
+        "berserakan",
+        clamp(room / (view.W * 2), -1, 1),
+        clamp(0.55 + (speed - SCATTER_SPEED) / 2200, 0.55, 1),
+      );
+      say(pick(LINES.scatter));
+    } else if (speed > 500) {
+      tuing(S.fvx >= 0 ? 1 : -1);
+    }
+  }
+  /** Ikut terbawa pijakan (halaman digulir atau tata letak berubah); jatuh bila pijakan hilang. */
+  function ride() {
+    if (S.mode === "fall") {
+      surfacesStale = true;
+      return;
+    }
+    if (S.entering || !support || (S.mode !== "idle" && S.mode !== "settle")) return;
+    let top = supportTop();
+    // pijakan naik sampai kepala Rakit terpotong, atau hilang: jatuh dari tempatnya sekarang
+    if (top === null || top < view.H * FOOT) return startFall();
+    if (top > view.h) {
+      support = null;
+      top = view.h;
+    }
+    const y = top - view.H * FOOT;
+    if (Math.abs(y - S.py) < 0.5) return;
+    S.py = S.restY = S.ty = prevPY = y;
+    render();
   }
 
   // ---- ekspresi
@@ -411,11 +511,21 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
   }
 
   // ---- aksi
-  function playAct(name: ActName, dir = 1) {
+  /** Rentang jalan: sepanjang pijakan (kaki tetap di atasnya), atau selebar layar di tepi bawah. */
+  function walkRange() {
+    let min = view.margin;
+    let max = view.w - view.W - view.margin;
+    if (support) {
+      min = Math.max(min, support.left - view.W * 0.3);
+      max = Math.min(max, support.right - view.W * 0.7);
+    }
+    return max > min ? { min, max } : { min: S.px, max: S.px };
+  }
+  function playAct(name: ActName, dir = 1, power = 1) {
     if (reduced() || S.mode !== "idle") return;
     wakeUp("quiet");
-    const a: ActState = { name, t: 0, dur: ACTS[name].dur, dir, from: S.px, dist: 0 };
-    ACTS[name].start?.(a, { min: view.margin, max: view.w - view.W - view.margin }, S.px);
+    const a: ActState = { name, t: 0, dur: ACTS[name].dur, dir, from: S.px, dist: 0, power };
+    ACTS[name].start?.(a, walkRange(), S.px);
     S.act = a;
     S.lastAct = name;
     if (name === "lambai" || name === "sambut") lastWave = performance.now();
@@ -446,7 +556,10 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
   }
   const scheduler = window.setInterval(() => {
     const now = performance.now();
-    if (!S.pageVisible || reduced() || S.entering || S.mode !== "idle") return;
+    if (!S.pageVisible) return;
+    // pijakan bisa bergeser atau hilang tanpa gulir (pindah halaman, kartu memudar)
+    ride();
+    if (reduced() || S.entering || S.mode !== "idle") return;
     if (S.sleeping) {
       if (now >= S.wakeAt) wakeUp("self");
       return;
@@ -472,6 +585,7 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     introWatch = null;
     measure();
     applyRatio();
+    support = null;
     S.tx = S.restX;
     S.ty = S.restY;
     pendingArrive = "sambut";
@@ -480,7 +594,7 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
       S.py = S.restY;
       S.mode = "settle";
     } else {
-      // naik dari bawah layar; sisi atas memimpin, blok bawah tertinggal
+      // naik dari balik tepi bawah layar; sisi atas memimpin, blok bawah tertinggal
       S.px = S.restX;
       S.py = view.h + 24;
       S.mode = "travel";
@@ -540,6 +654,7 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     });
     svg.setPointerCapture(ev.pointerId);
     svg.classList.add("rakit-dragging");
+    support = null;
     measure();
     S.scale = view.W / VIEWBOX.width;
     S.mode = "drag";
@@ -589,10 +704,6 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     lastUp = now;
     S.lastInput = now;
     setEyes(base());
-    // Rakit tinggal di tempat ia dijatuhkan
-    S.restX = S.tx;
-    S.restY = S.ty;
-    rememberRest();
     const target = dropTarget();
     const handled = !target?.dispatchEvent(
       new CustomEvent("rakit:drop", { bubbles: true, cancelable: true }),
@@ -620,8 +731,8 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     } else if (press.moved > 60) {
       chatter(LINES.drop, 0.3);
     }
-    S.mode = "settle";
-    wake();
+    // dilepas: jatuh membawa laju seretan terakhir sampai menapak pijakan
+    startFall(S.bvx, S.bvy);
   }
   /** Kursor menyentuh Rakit: geli, paling sering sekali tiap 2,5 detik. */
   let lastTickle = -Infinity;
@@ -710,6 +821,28 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
         S.mode = "settle";
         tuing(); // mendarat: antena tuing
       }
+    } else if (S.mode === "fall") {
+      // jatuh bebas; lemparan horizontal melambat dan memantul pelan di tepi layar
+      const b = bounds();
+      if (surfacesStale) {
+        surfaces = scanSurfaces(svg);
+        surfacesStale = false;
+      }
+      const footBefore = S.py + view.H * FOOT;
+      S.fvy = Math.min(S.fvy + GRAVITY * dt, MAX_FALL);
+      S.fvx *= Math.exp(-dt * 1.4);
+      S.px += S.fvx * dt;
+      if (S.px < b.x0 || S.px > b.x1) {
+        S.px = clamp(S.px, b.x0, b.x1);
+        S.fvx *= -0.35;
+      }
+      S.py += S.fvy * dt;
+      if (S.py < b.y0) {
+        S.py = b.y0;
+        S.fvy = Math.max(0, S.fvy);
+      }
+      const floor = floorBelow(footBefore);
+      if (S.fvy >= 0 && S.py + view.H * FOOT >= floor.y) land(floor, S.fvy);
     } else if (out.bodyX != null) {
       S.px = out.bodyX;
     } else if (S.mode === "settle") {
@@ -724,7 +857,7 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
     if (Math.abs(S.velX) < 0.5) S.velX = 0; // peluruhan eksponensial tidak pernah nol sendiri
 
     // blok: mewarisi gerak tubuh sebagai lag, lalu kembali ke target aksi
-    const moving = S.mode === "drag" || S.mode === "travel";
+    const moving = S.mode === "drag" || S.mode === "travel" || S.mode === "fall";
     let worst = 0;
     for (const c of cells) {
       if (rm) {
@@ -968,26 +1101,32 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
   const onActive = () => {
     S.lastActive = performance.now();
   };
+  const onScroll = () => {
+    S.lastActive = performance.now();
+    ride();
+  };
   const onResize = () => {
     measure();
     S.scale = view.W / VIEWBOX.width;
-    applyRatio();
     // masih menunggu intro di luar layar: cukup perbarui tujuan sambutannya
     if (S.entering && S.mode === "idle") {
+      applyRatio();
       S.px = S.restX;
       S.py = view.h + 24;
       return render();
     }
-    if (S.mode === "idle" || S.mode === "settle") {
-      if (S.act?.name === "jalan") endAct();
+    if (S.mode === "travel") {
+      applyRatio();
       S.tx = S.restX;
       S.ty = S.restY;
-      S.mode = "settle";
-    } else if (S.mode === "travel") {
-      S.tx = S.restX;
-      S.ty = S.restY;
+      return wake();
     }
-    wake();
+    if (S.mode === "drag" || S.mode === "fall") return;
+    // tetap di posisi horizontal yang sama (relatif), lalu cari pijakan lagi dari ketinggiannya
+    applyRatio();
+    S.px = prevPX = S.restX;
+    S.py = prevPY = Math.min(S.py, bounds().y1);
+    startFall();
   };
   const onScreen = (el: Element) => {
     const r = el.getBoundingClientRect();
@@ -1041,7 +1180,7 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
   svg.addEventListener("pointerenter", onEnter);
   window.addEventListener("pointermove", onPointer, { passive: true });
   document.documentElement.addEventListener("pointerleave", onLeave);
-  window.addEventListener("scroll", onActive, { passive: true });
+  window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("keydown", onActive, { passive: true });
   window.addEventListener("resize", onResize);
   document.addEventListener("visibilitychange", onVisibility);
@@ -1083,7 +1222,7 @@ export function createCompanion(svg: SVGSVGElement, bubble: HTMLElement): Compan
       svg.removeEventListener("pointerenter", onEnter);
       window.removeEventListener("pointermove", onPointer);
       document.documentElement.removeEventListener("pointerleave", onLeave);
-      window.removeEventListener("scroll", onActive);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("keydown", onActive);
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);

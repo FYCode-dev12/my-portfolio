@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { BrandIntro } from "@/components/layout/BrandIntro";
 import { Header } from "@/components/layout/Header";
 import { Particles } from "@/components/layout/Particles";
+import { ScrollState } from "@/components/layout/ScrollState";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { RakitCompanion } from "@/components/mascot/RakitCompanion";
 import { site } from "@/content/site";
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-svh flex-col">
         <SkipLink />
         <Particles />
+        <ScrollState />
         <Header />
         <BrandIntro />
         <main id="main" tabIndex={-1} className="flex-1 outline-none">
