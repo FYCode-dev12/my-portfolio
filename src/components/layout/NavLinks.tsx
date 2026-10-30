@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useLayoutEffect, useRef } from "react";
 import type { NavItem } from "@/content/site";
 
-function isActive(pathname: string, href: string) {
+export function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -58,9 +58,7 @@ export function NavLinks({ items }: { items: readonly NavItem[] }) {
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                // Ponsel sempit: kapsul hanya menyisakan (lebar layar - 40 px), jadi padding
-                // (dan di bawah 360 px juga ukuran teks) dikecilkan agar keempat tautan muat.
-                className="nav-link relative inline-flex h-10 items-center rounded-full px-3.5 text-[0.9375rem] text-muted transition-colors hover:text-fg aria-[current=page]:text-fg max-[24rem]:px-2.5 max-[22.5rem]:px-2 max-[22.5rem]:text-sm"
+                className="nav-link relative inline-flex h-10 items-center rounded-full px-3.5 text-[0.9375rem] text-muted transition-colors hover:text-fg aria-[current=page]:text-fg"
               >
                 {item.label}
               </Link>

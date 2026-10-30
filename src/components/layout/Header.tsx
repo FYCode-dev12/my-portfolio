@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { site } from "@/content/site";
 import { getCommandContext } from "@/lib/command-context";
 import { FyGlyph } from "./FyGlyph";
+import { MobileNav } from "./MobileNav";
 import { NavLinks } from "./NavLinks";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -15,7 +16,7 @@ export async function Header() {
     <header className="site-header sticky top-0 z-40">
       <div data-rakit-floor="" className="nav-shell">
         <span aria-hidden="true" className="scroll-progress" />
-        <Container className="flex flex-wrap items-center justify-between gap-x-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0">
+        <Container className="flex h-14 items-center justify-between gap-x-4 sm:h-16">
           <Link
             href="/"
             aria-label={`${site.shortName}, beranda`}
@@ -30,18 +31,17 @@ export async function Header() {
               {site.shortName}
             </span>
           </Link>
-          <div className="order-2 flex items-center gap-2 sm:order-3">
+          {/* Mulai `sm` tautan tampil sebaris; di ponsel pindah ke menu hamburger (MobileNav). */}
+          <nav aria-label="Navigasi utama" className="ml-auto hidden sm:block">
+            <NavLinks items={site.nav} />
+          </nav>
+          <div className="flex items-center gap-2">
             <div className="hidden sm:block">
               <CommandTrigger context={context} />
             </div>
             <ThemeToggle />
+            <MobileNav items={site.nav} />
           </div>
-          <nav
-            aria-label="Navigasi utama"
-            className="order-3 -mx-3 w-full sm:order-2 sm:mx-0 sm:ml-auto sm:w-auto"
-          >
-            <NavLinks items={site.nav} />
-          </nav>
         </Container>
       </div>
     </header>
