@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "../../../../mdx-components";
+import { RakitCue } from "@/components/mascot/RakitCue";
 import { ArchitectureFlow } from "@/components/sections/diagram/ArchitectureFlow";
 import { ProjectNav } from "@/components/sections/projects/ProjectNav";
 import { ProjectSidebar } from "@/components/sections/projects/ProjectSidebar";
@@ -55,11 +56,12 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
         <article className="min-w-0 max-w-2xl">
           <MDXRemote source={project.body} components={mdxComponents} />
         </article>
-        <div className="lg:sticky lg:top-24 lg:self-start">
+        <div className="lg:sticky lg:top-20 lg:self-start">
           <ProjectSidebar project={project} />
         </div>
       </div>
       <ArchitectureFlow slug={project.slug} />
+      <RakitCue act="toleh" say="Selamat membaca studi kasusnya!" />
       <ProjectNav prev={all[index - 1]} next={all[index + 1]} />
     </Container>
   );

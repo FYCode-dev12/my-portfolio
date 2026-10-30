@@ -48,8 +48,9 @@ export function CommandTrigger({ context }: { context: CommandContext }) {
         aria-keyshortcuts="Control+K Meta+K /"
         className="press inline-flex h-10 items-center gap-3 rounded-md bg-surface px-3 text-sm text-muted transition-colors hover:text-fg"
       >
-        <span>Perintah</span>
-        <kbd className="font-mono text-[0.8125rem] text-fg">Ctrl K</kbd>
+        {/* Di bawah `lg` labelnya hanya untuk pembaca layar agar nama dan tautan di header muat. */}
+        <span className="max-lg:sr-only">Perintah</span>
+        <kbd className="font-mono text-[0.8125rem] whitespace-nowrap text-fg">Ctrl K</kbd>
       </button>
       {loaded ? <CommandMenu open={open} onClose={() => setOpen(false)} context={context} /> : null}
     </>

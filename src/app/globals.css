@@ -18,6 +18,7 @@
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-brand-glyph: var(--brand-glyph);
 }
 
 :root {
@@ -29,6 +30,13 @@
   --muted: #94a3c0;
   --accent: #7aa2ff;
   --accent-fg: #0a0f1e;
+  /* Warna brand FY dan maskot Rakit (brand/final/guideline.md). Khusus logo dan maskot,
+     bukan untuk UI lain. Di tema gelap navy hanya 1,34:1, jadi tubuh memakai biru malam. */
+  --brand-glyph: #eaf0fb;
+  --rakit-body: #4263af;
+  --rakit-stem: #4263af;
+  --rakit-caret: #8fb0f0;
+  --rakit-eye: #f2b44a;
   color-scheme: dark;
 }
 
@@ -41,6 +49,10 @@
   --muted: #475569;
   --accent: #1e3a8a;
   --accent-fg: #ffffff;
+  --brand-glyph: #1b2a4a;
+  --rakit-body: #1b2a4a;
+  --rakit-stem: #1b2a4a;
+  --rakit-caret: #3f5fa8;
   color-scheme: light;
 }
 
@@ -159,10 +171,12 @@ body::before {
   }
 }
 
-/* ---------- Intro beranda: wordmark diketik di tengah, lalu pindah ke header ----------
-   Urutan (±1,35 detik): ketik → terbang ke posisi wordmark header → latar memudar.
-   Latar baru memudar setelah wordmark mendarat, jadi wordmark header (yang tetap dirender
-   di bawah overlay agar LCP tidak tertunda) tidak pernah terlihat ganda.
+/* ---------- Intro beranda: blok FY datang berekor, menyusun logo, lalu pindah ke header ----------
+   Urutan (±2 detik): sepuluh blok datang satu per satu dari berbagai arah. Sumbu x dan y memakai
+   kurva berbeda, jadi tiap blok melengkung; enam bayangan yang makin kecil dan tipis menyusul di
+   belakangnya sebagai ekor, lalu lenyap saat mendarat. Setelah logo utuh, logo terbang ke posisi
+   logo header → latar memudar. Latar baru memudar setelah logo mendarat, jadi logo header (yang
+   tetap dirender di bawah overlay agar LCP tidak tertunda) tidak pernah terlihat ganda.
    Tanpa JS pun selesai sendiri: overlay disembunyikan di akhir animasi. */
 .brand-intro {
   display: none;
@@ -174,43 +188,99 @@ body::before {
   display: grid;
   place-items: center;
   pointer-events: none;
-  animation: intro-hide 1ms linear 1380ms forwards;
+  animation: intro-hide 1ms linear 2120ms forwards;
 }
 [data-intro] .brand-intro::before {
   content: "";
   position: absolute;
   inset: 0;
   background: var(--color-bg);
-  animation: intro-fade 300ms var(--ease-reveal) 1060ms forwards;
+  animation: intro-fade 300ms var(--ease-reveal) 1800ms forwards;
 }
 [data-intro] .brand-intro-mark {
   position: relative;
-  white-space: nowrap;
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  display: block;
   transform-origin: 0 0;
 }
-/* Dimulai setelah skrip mengisi --intro-*; bila pengukuran gagal, wordmark ikut memudar. */
+[data-intro] .brand-intro-mark svg {
+  display: block;
+  overflow: visible;
+}
+/* Dimulai setelah skrip mengisi --intro-*; bila pengukuran gagal, logo ikut memudar. */
 [data-intro="ready"] .brand-intro-mark {
-  animation: intro-move 400ms cubic-bezier(0.65, 0, 0.35, 1) 660ms forwards;
+  animation: intro-move 440ms cubic-bezier(0.65, 0, 0.35, 1) 1400ms forwards;
 }
 [data-intro=""] .brand-intro-mark {
-  animation: intro-fade 300ms var(--ease-reveal) 1060ms forwards;
+  animation: intro-fade 300ms var(--ease-reveal) 1800ms forwards;
 }
-[data-intro] .brand-intro .brand-text {
-  clip-path: inset(0 100% 0 0);
-  animation: intro-type 540ms steps(var(--chars), end) 80ms forwards;
+[data-intro] .brand-intro .intro-x {
+  animation: intro-x 480ms cubic-bezier(0.2, 0.8, 0.3, 1) calc(var(--t) + var(--lag, 0ms)) both;
 }
-[data-intro] .brand-intro .caret {
-  transform: translateX(calc(var(--chars) * -1ch));
-  animation: intro-caret 540ms steps(var(--chars), end) 80ms forwards;
+[data-intro] .brand-intro .intro-y {
+  animation: intro-y 480ms cubic-bezier(0.6, 0, 0.3, 1) calc(var(--t) + var(--lag, 0ms)) both;
 }
-@keyframes intro-type {
+[data-intro] .brand-intro .intro-ghost {
+  animation-name: intro-ghost;
+}
+[data-intro] .brand-intro .intro-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: intro-pop 300ms var(--ease-reveal) calc(var(--t) + 440ms) both;
+}
+/* Nama di header menyusul setelah logo mendarat. */
+[data-intro] .brand-name {
+  animation: brand-name-in 420ms var(--ease-reveal) 1760ms both;
+}
+@keyframes intro-x {
+  from {
+    transform: translateX(var(--fx));
+  }
   to {
-    clip-path: inset(0 0 0 0);
+    transform: none;
   }
 }
-@keyframes intro-caret {
+@keyframes intro-y {
+  from {
+    opacity: 0;
+    transform: translateY(var(--fy));
+  }
+  25% {
+    opacity: var(--o, 1);
+  }
   to {
+    opacity: var(--o, 1);
+    transform: none;
+  }
+}
+@keyframes intro-ghost {
+  from {
+    opacity: 0;
+    transform: translateY(var(--fy));
+  }
+  25%,
+  75% {
+    opacity: var(--o);
+  }
+  to {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes intro-pop {
+  40% {
+    transform: scale(1.22);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes brand-name-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
     transform: none;
   }
 }
@@ -230,6 +300,18 @@ body::before {
   }
 }
 
+/* Logo header: blok-bloknya sedikit "bernapas" saat disorot. */
+.brand-link rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 260ms var(--ease-reveal);
+}
+@media (hover: hover) {
+  .brand-link:hover rect {
+    transform: translateY(calc((var(--c) - 4.5) * -0.35px)) scale(1.08);
+  }
+}
+
 /* ---------- Lapisan animasi scroll (scroll-driven, tanpa JS) ----------
    Semua di dalam @supports + no-preference: browser lama dan reduced-motion melihat konten
    statis yang lengkap. Hanya transform, opacity, dan clip-path. */
@@ -242,9 +324,10 @@ body::before {
   @supports (animation-timeline: scroll()) {
     .scroll-progress {
       position: absolute;
-      inset: auto 0 0;
+      inset: auto 2rem -1px;
       display: block;
       height: 2px;
+      border-radius: 9999px;
       background: var(--color-accent);
       transform-origin: 0 50%;
       transform: scaleX(0);
@@ -280,7 +363,7 @@ body::before {
       animation-range: entry 0% cover 35%;
     }
     /* Wordmark footer naik saat footer masuk layar. */
-    .footer-wordmark > span {
+    .footer-wordmark .wordmark {
       animation: rise linear both;
       animation-timeline: view();
       animation-range: entry 10% entry 90%;
@@ -334,20 +417,147 @@ body::before {
   }
 }
 
-/* Penanda halaman aktif di navigasi. */
-.nav-link::after {
+/* ---------- Navbar kaca ----------
+   Di puncak halaman: bilah kaca selebar layar dengan garis tipis di bawahnya. Begitu digulir
+   (`html[data-scrolled]`, ScrollState): bilah menyusut menjadi kapsul yang melayang 10 px di
+   bawah tepi atas. Radius kapsul ditulis sebagai angka (bukan 9999px) supaya transisinya halus.
+   Tinggi header tidak berubah, jadi konten di bawahnya tidak bergeser. */
+.scroll-marker {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+/* Latar kaca (background, blur, bayangan) ada di `::before`, bukan di `.nav-shell` sendiri.
+   `backdrop-filter` menjadikan elemennya backdrop root, sehingga panel menu ponsel di dalamnya
+   tidak bisa mengaburkan halaman dan teks di belakang panel tembus terbaca. */
+.nav-shell {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  margin-inline: auto;
+  border: 1px solid transparent;
+  border-bottom-color: color-mix(in srgb, var(--color-border) 80%, transparent);
+  transition:
+    width 480ms var(--ease-reveal),
+    translate 480ms var(--ease-reveal),
+    border-radius 480ms var(--ease-reveal),
+    border-color 300ms;
+}
+.nav-shell::before {
   content: "";
   position: absolute;
-  inset: auto 0.75rem 0.375rem;
-  height: 2px;
-  border-radius: 9999px;
-  background: var(--color-accent);
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  transition: transform 260ms var(--ease-reveal);
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  transition:
+    background-color 300ms,
+    box-shadow 480ms;
 }
-.nav-link[aria-current="page"]::after {
-  transform: scaleX(1);
+:root[data-scrolled] .nav-shell {
+  width: min(100% - 1.5rem, 60rem);
+  translate: 0 10px;
+  /* ponsel: satu baris setinggi 56 px, radius = setengah tinggi = kapsul penuh */
+  border-radius: 1.75rem;
+  border-color: color-mix(in srgb, var(--color-border-strong) 40%, transparent);
+}
+:root[data-scrolled] .nav-shell::before {
+  background: color-mix(in srgb, var(--color-surface) 58%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-fg) 9%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 6%, transparent),
+    0 20px 44px -24px color-mix(in srgb, #000 70%, transparent);
+}
+:root[data-theme="light"][data-scrolled] .nav-shell::before {
+  background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-surface) 90%, transparent),
+    0 18px 40px -26px color-mix(in srgb, var(--color-fg) 35%, transparent);
+}
+@media (min-width: 40rem) {
+  /* satu baris setinggi 64 px: radius >= setengah tinggi = kapsul penuh */
+  :root[data-scrolled] .nav-shell {
+    width: min(100% - 2rem, 60rem);
+    translate: 0 12px;
+    border-radius: 2.25rem;
+  }
+}
+
+/* Penanda halaman aktif: pil kaca bercahaya yang meluncur ke tautan aktif (NavLinks). Sebelum JS
+   memasang `data-pill`, tautan aktif sendiri yang memakai gaya pil, jadi tidak ada kedipan. */
+.nav-pill,
+.nav-list:not([data-pill]) .nav-link[aria-current="page"] {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-fg) 12%, transparent),
+    0 0 22px -6px color-mix(in srgb, var(--color-accent) 75%, transparent);
+}
+.nav-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  opacity: 0;
+}
+.nav-pill[data-on] {
+  opacity: 1;
+}
+.nav-pill[data-ready] {
+  transition:
+    transform 460ms var(--ease-reveal),
+    width 460ms var(--ease-reveal),
+    opacity 200ms;
+}
+@media (hover: hover) {
+  .nav-link:not([aria-current="page"]):hover {
+    background: color-mix(in srgb, var(--color-fg) 6%, transparent);
+  }
+}
+
+/* Menu ponsel (MobileNav): panel kaca di bawah bilah, selebar `.nav-shell`. */
+.mobile-nav-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0.75rem;
+  left: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 40%, transparent);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-fg) 9%, transparent),
+    0 24px 48px -24px color-mix(in srgb, #000 70%, transparent);
+}
+:root[data-theme="light"] .mobile-nav-panel {
+  background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  box-shadow: 0 18px 40px -26px color-mix(in srgb, var(--color-fg) 35%, transparent);
+}
+.mobile-nav-link[aria-current="page"] {
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+.mobile-nav-link:not([aria-current="page"]):hover {
+  background: color-mix(in srgb, var(--color-fg) 6%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  details[open] > .mobile-nav-panel {
+    animation: menu-drop 260ms var(--ease-reveal);
+  }
+}
+@keyframes menu-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 /* ---------- Umpan balik kontrol ---------- */
@@ -395,10 +605,6 @@ body::before {
   .pulse-dot {
     animation: pulse 2.4s ease-out infinite;
   }
-  .blink,
-  .caret {
-    animation: blink 1.1s steps(1) infinite;
-  }
 }
 @keyframes pulse {
   0% {
@@ -407,11 +613,6 @@ body::before {
   70%,
   100% {
     box-shadow: 0 0 0 7px transparent;
-  }
-}
-@keyframes blink {
-  50% {
-    opacity: 0;
   }
 }
 
@@ -424,7 +625,8 @@ body::before {
   transition: transform 200ms var(--ease-reveal);
 }
 .ledger-row:hover .ledger-arrow,
-.ledger-row:focus-visible .ledger-arrow {
+.ledger-row:focus-visible .ledger-arrow,
+.ledger-row[data-picked] .ledger-arrow {
   transform: translateX(4px);
   color: var(--color-accent);
 }
@@ -442,7 +644,8 @@ body::before {
     transform 300ms var(--ease-reveal),
     visibility 180ms;
 }
-.ledger:not(:has(.ledger-row:is(:hover, :focus-visible))) .ledger-preview[data-i="0"] {
+.ledger:not(:has(.ledger-row:is(:hover, :focus-visible, [data-picked])))
+  .ledger-preview[data-i="0"] {
   opacity: 1;
   visibility: visible;
   transform: none;
@@ -669,6 +872,360 @@ body::before {
 @keyframes hero-parallax {
   to {
     translate: 0 -48px;
+  }
+}
+
+/* ---------- Maskot Rakit ---------- */
+.rakit {
+  display: block;
+  overflow: visible;
+}
+.rk-body {
+  fill: var(--rakit-body);
+}
+.rk-stem {
+  fill: var(--rakit-stem);
+}
+.rk-caret {
+  fill: var(--rakit-caret);
+}
+.rk-eye {
+  fill: var(--rakit-eye);
+}
+/* Lapisan Rakit: fixed di atas halaman (di bawah intro dan dialog), hanya Rakit yang menerima
+   pointer. Rakit diposisikan mesin lewat transform; di ponsel 24% lebih kecil. */
+.rakit-stage {
+  --rakit-w: 76px;
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+}
+@media (min-width: 40rem) {
+  .rakit-stage {
+    --rakit-w: 100px;
+  }
+}
+/* Transform dari mesin diputar di sekitar kaki. touch-action hanya di maskot, scroll halaman aman. */
+.rakit-live-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--rakit-w);
+  height: calc(var(--rakit-w) * 1.3125);
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  transform-origin: 50% 94%;
+  will-change: transform;
+}
+.rakit-dragging {
+  cursor: grabbing;
+}
+/* Mata senang: lengkung `^`, menggantikan batang selama ekspresi itu. */
+.rk-eye-arc {
+  display: none;
+  fill: none;
+  stroke: var(--rakit-eye);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.rakit[data-eyes="arc"] .rk-eye-arc {
+  display: inline;
+}
+.rakit[data-eyes="arc"] .rk-eye {
+  display: none;
+}
+
+/* Gelembung percakapan Rakit. Posisi (translate) dan letak ekor (--tail) diatur mesin; tampil dan
+   hilang lewat opacity dan scale saja. */
+.rakit-bubble {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(15rem, calc(100vw - 16px));
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  text-wrap: balance;
+  box-shadow: 0 12px 32px -16px color-mix(in srgb, #000 55%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  scale: 0.85;
+  transform-origin: var(--tail, 50%) calc(100% + 8px);
+  transition:
+    opacity 160ms,
+    scale 260ms var(--ease-reveal),
+    visibility 160ms;
+}
+.rakit-bubble[data-below] {
+  transform-origin: var(--tail, 50%) -8px;
+}
+.rakit-bubble[data-show] {
+  opacity: 1;
+  visibility: visible;
+  scale: 1;
+}
+/* Ekor: belah ketupat kecil dengan dua sisi berbingkai, menunjuk ke kepala Rakit. */
+.rakit-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: var(--tail, 50%);
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  background: inherit;
+  border: solid var(--color-border-strong);
+  border-width: 0 1px 1px 0;
+  border-radius: 0 0 2px 0;
+  rotate: 45deg;
+}
+.rakit-bubble[data-below]::after {
+  top: -6px;
+  bottom: auto;
+  border-width: 1px 0 0 1px;
+  border-radius: 2px 0 0 0;
+}
+.rakit-blink,
+.rakit-breathe {
+  transform-box: fill-box;
+}
+.rakit-blink {
+  transform-origin: center;
+}
+.rakit-breathe {
+  transform-origin: 50% 100%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rakit-breathe {
+    animation: rakit-breathe 3.6s ease-in-out infinite;
+  }
+  .rakit-caret {
+    animation: rakit-caret 1.4s steps(1) infinite;
+  }
+  .rakit-loading .rakit-caret {
+    animation-duration: 0.5s;
+  }
+  .rakit-blink {
+    animation: rakit-blink 5.2s ease-in-out infinite;
+  }
+}
+@keyframes rakit-breathe {
+  50% {
+    transform: scale(0.992, 1.018);
+  }
+}
+@keyframes rakit-caret {
+  50% {
+    opacity: 0.15;
+  }
+}
+/* Tidur: murni CSS (mesin fisika diam). Badan merosot dan bernapas pelan, antena diatur mesin. */
+@media (prefers-reduced-motion: no-preference) {
+  .rakit-sleeping .rakit-breathe {
+    animation: rakit-doze 4.2s ease-in-out infinite;
+  }
+  .rakit-sleeping .rakit-blink {
+    animation: none;
+  }
+}
+@keyframes rakit-doze {
+  0%,
+  100% {
+    transform: rotate(3deg) scale(1.01, 0.95);
+  }
+  50% {
+    transform: rotate(3deg) scale(1.03, 0.91);
+  }
+}
+
+/* Efek di atas kepala: tampil hanya saat mesin memasang `data-fx` di <svg>. */
+.rk-fx-layer {
+  fill: var(--rakit-caret);
+}
+.rk-fx-layer > g {
+  display: none;
+}
+.rk-fx-text text {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.rk-fx-item {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+/* Animasi hanya dipasang saat kelompoknya aktif, jadi setiap `data-fx` baru memutarnya dari awal. */
+@media (prefers-reduced-motion: no-preference) {
+  .rakit[data-fx="heart"] [data-fxg="heart"],
+  .rakit[data-fx="note"] [data-fxg="note"],
+  .rakit[data-fx="sparkle"] [data-fxg="sparkle"],
+  .rakit[data-fx="alert"] [data-fxg="alert"],
+  .rakit[data-fx="question"] [data-fxg="question"],
+  .rakit[data-fx="zzz"] [data-fxg="zzz"] {
+    display: inline;
+  }
+  .rakit[data-fx="heart"] [data-fxg="heart"] .rk-fx-item {
+    animation: rk-float 1.5s var(--ease-reveal) both;
+    animation-delay: calc(var(--k) * 160ms);
+  }
+  .rakit[data-fx="note"] [data-fxg="note"] .rk-fx-item {
+    animation: rk-float 1.5s var(--ease-reveal) both;
+    animation-delay: calc(var(--k) * 160ms);
+  }
+  .rakit[data-fx="sparkle"] [data-fxg="sparkle"] .rk-fx-item {
+    animation: rk-twinkle 0.9s var(--ease-reveal) both;
+    animation-delay: calc(var(--k) * 110ms);
+  }
+  .rakit[data-fx="alert"] [data-fxg="alert"] .rk-fx-item {
+    animation: rk-pop 1.5s var(--ease-reveal) both;
+    animation-delay: calc(var(--k) * 200ms);
+  }
+  .rakit[data-fx="question"] [data-fxg="question"] .rk-fx-item {
+    animation: rk-pop 1.5s var(--ease-reveal) both;
+    animation-delay: calc(var(--k) * 200ms);
+  }
+  .rakit[data-fx="zzz"] [data-fxg="zzz"] .rk-fx-item {
+    animation: rk-zzz 3s ease-in-out infinite both;
+    animation-delay: calc(var(--k) * 1s);
+  }
+}
+@keyframes rk-float {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.4);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(0) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-26px) scale(0.9);
+  }
+}
+@keyframes rk-twinkle {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-45deg);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.15) rotate(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3) rotate(45deg);
+  }
+}
+@keyframes rk-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+  30%,
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.9);
+  }
+}
+@keyframes rk-zzz {
+  0% {
+    opacity: 0;
+    transform: translate(-4px, 8px) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(8px, -16px) scale(1);
+  }
+}
+
+@keyframes rakit-blink {
+  0%,
+  95%,
+  100% {
+    transform: none;
+  }
+  97% {
+    transform: scaleY(0.12);
+  }
+}
+
+/* ---------- Partikel latar ----------
+   Blok kecil (motif blok FY) yang naik pelan di belakang konten. Murni CSS, transform dan opacity
+   saja, posisinya deterministik dari server (Particles.tsx). Gerak dikurangi: diam di tempat. */
+.particles {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.particle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 1px;
+  background: var(--color-accent);
+  opacity: var(--o);
+}
+.particle[data-kind="ring"] {
+  background: none;
+  border: 1px solid var(--color-accent);
+}
+.particle[data-kind="dim"] {
+  background: var(--color-border-strong);
+}
+/* Di ponsel separuhnya saja. */
+@media (max-width: 39.99rem) {
+  .particle:nth-child(2n) {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .particle {
+    top: 100%;
+    opacity: 0;
+    animation: particle-rise var(--d) linear var(--delay) infinite;
+  }
+}
+@keyframes particle-rise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0);
+  }
+  12%,
+  80% {
+    opacity: var(--o);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--dx), -110vh, 0) rotate(var(--r));
   }
 }
 

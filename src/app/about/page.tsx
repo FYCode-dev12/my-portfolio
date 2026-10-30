@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RakitCue } from "@/components/mascot/RakitCue";
 import { AboutPhotos } from "@/components/sections/about/AboutPhotos";
 import { ProfileFrame } from "@/components/sections/about/ProfileFrame";
 import { SkillGroups } from "@/components/sections/about/SkillGroups";
@@ -30,6 +31,7 @@ export default function AboutPage() {
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_20rem]">
           <div>
             <Heading level={1}>Tentang</Heading>
+            <RakitCue act="lambai" say="Ini cerita singkat Febrian. Perjalanannya ada di bawah." />
             <div className="mt-6 max-w-2xl space-y-4 text-lg text-muted">
               <p>
                 Saya {site.name}, mahasiswa S1 Teknik Informatika di Institut Teknologi Sumatera

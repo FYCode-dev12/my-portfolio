@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 168" data-expression="netral">
+<title>Rakit, ekspresi netral</title>
+<g id="mascot">
+  <g id="antenna">
+    <rect id="antenna-stem" x="62" y="31" width="4" height="25" fill="#4263AF"/>
+    <rect id="antenna-caret" x="55" y="7" width="18" height="24" rx="4" fill="#8FB0F0"></rect>
+  </g>
+  <g id="body" fill="#4263AF">
+    <rect id="cell-0-0" x="20" y="56" width="28" height="28" rx="6"/>
+    <rect id="cell-1-0" x="50" y="56" width="28" height="28" rx="6"/>
+    <rect id="cell-2-0" x="80" y="56" width="28" height="28" rx="6"/>
+    <rect id="cell-0-1" x="20" y="86" width="28" height="28" rx="6"/>
+    <rect id="cell-1-1" x="50" y="86" width="28" height="28" rx="6"/>
+    <rect id="cell-2-1" x="80" y="86" width="28" height="28" rx="6"/>
+    <rect id="cell-0-2" x="20" y="116" width="28" height="28" rx="6"/>
+    <rect id="cell-1-2" x="50" y="116" width="28" height="28" rx="6"/>
+    <rect id="cell-2-2" x="80" y="116" width="28" height="28" rx="6"/>
+  </g>
+  <g id="eyes">
+    <rect id="eye-l" x="44" y="83" width="10" height="26" rx="5" fill="#F2B44A"/>
+    <rect id="eye-r" x="74" y="83" width="10" height="26" rx="5" fill="#F2B44A"/>
+  </g>
+  <g id="feet" fill="#4263AF">
+    <rect id="foot-l" x="32" y="144" width="24" height="14" rx="5"/>
+    <rect id="foot-r" x="72" y="144" width="24" height="14" rx="5"/>
+  </g>
+</g>
+</svg>

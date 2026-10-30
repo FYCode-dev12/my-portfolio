@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RakitCue } from "@/components/mascot/RakitCue";
 import { ProjectCard } from "@/components/sections/projects/ProjectCard";
 import { ProjectFilter } from "@/components/sections/projects/ProjectFilter";
 import { Container } from "@/components/ui/Container";
@@ -11,18 +12,22 @@ export const metadata: Metadata = {
   alternates: { canonical: "/projects" },
 };
 
+// Teknologi yang hanya dipakai satu proyek cukup dibaca di kartu dan studi kasusnya.
+const MIN_PROJECTS_PER_FILTER = 2;
+
 export default async function ProjectsPage({ searchParams }: PageProps<"/projects">) {
   const params = await searchParams;
   const tech = typeof params.tech === "string" ? params.tech : undefined;
 
   const all = await getAllProjects();
-  const stacks = getStackCounts(all);
+  const stacks = getStackCounts(all).filter((s) => s.count >= MIN_PROJECTS_PER_FILTER);
   const active = stacks.some((s) => s.name === tech) ? tech : undefined;
   const projects = active ? all.filter((p) => p.stack.includes(active)) : all;
 
   return (
     <Container className="py-16 sm:py-24">
       <Heading level={1}>Proyek & studi kasus</Heading>
+      <RakitCue expression="fokus" ms={2400} say="Coba saring proyeknya per teknologi." />
       <p className="mt-6 max-w-[48ch] text-lg text-muted">
         Sistem web yang saya bangun dan rilis, lengkap dengan arsitektur dan alasan teknisnya.
         Saring berdasarkan teknologi.

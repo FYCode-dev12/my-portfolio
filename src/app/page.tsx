@@ -19,9 +19,9 @@ export default async function Home() {
       <Letter projects={projects} />
       <RepoFigures projects={projects} />
       <BeyondCode />
-      <section aria-labelledby="contact-heading" className="pt-20 pb-32 sm:pt-28 sm:pb-40">
+      <section aria-labelledby="contact-heading" className="pt-20 pb-24 sm:pt-28 sm:pb-32">
         <Container>
-          <ContactPanel cvHref={context.cvHref} />
+          <ContactPanel cvHref={context.cvHref} split />
         </Container>
       </section>
     </>

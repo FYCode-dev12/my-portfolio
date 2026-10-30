@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useEffectEvent, useRef, useState, type ReactNode } from "react";
+import type { RakitReaction } from "@/components/mascot/companion";
+import { rakitReact } from "@/components/mascot/react";
 import { toggleTheme } from "@/lib/theme";
 import type { CommandContext, CommandProject } from "./command-data";
 
@@ -26,9 +28,40 @@ const COMMANDS = [
   "kontak",
   "cv",
   "tema",
+  "rakit",
   "clear",
 ] as const;
 const SUGGESTIONS = ["help", "proyek", "stack", "kontak"] as const;
+
+/** Trik yang bisa diminta lewat `rakit <trik>`. */
+const TRICKS = {
+  joget: "joget",
+  salto: "salto",
+  cilukba: "cilukba",
+  lompat: "lompat",
+  lambai: "lambai",
+} as const satisfies Record<string, NonNullable<RakitReaction["act"]>>;
+type Trick = keyof typeof TRICKS;
+const isTrick = (v: string | undefined): v is Trick => v !== undefined && v in TRICKS;
+
+/** Cara Rakit (di atas terminal) menanggapi tiap perintah. Perintah tak dikenal: bingung. */
+const REACTIONS: Partial<Record<string, Omit<RakitReaction, "zone">>> = {
+  help: { act: "toleh" },
+  whoami: { act: "lambai" },
+  ls: { expression: "fokus", ms: 2400 },
+  proyek: { expression: "fokus", ms: 2400 },
+  stack: { expression: "fokus", ms: 2400 },
+  buka: { act: "lompat" },
+  open: { act: "lompat" },
+  cd: { act: "lompat" },
+  kontak: { act: "lambai" },
+  cv: { act: "lompat" },
+  tema: { act: "lompat" },
+  theme: { act: "lompat" },
+  rakit: { act: "lompat" },
+  clear: { act: "geliat" },
+  sudo: { expression: "bingung", ms: 2400 },
+};
 
 const statusText: Record<CommandProject["status"], string> = {
   live: "live",
@@ -81,6 +114,7 @@ export function Terminal({ name, role, campus, skills, context }: Props) {
   const nextId = useRef(2);
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState("");
   const [past, setPast] = useState<string[]>([]);
   const [cursor, setCursor] = useState<number | null>(null);
@@ -133,6 +167,9 @@ export function Terminal({ name, role, campus, skills, context }: Props) {
             </li>
             <li>
               <span className="text-fg">tema</span> ganti terang/gelap
+            </li>
+            <li>
+              <span className="text-fg">rakit</span> [joget|salto|cilukba] sapa maskotnya
             </li>
             <li>
               <span className="text-fg">clear</span> bersihkan layar
@@ -226,6 +263,25 @@ export function Terminal({ name, role, campus, skills, context }: Props) {
       case "theme":
         toggleTheme();
         return <p>tema diganti.</p>;
+      case "rakit": {
+        const trick = args[0]?.toLowerCase();
+        if (isTrick(trick)) return <p>rakit: {trick}!</p>;
+        if (trick) {
+          return (
+            <p>
+              rakit: trik tidak dikenal: {trick}. Coba{" "}
+              <span className="text-fg">{Object.keys(TRICKS).join(", ")}</span>.
+            </p>
+          );
+        }
+        return (
+          <p>
+            <span className="text-fg">Rakit</span>: sembilan blok dan satu kursor. Seret dia ke mana
+            saja, dia akan menunggu di sana. Ketuk dia, atau coba{" "}
+            <span className="text-fg">rakit joget</span>.
+          </p>
+        );
+      }
       case "clear":
         return "clear";
       case "sudo":
@@ -243,6 +299,14 @@ export function Terminal({ name, role, campus, skills, context }: Props) {
   function run(raw: string) {
     setTouched(true);
     const output = respond(raw);
+    const [cmd = "", arg] = raw.trim().toLowerCase().split(/\s+/);
+    if (cmd) {
+      const trick = cmd === "rakit" && isTrick(arg) ? { act: TRICKS[arg] } : undefined;
+      rakitReact({
+        zone: rootRef.current?.closest("section") ?? undefined,
+        ...(trick ?? REACTIONS[cmd] ?? { expression: "bingung", ms: 2400 }),
+      });
+    }
     if (output === "clear") {
       setEntries([]);
     } else {
@@ -253,8 +317,23 @@ export function Terminal({ name, role, campus, skills, context }: Props) {
     setValue("");
   }
 
+  // Rakit yang dijatuhkan ke terminal mengetik namanya sendiri.
+  const onRakitDrop = useEffectEvent(() => run("rakit"));
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const onDrop = () => onRakitDrop();
+    el.addEventListener("rakit:drop", onDrop);
+    return () => el.removeEventListener("rakit:drop", onDrop);
+  }, []);
+
   function complete() {
     const [cmd = "", arg] = value.trimStart().split(/\s+/);
+    if (arg !== undefined && cmd === "rakit") {
+      const trick = Object.keys(TRICKS).find((t) => t.startsWith(arg));
+      if (trick) setValue(`rakit ${trick}`);
+      return;
+    }
     if (arg !== undefined) {
       const match = context.projects.find((p) => p.slug.startsWith(arg));
       if (match) setValue(`${cmd} ${match.slug}`);
@@ -291,7 +370,9 @@ export function Terminal({ name, role, campus, skills, context }: Props) {
 
   return (
     <div
+      ref={rootRef}
       data-ui
+      data-rakit-drop=""
       className="terminal flex h-[24rem] flex-col overflow-hidden rounded-lg bg-surface font-mono text-[0.875rem] leading-6 text-muted transition-shadow has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-accent sm:h-[26rem]"
     >
       <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-2.5 text-[0.8125rem]">

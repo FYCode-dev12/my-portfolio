@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { LiveStatus } from "@/components/interactive/LiveStatus";
+import { LedgerPick } from "./LedgerPick";
 import { contributions } from "@/content/contributions";
 import { diagrams } from "@/content/diagrams";
 import type { Project } from "@/lib/content";
@@ -97,16 +98,17 @@ export function WorkLedger({ projects }: { projects: Project[] }) {
   const rows = buildRows(projects);
   const years = [...new Set(rows.map((r) => r.year))].sort().reverse();
   const index = new Map(rows.map((r, i) => [r.key, i]));
-  // Pratinjau dipilih murni dengan CSS (:has), tanpa JS.
+  // Pratinjau dipilih murni dengan CSS (:has). `data-picked` dipasang LedgerPick saat Rakit
+  // dijatuhkan di sebuah baris.
   const css = rows
     .map(
       (_, i) =>
-        `.ledger:has([data-i="${i}"]:is(:hover,:focus-visible)) .ledger-preview[data-i="${i}"]{opacity:1;transform:none;visibility:visible}`,
+        `.ledger:has([data-i="${i}"]:is(:hover,:focus-visible,[data-picked])) .ledger-preview[data-i="${i}"]{opacity:1;transform:none;visibility:visible}`,
     )
     .join("");
 
   return (
-    <section id="work" aria-labelledby="work-heading" className="py-28 sm:py-40">
+    <section id="work" aria-labelledby="work-heading" className="pt-12 pb-20 sm:pt-16 sm:pb-28">
       <style>{css}</style>
       <Container>
         <div className="ledger grid gap-12 lg:grid-cols-12 lg:gap-8">
@@ -119,9 +121,9 @@ export function WorkLedger({ projects }: { projects: Project[] }) {
               style={{ "--d": 1 } as React.CSSProperties}
             >
               Empat proyek dengan studi kasus, lalu sistem kepanitiaan tempat saya memegang frontend
-              atau backend. Arahkan ke baris untuk melihat isinya.
+              atau backend. Arahkan ke baris untuk melihat isinya, atau jatuhkan Rakit di sana.
             </p>
-            <div className="mt-10 space-y-8">
+            <div className="mt-4 space-y-8 lg:mt-10">
               {years.map((year) => (
                 <div key={year} className="reveal">
                   <p className="mb-2 text-sm text-muted tabular-nums">{year}</p>
@@ -133,6 +135,7 @@ export function WorkLedger({ projects }: { projects: Project[] }) {
                           <Link
                             href={row.href}
                             data-i={index.get(row.key)}
+                            data-rakit-drop=""
                             target={row.external ? "_blank" : undefined}
                             rel={row.external ? "noopener noreferrer" : undefined}
                             className="ledger-row group grid min-h-13 grid-cols-[1fr_auto] items-center gap-x-4 py-2 sm:grid-cols-[1.1fr_1fr_auto]"
@@ -172,21 +175,24 @@ export function WorkLedger({ projects }: { projects: Project[] }) {
               ))}
             </div>
           </div>
-          <div inert className="relative hidden lg:col-span-6 lg:block">
-            <div className="sticky top-28 h-[22rem]">
-              {rows.map((row, i) => (
-                <div
-                  key={row.key}
-                  data-i={i}
-                  data-ui
-                  className="ledger-preview absolute inset-x-0 top-0 overflow-hidden rounded-lg bg-surface font-mono text-[0.875rem] leading-6 text-muted"
-                >
-                  {row.preview}
-                </div>
-              ))}
+          <div className="relative hidden lg:col-span-6 lg:block">
+            <div className="sticky top-20">
+              <div inert className="relative h-[22rem]">
+                {rows.map((row, i) => (
+                  <div
+                    key={row.key}
+                    data-i={i}
+                    data-ui
+                    className="ledger-preview absolute inset-x-0 top-0 overflow-hidden rounded-lg bg-surface font-mono text-[0.875rem] leading-6 text-muted"
+                  >
+                    {row.preview}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
+        <LedgerPick />
       </Container>
     </section>
   );

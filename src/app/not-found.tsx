@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
+import { RakitCue } from "@/components/mascot/RakitCue";
 
 export default function NotFound() {
   return (
@@ -8,6 +9,7 @@ export default function NotFound() {
       <p aria-hidden="true" className="display font-mono text-accent">
         404
       </p>
+      <RakitCue expression="bingung" ms={3200} act="toleh" say="Hmm, halaman ini nggak ketemu." />
       <Heading level={1} look={2} className="mt-6">
         Halaman tidak ditemukan
       </Heading>

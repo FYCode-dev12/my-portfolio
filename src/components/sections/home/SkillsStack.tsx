@@ -10,7 +10,7 @@ const ROOT_ID = "stack";
 /** Fragmen `stack.json` dipaku di satu sisi; tiap pernyataan menyorot kuncinya saat dibaca. */
 export function SkillsStack() {
   return (
-    <section id={ROOT_ID} aria-labelledby="stack-heading" className="bg-surface py-28 sm:py-40">
+    <section id={ROOT_ID} aria-labelledby="stack-heading" className="bg-surface py-20 sm:py-28">
       <ScrollSpy rootId={ROOT_ID} />
       <Container>
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
@@ -25,7 +25,7 @@ export function SkillsStack() {
               Teknologi web diambil dari repositori proyek di atas. Desain dan media dari
               dokumentasi acara.
             </p>
-            <ul className="mt-16 space-y-20 lg:space-y-[22vh] lg:pb-[12vh]">
+            <ul className="mt-12 space-y-16 lg:space-y-[14vh] lg:pb-[8vh]">
               {skillGroups.map((group) => (
                 <li key={group.id} data-step={group.key} className="stack-step reveal">
                   <Heading level={3} look={2}>
@@ -45,14 +45,14 @@ export function SkillsStack() {
                 </li>
               ))}
             </ul>
-            <p className="mt-16">
+            <p className="mt-12">
               <Link href="/about#skills" className="link-arrow text-accent">
                 Rincian keahlian <span aria-hidden="true">→</span>
               </Link>
             </p>
           </div>
           <div className="lg:col-span-7">
-            <figure className="lg:sticky lg:top-28">
+            <figure className="lg:sticky lg:top-20">
               <div
                 data-ui
                 className="overflow-hidden rounded-lg bg-bg font-mono text-[0.875rem] leading-7 text-muted"

@@ -82,9 +82,9 @@ export function Footer() {
         </div>
         <div
           aria-hidden="true"
-          className="footer-wordmark col-span-2 flex min-h-40 items-center justify-center overflow-clip rounded-lg bg-fg px-6 text-bg lg:col-span-8 lg:min-h-80"
+          className="footer-wordmark col-span-2 flex min-h-40 items-center justify-center rounded-lg bg-fg px-6 text-bg lg:col-span-8 lg:min-h-80"
         >
-          <span className="font-mono text-[17vw] leading-none font-semibold tracking-tighter sm:text-[13vw] lg:text-[7.5rem]">
+          <span className="wordmark font-mono text-[13vw] leading-none font-semibold tracking-tighter sm:text-[11vw] lg:text-[6.5rem]">
             febrian<span className="text-accent">_</span>
           </span>
         </div>
