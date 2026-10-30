@@ -19,10 +19,6 @@ export function Hero({ context }: { context: CommandContext }) {
   return (
     <section aria-labelledby="hero-heading" className="pt-10 pb-20 sm:pt-16 sm:pb-28">
       <Container>
-        <p className="after-lines mb-6 inline-flex items-center gap-2.5 rounded-full border border-border bg-surface/70 py-1.5 pr-4 pl-3 text-sm text-fg sm:mb-8">
-          <span aria-hidden="true" className="pulse-dot size-2 rounded-full bg-accent" />
-          Mencari magang fullstack web developer
-        </p>
         <h1 id="hero-heading" className="lines display hero-exit text-fg">
           <span className="line">
             <span data-line style={{ "--i": 0 } as React.CSSProperties}>
