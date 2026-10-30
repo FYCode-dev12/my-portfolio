@@ -33,6 +33,7 @@ export default function ContactPage() {
               src={map.src}
               alt={map.alt}
               fill
+              loading="eager"
               sizes="(min-width: 1024px) 40vw, 92vw"
               className="drift object-cover"
               style={{ objectPosition: map.position }}

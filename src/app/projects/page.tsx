@@ -12,12 +12,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "/projects" },
 };
 
+// Teknologi yang hanya dipakai satu proyek cukup dibaca di kartu dan studi kasusnya.
+const MIN_PROJECTS_PER_FILTER = 2;
+
 export default async function ProjectsPage({ searchParams }: PageProps<"/projects">) {
   const params = await searchParams;
   const tech = typeof params.tech === "string" ? params.tech : undefined;
 
   const all = await getAllProjects();
-  const stacks = getStackCounts(all);
+  const stacks = getStackCounts(all).filter((s) => s.count >= MIN_PROJECTS_PER_FILTER);
   const active = stacks.some((s) => s.name === tech) ? tech : undefined;
   const projects = active ? all.filter((p) => p.stack.includes(active)) : all;
 
