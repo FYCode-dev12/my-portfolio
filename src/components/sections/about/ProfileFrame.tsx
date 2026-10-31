@@ -5,15 +5,15 @@ import { getProfilePhoto } from "@/lib/profile";
 export function ProfileFrame() {
   const src = getProfilePhoto();
   if (src) {
-    // Foto asli utuh dari kepala sampai kaki, tanpa crop (1080x1918).
+    // Foto asli utuh tanpa latar (transparan), hanya margin kosong yang dibuang (800x1638).
     return (
       <Image
         src={src}
         alt={`Foto ${site.name}`}
-        width={1080}
-        height={1918}
+        width={800}
+        height={1638}
         sizes="(min-width: 1024px) 20rem, 90vw"
-        className="mx-auto h-auto w-full max-w-xs rounded-lg"
+        className="mx-auto h-auto w-full max-w-xs"
         priority
       />
     );
