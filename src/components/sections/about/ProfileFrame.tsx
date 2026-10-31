@@ -5,13 +5,13 @@ import { getProfilePhoto } from "@/lib/profile";
 export function ProfileFrame() {
   const src = getProfilePhoto();
   if (src) {
-    // Foto asli utuh tanpa crop (1080x1918), mengikuti rasio aslinya.
+    // Foto asli selebar penuh, dipotong di pinggang agar kaki tidak tampil (1080x1287).
     return (
       <Image
         src={src}
         alt={`Foto ${site.name}`}
         width={1080}
-        height={1918}
+        height={1287}
         sizes="(min-width: 1024px) 20rem, 90vw"
         className="mx-auto h-auto w-full max-w-xs rounded-lg"
         priority
