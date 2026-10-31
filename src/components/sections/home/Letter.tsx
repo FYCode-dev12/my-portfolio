@@ -2,16 +2,13 @@ import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { site } from "@/content/site";
-import { cn } from "@/lib/cn";
 import type { Project } from "@/lib/content";
 import { getProfilePhoto } from "@/lib/profile";
 
 function Portrait() {
   const src = getProfilePhoto();
   return (
-    <span
-      className={cn("relative block size-12 overflow-hidden rounded-full", !src && "bg-surface")}
-    >
+    <span className="relative block size-12 overflow-hidden rounded-full bg-surface">
       {src ? (
         // Foto profil setengah badan (4:5): perbesar ke arah wajah agar terbaca di ukuran 48px.
         <Image
