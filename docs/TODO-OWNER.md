@@ -18,7 +18,7 @@ Hal yang hanya bisa diisi pemilik. Diurutkan menurut dampak ke penilaian pelamar
 | 5   | Jumlah klik atau tautan aktif            | PI-LYNK                         | Pemilik belum sempat mengecek. Bisa dibaca dari dashboard admin                                                              |
 | 6   | URL produksi dan pengguna selain pemilik | PI-CORE                         | Saat ini staging dan satu pengguna. Perbarui `status` dan `metrics` bila sudah rilis                                         |
 | 7   | Screenshot yang disamarkan               | PMK Form, PI-LYNK, PI-CORE, ARK | Diizinkan jika data pengguna disamarkan. Belum ada yang dibuat. Tambahkan via `cover:` di frontmatter dan `next/image`       |
-| 8   | **Foto pemilik**                         | `/about`                        | Belum ada, situs memakai siluet. Simpan satu file JPG di `public/photos/febrian.jpg` (potret 4:5, mis. 1200x1500 px, di bawah sekitar 500 KB, wajah dan bahu di bagian atas tengah). Terpasang otomatis saat build berikutnya, alt "Foto Febrian Yoel Anggara Saputra" |
+| 8   | ~~Foto pemilik~~ **Selesai** | `/about`                        | Terpasang di `public/photos/febrian.jpg` (1200x1500, potret 4:5, sekitar 113 KB). Dipakai di `/about` dan avatar surat di beranda |
 
 ## Dampak rendah (bisa setelah pendaftaran)
 

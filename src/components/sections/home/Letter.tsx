@@ -10,7 +10,15 @@ function Portrait() {
   return (
     <span className="relative block size-12 overflow-hidden rounded-full bg-surface">
       {src ? (
-        <Image src={src} alt="" fill sizes="48px" className="object-cover" />
+        // Foto profil setengah badan (4:5): perbesar ke arah wajah agar terbaca di ukuran 48px.
+        <Image
+          src={src}
+          alt=""
+          fill
+          sizes="96px"
+          className="scale-[1.6] object-cover"
+          style={{ objectPosition: "50% 18%", transformOrigin: "50% 32%" }}
+        />
       ) : (
         <svg
           viewBox="0 0 100 100"
