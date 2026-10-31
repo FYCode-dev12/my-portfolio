@@ -131,6 +131,25 @@ export const diagrams: Record<string, FlowColumn[]> = {
       lines: ["Partisipasi per fakultas", "Buka dan tutup pemungutan suara"],
     },
   ],
+  "silent-voice": [
+    {
+      title: "Kamera depan",
+      lines: ["Vision Camera, frame processor Kotlin", "MediaPipe Face Landmarker"],
+    },
+    {
+      title: "Deteksi ucapan",
+      lines: ["Mouth Aspect Ratio, mesin status", "Ring buffer 15 bingkai"],
+    },
+    {
+      title: "Model on-device",
+      lines: ["Patch bibir dan 40 landmark", "ONNX Runtime Mobile, antrean FIFO"],
+    },
+    { title: "Suara", lines: ["Text-to-speech Android", "Riwayat dan koreksi prediksi"] },
+    {
+      title: "Kalibrasi (cloud)",
+      lines: ["Enam rekaman per kata", "Fine-tuning di FastAPI, bobot dikirim balik"],
+    },
+  ],
   "igttpb-2025": [
     { title: "Login", lines: ["Google OAuth via Supabase, PKCE", "Hanya email mahasiswa ITERA"] },
     {

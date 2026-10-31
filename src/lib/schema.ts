@@ -17,6 +17,8 @@ export const projectFrontmatterSchema = z.object({
     // Label tautan live bila bukan situs produksi, misalnya demo dengan data dummy.
     liveLabel: z.string().max(30).optional(),
     repo: z.string().url().optional(),
+    // Video demo untuk proyek tanpa situs (mis. aplikasi mobile). Tidak ikut dicek status online-nya.
+    video: z.string().url().optional(),
   }),
   repoVisibility: z.enum(["public", "private-org", "none"]),
   featured: z.boolean().default(false),
