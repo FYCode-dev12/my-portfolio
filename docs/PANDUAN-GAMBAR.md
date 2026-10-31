@@ -33,7 +33,7 @@ Keempatnya foto temuan berlisensi terbuka. Kredit lengkap (judul, pembuat, lisen
 
 ## Foto profil (`/about`)
 
-Simpan satu berkas persis bernama `public/photos/febrian.jpg`. Versi sekarang adalah foto asli selebar penuh yang dipotong di pinggang (1080x1287). Foto asli (berlatar dan tanpa latar) disimpan di `assets/profile/`, yang di-gitignore dan tidak ikut dipublikasikan; `ProfileFrame` menampilkannya dengan rasio aslinya, jadi bila rasio foto berubah, perbarui `width`/`height` di komponen itu.
+Simpan satu berkas persis bernama `public/photos/febrian.jpg`. Versi sekarang adalah foto asli utuh dari kepala sampai kaki, tanpa crop (1080x1918). Foto asli (berlatar dan tanpa latar) disimpan di `assets/profile/`, yang di-gitignore dan tidak ikut dipublikasikan; `ProfileFrame` menampilkannya dengan rasio aslinya, jadi bila rasio foto berubah, perbarui `width`/`height` di komponen itu.
 
 - Potret rasio 4:5, misalnya 1200 x 1500 px, di bawah sekitar 500 KB.
 - Wajah dan bahu di bagian atas tengah. Crop memakai `objectPosition: 50% 25%`, jadi kepala yang terlalu rendah akan terpotong.
