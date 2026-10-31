@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { RakitCue } from "@/components/mascot/RakitCue";
-import { AboutPhotos } from "@/components/sections/about/AboutPhotos";
 import { ProfileFrame } from "@/components/sections/about/ProfileFrame";
 import { SkillGroups } from "@/components/sections/about/SkillGroups";
 import { Timeline } from "@/components/sections/about/Timeline";
@@ -53,7 +52,6 @@ export default function AboutPage() {
       <Section id="timeline" title="Perjalanan" className="pt-0 sm:pt-0">
         <Timeline items={achievements} />
       </Section>
-      <AboutPhotos />
     </>
   );
 }

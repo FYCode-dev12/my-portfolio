@@ -3,7 +3,7 @@ export type CommandProject = {
   slug: string;
   title: string;
   kind?: string;
-  status: "live" | "in-progress" | "archived";
+  status: "live" | "demo" | "in-progress" | "archived";
   live?: string;
 };
 

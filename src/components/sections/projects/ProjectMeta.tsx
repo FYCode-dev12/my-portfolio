@@ -1,12 +1,11 @@
 import { Badge } from "@/components/ui/Badge";
 import type { Project } from "@/lib/content";
-
-const statusLabel: Record<Project["status"], string> = {
-  live: "Live",
-  "in-progress": "Dalam pengerjaan",
-  archived: "Arsip",
-};
+import { statusLabel } from "@/lib/format";
 
 export function StatusBadge({ status }: { status: Project["status"] }) {
-  return <Badge tone={status === "live" ? "accent" : "neutral"}>{statusLabel[status]}</Badge>;
+  return (
+    <Badge tone={status === "live" || status === "demo" ? "accent" : "neutral"}>
+      {statusLabel[status]}
+    </Badge>
+  );
 }

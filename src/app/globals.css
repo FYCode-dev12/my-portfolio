@@ -356,12 +356,6 @@ body::before {
       animation-timeline: view();
       animation-range: entry 0% entry 80%;
     }
-    /* Foto terbuka dari bingkai yang lebih kecil. */
-    .window {
-      animation: open-window linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 35%;
-    }
     /* Wordmark footer naik saat footer masuk layar. */
     .footer-wordmark .wordmark {
       animation: rise linear both;
@@ -400,14 +394,6 @@ body::before {
   to {
     opacity: 1;
     transform: none;
-  }
-}
-@keyframes open-window {
-  from {
-    clip-path: inset(10% 10% 10% 10% round var(--radius-lg));
-  }
-  to {
-    clip-path: inset(0 0 0 0 round var(--radius-lg));
   }
 }
 @keyframes hero-exit {
@@ -780,21 +766,6 @@ body::before {
 @media (prefers-reduced-motion: no-preference) {
   .fig-panel .fig-number {
     animation: rise 650ms var(--ease-reveal);
-  }
-}
-
-/* ---------- Gambar yang bergerak pelan ---------- */
-@media (prefers-reduced-motion: no-preference) {
-  .drift {
-    animation: drift 24s ease-in-out infinite alternate;
-  }
-}
-@keyframes drift {
-  from {
-    transform: scale(1.04) translate3d(-1%, 0, 0);
-  }
-  to {
-    transform: scale(1.12) translate3d(1.5%, -1.5%, 0);
   }
 }
 

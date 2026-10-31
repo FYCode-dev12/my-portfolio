@@ -65,10 +65,12 @@ function buildRows(projects: Project[]): Row[] {
     year: p.period.start.slice(0, 4),
     href: `/projects/${p.slug}`,
     external: false,
-    live: p.status === "live",
+    live: p.status === "live" || p.status === "demo",
     preview: <ProjectPreview project={p} />,
   }));
-  const fromContributions = contributions.map<Row>((c) => ({
+  const slugs = new Set(projects.map((p) => p.slug));
+  const withoutCaseStudy = contributions.filter((c) => !c.caseStudy || !slugs.has(c.caseStudy));
+  const fromContributions = withoutCaseStudy.map<Row>((c) => ({
     key: c.achievementId,
     name: c.name,
     kind: c.kind,
@@ -120,8 +122,8 @@ export function WorkLedger({ projects }: { projects: Project[] }) {
               className="reveal mt-4 max-w-[46ch] text-muted"
               style={{ "--d": 1 } as React.CSSProperties}
             >
-              Empat proyek dengan studi kasus, lalu sistem kepanitiaan tempat saya memegang frontend
-              atau backend. Arahkan ke baris untuk melihat isinya, atau jatuhkan Rakit di sana.
+              Proyek dengan studi kasus, lalu sistem kepanitiaan lain tempat saya memegang frontend
+              atau pengembangan. Arahkan ke baris untuk melihat isinya, atau jatuhkan Rakit di sana.
             </p>
             <div className="mt-4 space-y-8 lg:mt-10">
               {years.map((year) => (

@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import type { Project } from "@/lib/content";
 import { formatProjectPeriod } from "@/lib/format";
+import { ProjectCover } from "./ProjectCover";
 import { StatusBadge } from "./ProjectMeta";
 
 const VISIBLE_STACK = 5;
@@ -14,6 +15,12 @@ export function ProjectCard({ project, headingLevel = 3 }: ProjectCardProps) {
   const extra = project.stack.length - VISIBLE_STACK;
   return (
     <Card as="article" interactive className="relative flex h-full flex-col">
+      <ProjectCover
+        project={project}
+        sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 90vw"
+        placeholder
+        className="mb-5"
+      />
       <div className="flex items-center justify-between gap-3">
         <StatusBadge status={project.status} />
         <p className="font-mono text-[0.8125rem] text-muted">

@@ -1,9 +1,7 @@
-import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { achievements, type AchievementCategory } from "@/content/achievements";
 import { contributions } from "@/content/contributions";
-import { photos } from "@/content/photos";
 import { formatAchievementPeriod } from "@/lib/format";
 
 const groups: Array<{ category: AchievementCategory; label: string }> = [
@@ -20,12 +18,11 @@ function sortKey(endDate: string | undefined, date: string) {
 }
 
 export function BeyondCode() {
-  const photo = photos.itera;
   return (
     <section aria-labelledby="beyond-heading" className="py-20 sm:py-28">
       <Container>
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-8">
             <Heading level={2} id="beyond-heading" className="rise">
               Di luar kode
             </Heading>
@@ -75,23 +72,6 @@ export function BeyondCode() {
               })}
             </div>
           </div>
-          <figure className="reveal lg:col-span-5 lg:col-start-8">
-            <div className="lg:sticky lg:top-20">
-              <div className="drift-frame window relative aspect-[4/5] overflow-clip rounded-lg bg-surface">
-                <Image
-                  src={photo.src}
-                  alt={photo.alt}
-                  fill
-                  sizes="(min-width: 1024px) 40vw, 92vw"
-                  className="drift object-cover"
-                  style={{ objectPosition: photo.position }}
-                />
-              </div>
-            </div>
-            <figcaption className="mt-3 text-sm text-muted">
-              Kampus ITERA saat senja, Lampung Selatan.
-            </figcaption>
-          </figure>
         </div>
       </Container>
     </section>

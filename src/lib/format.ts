@@ -19,6 +19,7 @@ export function formatAchievementPeriod(date: string, endDate?: string): string 
 
 export const statusLabel = {
   live: "Live",
+  demo: "Live demo",
   "in-progress": "Dalam pengerjaan",
   archived: "Arsip",
 } as const;

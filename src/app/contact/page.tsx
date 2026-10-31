@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { RakitCue } from "@/components/mascot/RakitCue";
 import { ContactPanel } from "@/components/sections/ContactPanel";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
-import { photos } from "@/content/photos";
 import { getCvHref } from "@/lib/cv";
 
 export const metadata: Metadata = {
@@ -14,7 +12,6 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
-  const map = photos.petaTeluk;
   return (
     <Container className="py-16 sm:py-24">
       <Heading level={1}>Kontak</Heading>
@@ -27,22 +24,6 @@ export default function ContactPage() {
         <div className="lg:col-span-6">
           <ContactPanel cvHref={getCvHref()} />
         </div>
-        <figure className="reveal lg:col-span-5 lg:col-start-8">
-          <div className="drift-frame relative aspect-[4/5] overflow-clip rounded-lg bg-surface">
-            <Image
-              src={map.src}
-              alt={map.alt}
-              fill
-              loading="eager"
-              sizes="(min-width: 1024px) 40vw, 92vw"
-              className="drift object-cover"
-              style={{ objectPosition: map.position }}
-            />
-          </div>
-          <figcaption className="mt-3 text-sm text-muted">
-            Teluk Lampung pada peta pelayaran 1774. Saya berbasis di Lampung Selatan, zona WIB.
-          </figcaption>
-        </figure>
       </div>
     </Container>
   );

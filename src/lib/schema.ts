@@ -9,10 +9,13 @@ export const projectFrontmatterSchema = z.object({
   kind: z.string().max(40).optional(),
   role: z.string(),
   period: z.object({ start: yearMonth, end: yearMonth.optional() }),
-  status: z.enum(["live", "in-progress", "archived"]),
+  // "demo": situs bisa dibuka, tetapi berjalan dengan data dummy tanpa backend aslinya.
+  status: z.enum(["live", "demo", "in-progress", "archived"]),
   stack: z.array(z.string()).min(1),
   links: z.object({
     live: z.string().url().optional(),
+    // Label tautan live bila bukan situs produksi, misalnya demo dengan data dummy.
+    liveLabel: z.string().max(30).optional(),
     repo: z.string().url().optional(),
   }),
   repoVisibility: z.enum(["public", "private-org", "none"]),

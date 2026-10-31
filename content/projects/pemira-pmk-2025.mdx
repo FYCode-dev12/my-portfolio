@@ -1,0 +1,62 @@
+---
+title: "Website Pemira PMK ITERA 2025"
+slug: "pemira-pmk-2025"
+summary: "Sistem e-voting pemilihan Ketua Umum PMK ITERA 2025: pemilih masuk dengan NIM dan token, memilih satu kali, dan panitia memantau partisipasi dari dasbor."
+kind: "Sistem e-voting"
+role: "Kepala Subdivisi Frontend, juga menulis backend API"
+period:
+  start: "2025-11"
+  end: "2025-12"
+status: "demo"
+stack: ["React", "Vite", "JavaScript", "TanStack Query", "Tailwind CSS", "shadcn/ui", "Recharts", "Laravel", "PHP", "Laravel Sanctum", "MariaDB"]
+links:
+  live: "https://pemira-pmk-2025-demo.vercel.app"
+  liveLabel: "Live demo (tanpa backend)"
+  repo: "https://github.com/FYCode-dev12/pemira-pmk-2025-FE-"
+repoVisibility: "public"
+cover: "/projects/pemira-pmk-2025.webp"
+featured: false
+order: 22
+metrics:
+  - label: "Data pemilih diimpor"
+    value: "4.582"
+  - label: "Route API"
+    value: "12"
+  - label: "Migrasi"
+    value: "8"
+---
+
+## Latar Belakang & Masalah Teknis
+
+Pemilihan Raya (Pemira) PMK ITERA 2025 memilih Ketua Umum lewat website. Saya memegang subdivisi frontend: tampilan, UI/UX, dan koordinasi tim. Prototipe awal dibuat rekan tim dengan React dan backend ReactPHP. Saya memindahkan frontend-nya ke proyek baru dan menulis backend dengan Laravel.
+
+Masalah teknisnya:
+
+- Satu pemilih hanya boleh memilih satu kali, termasuk bila tombol ditekan dua kali atau dua tab dibuka bersamaan.
+- Ribuan pemilih harus mendapat kredensial tanpa membuat akun satu per satu.
+- Panitia harus bisa membuka dan menutup pemungutan suara, serta memantau partisipasi selama acara.
+
+## Solusi & Arsitektur
+
+- **Kredensial pemilih.** Pemilih masuk dengan NIM dan token 6 karakter. Token dibuat oleh seeder dalam batch 100 dan dijamin unik, lalu data pemilih diimpor ke database. Login ditolak bila pemilih sudah memilih.
+- **Satu orang, satu suara.** Kolom `pemilih_id` di tabel suara bersifat unik. Suara disimpan dalam `DB::transaction` dengan cek ulang suara yang sudah ada, dan status `sudah_memilih` diperbarui di transaksi yang sama.
+- **Jendela pemungutan suara.** Suara ditolak (403) bila pemungutan sedang ditutup. Panitia mengubah status ini dari dasbor.
+- **Autentikasi.** Token bearer Laravel Sanctum dengan ability `pemilih` untuk pemilih, plus login terpisah untuk admin dan super admin.
+- **Frontend.** React + Vite dengan TanStack Query. Halaman publik memuat linimasa, profil dan visi-misi kandidat (dari JSON statis, foto di Cloudinary). Halaman memilih menampilkan dialog konfirmasi, lalu keluar otomatis dengan hitung mundur setelah suara masuk.
+- **Dasbor panitia.** Grafik partisipasi per fakultas (Recharts), tabel pemilih dengan pencarian, filter sudah atau belum memilih, dan paginasi.
+- **Rilis.** Panduan deploy ke shared hosting lewat cPanel, dengan endpoint `/health` untuk memeriksa API.
+
+## Teknologi & Alasannya
+
+- **Laravel + Sanctum.** Migrasi, seeder, transaksi, dan token API tersedia bawaan, sehingga backend bisa selesai dalam beberapa hari.
+- **React + Vite + shadcn/ui.** Melanjutkan prototipe tim, dengan komponen yang konsisten.
+- **MariaDB.** Sesuai lingkungan shared hosting yang tersedia.
+
+## Hasil & Key Takeaways
+
+Frontend dan backend dikerjakan pada 20–25 November 2025. Repo frontend publik. Repo backend juga milik saya, tetapi tidak ditautkan di sini.
+
+Setelah acara selesai, backend dan database aslinya tidak lagi aktif. Karena itu yang live sekarang adalah versi demo di `pemira-pmk-2025-demo.vercel.app`: frontend yang sama, tetapi respons API ditiru di browser dengan bentuk yang sama seperti controller Laravel. Alur pemilih dan dasbor panitia bisa dicoba penuh, dan semua data pemilih serta hasil suara di dalamnya adalah data dummy.
+
+- Aturan "satu suara" harus dijaga di database dengan constraint unik dan transaksi, tidak cukup dengan menonaktifkan tombol.
+- Memindahkan prototipe ke stack baru lebih cepat daripada menulis ulang dari nol, karena nama halaman dan skema datanya sudah disepakati tim.

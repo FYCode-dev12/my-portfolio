@@ -65,6 +65,7 @@ const REACTIONS: Partial<Record<string, Omit<RakitReaction, "zone">>> = {
 
 const statusText: Record<CommandProject["status"], string> = {
   live: "live",
+  demo: "demo",
   "in-progress": "staging",
   archived: "arsip",
 };
@@ -97,7 +98,11 @@ function ProjectTable({ projects }: { projects: CommandProject[] }) {
               </Link>
             </td>
             <td className="pr-4">
-              <span className={p.status === "live" ? "text-accent" : "text-muted"}>
+              <span
+                className={
+                  p.status === "live" || p.status === "demo" ? "text-accent" : "text-muted"
+                }
+              >
                 {statusText[p.status]}
               </span>
             </td>

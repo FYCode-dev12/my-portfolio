@@ -9,7 +9,7 @@ import { skillGroups } from "@/content/skills";
 function heroFacts(context: CommandContext) {
   const live = context.projects.filter((p) => p.status === "live").length;
   return [
-    { value: `${live} sistem`, label: "live dan dipakai organisasi" },
+    { value: `${live} sistem`, label: "live dan bisa dibuka" },
     { value: "Kepala CMIT", label: "BPH PMK ITERA 2026" },
     { value: "Asisten dosen", label: "Pengenalan Komputasi" },
   ];

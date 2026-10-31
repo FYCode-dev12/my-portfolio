@@ -51,7 +51,9 @@ export function ProjectSidebar({ project }: { project: Project }) {
             <ul className="space-y-1">
               {project.links.live ? (
                 <li>
-                  <ExternalLink href={project.links.live}>Situs live</ExternalLink>
+                  <ExternalLink href={project.links.live}>
+                    {project.links.liveLabel ?? "Situs live"}
+                  </ExternalLink>
                 </li>
               ) : null}
               {project.links.repo ? (
