@@ -46,7 +46,7 @@ export function ProjectSidebar({ project }: { project: Project }) {
             {metric.value}
           </Row>
         ))}
-        {project.links.live || project.links.repo || note ? (
+        {project.links.live || project.links.video || project.links.repo || note ? (
           <Row label="Tautan">
             <ul className="space-y-1">
               {project.links.live ? (
@@ -54,6 +54,11 @@ export function ProjectSidebar({ project }: { project: Project }) {
                   <ExternalLink href={project.links.live}>
                     {project.links.liveLabel ?? "Situs live"}
                   </ExternalLink>
+                </li>
+              ) : null}
+              {project.links.video ? (
+                <li>
+                  <ExternalLink href={project.links.video}>Video demo</ExternalLink>
                 </li>
               ) : null}
               {project.links.repo ? (

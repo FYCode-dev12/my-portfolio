@@ -42,7 +42,7 @@ export function ProjectCover({
     >
       <Image
         src={project.cover}
-        alt={`Tangkapan layar halaman depan ${project.title}${isDemo ? " versi demo" : ""}`}
+        alt={`Tangkapan layar ${project.title}${isDemo ? " versi demo" : ""}`}
         fill
         sizes={sizes}
         priority={priority}

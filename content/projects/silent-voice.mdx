@@ -1,0 +1,66 @@
+---
+title: "SILENT-VOICE (GEMASTIK 2026)"
+slug: "silent-voice"
+summary: "Aplikasi Android pembaca gerak bibir untuk penyandang laringektomi: kata dikenali on-device dari kamera depan lalu dibacakan dengan text-to-speech. Karya tim untuk GEMASTIK XIX 2026."
+kind: "Aplikasi mobile lip reading"
+role: "Frontend mobile (UI aplikasi) dalam tim"
+period:
+  start: "2026-07"
+  end: "2026-08"
+status: "archived"
+stack: ["React Native", "Expo", "TypeScript", "NativeWind", "Vision Camera", "MediaPipe", "ONNX Runtime", "Kotlin", "PyTorch", "FastAPI"]
+links:
+  repo: "https://github.com/GEMASTIK-2026/SilentVoice"
+  video: "https://www.youtube.com/watch?v=ZssXsQUwpBc"
+repoVisibility: "public"
+cover: "/projects/silent-voice.webp"
+gallery:
+  - src: "/projects/silent-voice-kalibrasi.webp"
+    caption: "Laman konversi dan kalibrasi per kata (enam rekaman per kata). Wajah pada kamera disamarkan."
+  - src: "/projects/silent-voice-bantuan.webp"
+    caption: "Pusat bantuan: FAQ dan tutorial, kamus 10 kata beserta status kalibrasinya, dan riwayat prediksi."
+featured: false
+order: 19
+metrics:
+  - label: "Kosakata"
+    value: "10 kata (dataset IndoLR)"
+  - label: "Akurasi unseen speaker (riset tim)"
+    value: "69,87% → 89,70% setelah kalibrasi"
+  - label: "Commit saya"
+    value: "6 dari 11 (tanpa merge)"
+---
+
+## Latar Belakang & Masalah Teknis
+
+Pasien kanker laring stadium lanjut menjalani laringektomi total, yaitu pengangkatan laring beserta pita suara. Setelah itu mereka tidak bisa berbicara tanpa alat bantu. Alat yang umum, elektrolaring, menghasilkan suara datar dan mekanis, dan harganya mahal.
+
+SILENT-VOICE adalah aplikasi Android yang membaca gerak bibir dari kamera depan, mengubahnya menjadi kata berbahasa Indonesia, lalu membacakannya dengan text-to-speech. Aplikasi ini dibuat tim kami untuk GEMASTIK XIX 2026 bidang Pengembangan Perangkat Lunak.
+
+Masalah teknisnya:
+
+- Model pembaca bibir turun drastis akurasinya pada pembicara yang belum pernah dilihat saat pelatihan (unseen speaker), padahal setiap pasien adalah pembicara baru.
+- Pengenalan harus berjalan di ponsel tanpa internet agar bisa dipakai kapan saja.
+- Pengguna harus bisa mengucapkan beberapa kata beruntun tanpa menekan tombol untuk setiap kata.
+
+## Solusi & Arsitektur
+
+- **Model multimodal.** Model menggabungkan patch visual area bibir dan 40 titik landmark bibir. Gradient Reversal Layer yang tersambung ke pengklasifikasi pembicara mendorong model mempelajari gerak bibir, bukan identitas wajah.
+- **Kalibrasi per pengguna.** Pengguna merekam enam contoh per kata. Data hasil precompute (bukan video mentah) dikirim ke backend FastAPI di server GPU untuk fine-tuning, lalu bobot hasilnya dikirim kembali ke ponsel.
+- **Inferensi on-device.** Frame processor native (Kotlin) di React Native Vision Camera menjalankan MediaPipe Face Landmarker. Model dijalankan dengan ONNX Runtime Mobile, sehingga penggunaan harian tidak membutuhkan internet.
+- **Deteksi ucapan otomatis.** Mesin status menghitung Mouth Aspect Ratio. Ucapan dianggap mulai saat mulut terbuka melewati ambang, 15 bingkai sebelumnya disimpan di ring buffer agar awal kata tidak terpotong, dan klip berakhir setelah mulut tertutup stabil. Klip masuk antrean FIFO bernomor urut agar hasil tetap berurutan.
+- **Bagian saya: antarmuka aplikasi.** Saya membangun UI aplikasi dengan NativeWind dan font Hanken Grotesk, dan menyusun navigasi antar laman: onboarding, beranda, rekam, dan bantuan. Saya membuat tutorial interaktif dengan overlay spotlight yang menyorot elemen UI, dan hook `useElementMeasure` agar posisi sorotan dihitung dari layout sebenarnya di setiap ukuran layar. Saya juga mendesain ulang laman kamera dengan viewfinder bundar, tombol rekam beranimasi, dan navigasi bawah kustom, serta kartu ringkasan seperti progres kalibrasi dan grafik akurasi.
+
+## Teknologi & Alasannya
+
+- **Expo + React Native.** Satu basis kode TypeScript untuk aplikasi mobile, dengan Expo Router untuk navigasi berbasis file.
+- **React Native Vision Camera.** expo-camera tidak mendukung frame processor native yang dibutuhkan untuk deteksi landmark real-time, sehingga tim pindah ke Vision Camera dan Expo Dev Client.
+- **ONNX Runtime Mobile.** Model hasil pelatihan PyTorch bisa dijalankan langsung di Android tanpa server.
+- **NativeWind.** Kelas Tailwind di React Native, sehingga gaya antar-laman konsisten.
+
+## Hasil & Key Takeaways
+
+Proposal, dokumen teknis, APK, dan video demo dikirim pada Agustus 2026. Pada riset pendahuluan tim, kalibrasi dengan lima contoh per kata menaikkan akurasi rata-rata pada unseen speaker dari 69,87% menjadi 89,70%. Kosakata tahap awal terbatas pada 10 kata dari dataset IndoLR, seperti "maaf", "tolong", dan "permisi". Saat proposal disusun, tahap pengujian dengan pengguna belum dimulai.
+
+- Perpindahan pustaka kamera di tengah jalan memaksa sebagian antarmuka kamera dikonfigurasi ulang. Memilih pustaka berdasarkan kebutuhan pemrosesan, bukan hanya tampilan, menghemat pekerjaan.
+- Tutorial yang menyorot elemen UI tidak bisa memakai koordinat tetap. Posisinya harus diukur dari layout saat aplikasi berjalan agar tetap tepat di ponsel berbeda.
+- Kode aplikasi bersifat publik (lisensi MIT) di organisasi GitHub tim. Pipeline precompute dan integrasi model dikerjakan rekan tim.
