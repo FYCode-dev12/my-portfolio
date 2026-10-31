@@ -37,6 +37,7 @@ const PROFILE = [
 /** Surat singkat orang pertama. Semua fakta berasal dari AGENTS.md bagian 5 dan studi kasus. */
 export function Letter({ projects }: { projects: Project[] }) {
   const live = projects.filter((p) => p.status === "live").length;
+  const demo = projects.filter((p) => p.status === "demo").length;
   const building = projects.filter((p) => p.status === "in-progress").length;
   return (
     <section aria-labelledby="letter-heading" className="py-20 sm:py-28">
@@ -55,9 +56,10 @@ export function Letter({ projects }: { projects: Project[] }) {
                 Teknik Informatika ITERA pada 2024.
               </p>
               <p className="reveal">
-                Yang saya bangun lahir dari kebutuhan organisasi kampus: form rekrutmen, arsip bahan
-                ibadah, pemendek tautan, dan login terpusat.{" "}
+                Sebagian besar yang saya bangun lahir dari kebutuhan organisasi kampus: form
+                rekrutmen, arsip bahan ibadah, pemendek tautan, e-voting, dan login terpusat.{" "}
                 <mark className="rounded-sm bg-accent px-1 text-accent-fg">{live} sudah live</mark>
+                {demo > 0 ? `, ${demo} bisa dicoba sebagai demo` : ""}
                 {building > 0 ? `, ${building} masih dikerjakan.` : "."}
               </p>
               <p className="reveal">

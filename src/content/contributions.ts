@@ -8,12 +8,24 @@ export type Contribution = {
   achievementId: Achievement["id"];
   name: string;
   kind: string;
+  /** Slug studi kasus di `content/projects`, jika ada. Ledger lalu menampilkan proyeknya saja. */
+  caseStudy?: string;
 };
 
 const entries: Contribution[] = [
   { achievementId: "pplk-2026", name: "Situs PPLK ITERA 2026", kind: "Frontend" },
-  { achievementId: "pemira-frontend", name: "Website Pemira 2025", kind: "Frontend lead" },
-  { achievementId: "tpb-backend", name: "Informatics Goes To TPB", kind: "Backend" },
+  {
+    achievementId: "pemira-frontend",
+    name: "Website Pemira 2025",
+    kind: "Frontend lead",
+    caseStudy: "pemira-pmk-2025",
+  },
+  {
+    achievementId: "tpb-backend",
+    name: "Informatics Goes To TPB",
+    kind: "Backend",
+    caseStudy: "igttpb-2025",
+  },
   { achievementId: "biro-it", name: "Dashboard Massa PMK", kind: "Pengembangan" },
 ];
 

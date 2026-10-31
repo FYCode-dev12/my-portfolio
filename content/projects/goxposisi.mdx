@@ -1,0 +1,60 @@
+---
+title: "GOXPOSISI"
+slug: "goxposisi"
+summary: "Platform artikel eksposisi Alkitab per pasal: pembaca menjelajah menurut kitab dan tema tanpa login, admin menulis dan menerbitkan artikel Markdown."
+kind: "Platform artikel"
+role: "Fullstack developer"
+period:
+  start: "2026-09"
+  end: "2026-10"
+status: "live"
+stack: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "Fuse.js", "react-markdown"]
+links:
+  live: "https://gosposisi.web.id"
+  repo: "https://github.com/FYCode-dev12/GOXPOSISI"
+repoVisibility: "public"
+cover: "/projects/goxposisi.webp"
+featured: false
+order: 21
+metrics:
+  - label: "Kitab di taksonomi"
+    value: "66"
+  - label: "Halaman"
+    value: "15"
+  - label: "Tabel"
+    value: "2"
+---
+
+## Latar Belakang & Masalah Teknis
+
+GOXPOSISI menerbitkan artikel eksposisi Alkitab dalam bahasa Indonesia, satu artikel per pasal, dimulai dari Kitab Roma. Pembaca cukup membuka situsnya tanpa akun. Penulisnya satu admin, tetapi kolom `author` sudah ada sejak awal agar bisa menampung penulis lain.
+
+Masalah teknisnya:
+
+- Halaman harus cepat dan murah di-host, padahal isinya bisa diperbarui kapan saja dari panel admin.
+- Admin mengunggah Markdown, yang bisa membawa skrip berbahaya.
+- Rancangan awal tanpa login dan tanpa database. Setelah ada kebutuhan menulis dari browser, rancangan itu harus berubah tanpa memulai ulang.
+
+## Solusi & Arsitektur
+
+- **Struktur konten.** Kitab, pasal, lalu artikel. Ke-66 kitab dikodekan dalam satu taksonomi (Perjanjian Lama dan Baru beserta kategorinya) yang juga dipakai pemilih kitab dan pasal di panel admin.
+- **Rendering.** Halaman kitab, pasal, tema, dan latar belakang dibangun statis dengan `generateStaticParams`. Saat admin menyimpan, API memanggil `revalidatePath` sehingga hanya halaman terkait yang diperbarui.
+- **Dua sumber konten.** File Markdown lokal dan baris di Supabase digabung. Bila slug sama, versi Supabase yang dipakai.
+- **Panel admin.** Unggah `.md` dengan drag-and-drop atau tulis langsung. Memilih kitab dan pasal mengisi template otomatis, dan artikel bisa dipratinjau sebelum terbit. Ada juga pengelolaan halaman latar belakang tiap kitab.
+- **Akses.** Login email dan kata sandi lewat Supabase. Peran admin dicek dua kali: di `proxy.ts` untuk semua `/admin`, lalu lagi di setiap handler API. Di database, RLS hanya mengizinkan publik membaca baris yang sudah terbit.
+- **Keamanan input.** Cek same-origin untuk setiap request admin, batas ukuran body, validasi frontmatter, penolakan artikel yang memuat `<script` atau atribut `on*=`, dan slug kitab dicocokkan dengan taksonomi sebelum query. Header keamanan (HSTS, `X-Frame-Options`, `nosniff`) dipasang di `next.config.ts`.
+- **Fitur pembaca.** Pencarian di browser dengan Fuse.js, halaman tema dari tag, mode gelap dan terang, serta pembacaan artikel bersuara lewat Web Speech API (`id-ID`).
+
+## Teknologi & Alasannya
+
+- **Next.js App Router.** Halaman statis yang tetap bisa diperbarui per halaman, cocok untuk konten yang jarang berubah.
+- **Supabase.** Auth dan Postgres dalam satu layanan gratis, dengan RLS sebagai lapisan akses kedua.
+- **Fuse.js.** Pencarian fuzzy tanpa server pencarian terpisah.
+
+## Hasil & Key Takeaways
+
+Situs sudah live di `gosposisi.web.id`.
+
+- Rancangan berubah dari "tanpa login, tanpa database" menjadi admin berbasis Supabase. Karena konten sudah dipisah dari tampilan sejak awal, perubahan itu tidak memaksa penulisan ulang halaman publik.
+- Validasi di setiap handler API tetap perlu walaupun proxy sudah memeriksa peran.
+- Belum ada test otomatis dan CI.

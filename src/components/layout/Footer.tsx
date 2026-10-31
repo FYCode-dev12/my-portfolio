@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { LocalClock } from "@/components/interactive/LocalClock";
 import { Container } from "@/components/ui/Container";
-import { credits } from "@/content/photos";
 import { site } from "@/content/site";
 
 const tile = "rounded-lg bg-surface p-6 sm:p-7";
@@ -18,35 +17,6 @@ export function Footer() {
           </p>
           <div className="space-y-2 text-[0.9375rem] text-muted">
             <p>Dibangun dengan Next.js, TypeScript, dan Tailwind CSS.</p>
-            <details>
-              <summary className="inline-flex min-h-11 cursor-pointer items-center hover:text-fg">
-                Kredit foto
-              </summary>
-              <ul className="mt-1 space-y-1">
-                {credits.map((credit) => (
-                  <li key={credit.page}>
-                    <a
-                      href={credit.page}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline underline-offset-4 hover:text-fg"
-                    >
-                      {credit.title}
-                    </a>
-                    , {credit.creator},{" "}
-                    <a
-                      href={credit.licenseUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline underline-offset-4 hover:text-fg"
-                    >
-                      {credit.license}
-                    </a>
-                    , via Wikimedia Commons
-                  </li>
-                ))}
-              </ul>
-            </details>
           </div>
         </div>
         <nav aria-label="Navigasi footer" className={`${tile} sm:min-h-56 lg:col-span-2`}>

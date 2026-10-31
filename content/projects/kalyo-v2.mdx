@@ -1,0 +1,61 @@
+---
+title: "Kalyo v2"
+slug: "kalyo-v2"
+summary: "Website penjadwalan pribadi yang tersambung dengan Google Calendar: beberapa kalender digabung jadi satu tampilan, slot kosong dihitung otomatis, dan acara pribadi tetap tersembunyi."
+kind: "Penjadwalan pribadi"
+role: "Fullstack developer"
+period:
+  start: "2026-09"
+status: "live"
+stack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Supabase", "Google Calendar API", "FullCalendar", "Upstash Redis", "Zod", "Tailwind CSS"]
+links:
+  live: "https://kalyo-v2.vercel.app"
+  repo: "https://github.com/FYCode-dev12/Kalyo-v2"
+repoVisibility: "public"
+cover: "/projects/kalyo-v2.webp"
+featured: false
+order: 20
+metrics:
+  - label: "Model data"
+    value: "6"
+  - label: "Route API"
+    value: "17"
+  - label: "Bahasa antarmuka"
+    value: "Indonesia dan Inggris"
+---
+
+## Latar Belakang & Masalah Teknis
+
+Kalyo adalah website penjadwalan pribadi yang tersambung dengan Google Calendar. Jadwal saya tersebar di beberapa Google Calendar, sehingga sulit melihat kapan saya benar-benar kosong. Kalyo menggabungkan semua kalender itu dalam satu tampilan dan menghitung slot kosong secara otomatis.
+
+Masalah teknisnya:
+
+- Slot kosong harus dihitung dari aturan jam kerja, hari libur, dan acara di beberapa Google Calendar sekaligus.
+- Acara di Google Calendar bisa berubah kapan saja, jadi data harus segar tanpa membebani API Google.
+- Isi acara pribadi tidak boleh terlihat di tampilan publik.
+
+## Solusi & Arsitektur
+
+- **Sinkronisasi kalender.** Acara dibaca dari beberapa Google Calendar lewat service account, dengan cache in-memory 15 detik dan request yang sedang berjalan digabung agar tidak terjadi panggilan ganda ke Google.
+- **Ketersediaan.** Slot dibangun dari `BusinessRule` (jam kerja, hari kerja, pemberitahuan minimum, durasi slot) dalam zona Asia/Jakarta. Hari libur dilewati, dan slot yang bertabrakan dengan acara ditandai terisi.
+- **Privasi.** Tiap kalender punya pengaturan sendiri: tampil di publik, tampilkan judul, tampilkan deskripsi. Acara dari kalender yang judulnya disembunyikan tampil sebagai "Sibuk".
+- **Panel admin.** Login Google OAuth dengan daftar email yang diizinkan, sesi JWT di cookie `httpOnly`. Ada dasbor, analitik (Recharts), serta pengaturan kalender, jam kerja, dan hari libur.
+- **Jejak.** Perubahan pengaturan dicatat di tabel audit log.
+- **Rilis.** CI menjalankan typecheck dan build. Deploy ke Vercel.
+
+## Teknologi & Alasannya
+
+- **Next.js App Router.** Versi pertama (v1) memakai backend Go dan frontend Vite yang di-host sendiri dengan systemd dan nginx. Di v2 keduanya saya gabung menjadi satu aplikasi Next.js agar deploy dan perawatan lebih sederhana.
+- **Google Calendar API.** Google Calendar tetap menjadi sumber jadwal, jadi acara tidak perlu dicatat ulang di tempat lain.
+- **Prisma + PostgreSQL (Supabase).** Menyimpan aturan jadwal, hari libur, pengaturan kalender, dan log dengan skema bertipe.
+- **Upstash Redis.** Rate limit yang tetap berlaku di lingkungan serverless, dengan fallback in-memory.
+
+## Hasil & Key Takeaways
+
+Situs sudah live di `kalyo-v2.vercel.app`.
+
+Sebelum rilis saya melakukan audit keamanan sendiri dan memperbaiki beberapa celah: endpoint analitik yang hanya mengecek keberadaan cookie, halaman admin yang masih terkirim ke pengguna anonim, rate limit yang bisa diakali dengan header IP palsu, ID kalender Google yang terbuka ke publik, dan rentang tanggal tanpa batas atas.
+
+- Menyambungkan ke layanan pihak ketiga seperti Google Calendar butuh cache dan batasan request sejak awal.
+- Pengaturan privasi per kalender lebih fleksibel daripada satu aturan untuk semua acara.
+- Belum ada test otomatis. Logika ketersediaan masih diuji dengan skrip manual.

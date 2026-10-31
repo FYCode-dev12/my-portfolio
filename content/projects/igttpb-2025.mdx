@@ -1,0 +1,58 @@
+---
+title: "Informatics Goes To TPB 2025"
+slug: "igttpb-2025"
+summary: "Website dan dasbor kegiatan Informatics Goes To TPB 2025: peserta login dengan email kampus, mengumpulkan tugas, dan presensi lewat QR code yang dipindai panitia."
+kind: "Dasbor kegiatan dan presensi QR"
+role: "Staff Backend (tim pengembang)"
+period:
+  start: "2025-09"
+  end: "2025-10"
+status: "demo"
+stack: ["Next.js", "React", "JavaScript", "Supabase", "PostgreSQL", "Tailwind CSS", "GSAP"]
+links:
+  live: "https://igttpb-2025-demo.vercel.app"
+  liveLabel: "Live demo (tanpa backend)"
+repoVisibility: "private-org"
+cover: "/projects/igttpb-2025.webp"
+featured: false
+order: 23
+metrics:
+  - label: "Peran pengguna"
+    value: "4"
+  - label: "Commit saya"
+    value: "46 dari 187"
+---
+
+## Latar Belakang & Masalah Teknis
+
+Informatics Goes To TPB adalah kegiatan Informatika ITERA untuk mahasiswa TPB. Panitia membutuhkan satu website untuk informasi kelompok, pengumpulan tugas, dan presensi. Saya bergabung di tim pengembang sebagai staff backend.
+
+Masalah teknisnya:
+
+- Peserta, mentor, DPL (`daplok`), dan admin melihat dasbor yang berbeda, padahal semuanya login dengan cara yang sama.
+- Presensi harus cepat di lapangan dan satu peserta tidak boleh tercatat dua kali.
+- Di produksi, login tampak berhasil tetapi sesi tidak tersimpan.
+
+## Solusi & Arsitektur
+
+Kode sumbernya ada di repositori privat organisasi, jadi bagian ini hanya menjelaskan arsitektur.
+
+- **Login.** Google OAuth lewat Supabase, khusus email mahasiswa ITERA. NIM dibaca dari alamat email.
+- **Peran.** NIM dicocokkan ke daftar peserta (peran `user`) lalu ke daftar panitia (admin, mentor, atau `daplok`). Navigasi dasbor mengikuti peran.
+- **Presensi QR (bagian saya).** Peserta menampilkan QR code di dasbornya, panitia memindainya dari dasbor admin. Sebelum menyimpan ada cek duplikat, dan presensi disimpan dengan upsert pada NIM sehingga pindaian ganda tidak membuat baris baru.
+- **Perbaikan auth (di branch saya).** Saya juga menulis perbaikan untuk alur login: klien Supabase singleton dengan alur PKCE, context auth yang aman dari race condition saat cek peran, pembersihan storage saat logout, error boundary, dan halaman diagnostik `/debug/auth`. Perbaikan ini ada di branch pengembangan saya dan tidak digabung ke branch yang dirilis.
+- **Fitur lain.** Halaman publik dengan pencarian kelompok berdasarkan NIM, FAQ, dan animasi GSAP. Sebagian tampilan ini juga saya kerjakan di awal Oktober.
+
+## Teknologi & Alasannya
+
+- **Next.js + Supabase.** Auth Google dan Postgres tanpa membangun server sendiri, cocok untuk kepanitiaan dengan waktu singkat.
+- **QR code di browser.** Panitia cukup memakai kamera ponsel, tanpa perangkat pemindai khusus.
+
+## Hasil & Key Takeaways
+
+Saya menulis 46 dari 187 commit, sebagian besar pada logika auth, data, dan presensi.
+
+Setelah kegiatan selesai, database Supabase aslinya tidak lagi aktif. Karena itu yang live sekarang adalah versi demo di `igttpb-2025-demo.vercel.app`: tampilan yang sama, tetapi klien Supabase diganti versi tiruan di browser dan login Google diganti akun demo peserta dan panitia. Semua data peserta, presensi, dan tugas di dalamnya adalah data dummy.
+
+- Bug sesi di produksi ternyata berasal dari environment variable dan redirect URL Supabase yang belum diatur di Vercel. Langkah perbaikannya saya dokumentasikan untuk tim.
+- Upsert pada kunci alami (NIM) adalah cara sederhana untuk membuat presensi aman dari pindaian ganda.

@@ -5,6 +5,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "../../../../mdx-components";
 import { RakitCue } from "@/components/mascot/RakitCue";
 import { ArchitectureFlow } from "@/components/sections/diagram/ArchitectureFlow";
+import { ProjectCover } from "@/components/sections/projects/ProjectCover";
 import { ProjectNav } from "@/components/sections/projects/ProjectNav";
 import { ProjectSidebar } from "@/components/sections/projects/ProjectSidebar";
 import { Container } from "@/components/ui/Container";
@@ -52,6 +53,12 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
           {project.slug}
         </span>
       </nav>
+      <ProjectCover
+        project={project}
+        priority
+        sizes="(min-width: 1280px) 1200px, 94vw"
+        className="mt-10 max-w-5xl"
+      />
       <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_20rem]">
         <article className="min-w-0 max-w-2xl">
           <MDXRemote source={project.body} components={mdxComponents} />
