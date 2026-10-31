@@ -33,7 +33,7 @@ Keempatnya foto temuan berlisensi terbuka. Kredit lengkap (judul, pembuat, lisen
 
 ## Foto profil (`/about`)
 
-Simpan satu berkas persis bernama `public/photos/febrian.jpg`.
+Simpan satu berkas persis bernama `public/photos/febrian.webp`. Versi sekarang tanpa latar (transparan), jadi bingkai memakai warna permukaan tema.
 
 - Potret rasio 4:5, misalnya 1200 x 1500 px, di bawah sekitar 500 KB.
 - Wajah dan bahu di bagian atas tengah. Crop memakai `objectPosition: 50% 25%`, jadi kepala yang terlalu rendah akan terpotong.
