@@ -22,6 +22,11 @@ export const projectFrontmatterSchema = z.object({
   featured: z.boolean().default(false),
   order: z.number().default(100),
   cover: z.string().optional(),
+  // Tangkapan layar alur utama. Data asli harus disamarkan atau berasal dari versi demo.
+  gallery: z
+    .array(z.object({ src: z.string(), caption: z.string().max(160) }))
+    .max(4)
+    .default([]),
   metrics: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
   draft: z.boolean().default(false),
 });

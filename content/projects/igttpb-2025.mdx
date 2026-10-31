@@ -14,6 +14,11 @@ links:
   liveLabel: "Live demo (tanpa backend)"
 repoVisibility: "private-org"
 cover: "/projects/igttpb-2025.webp"
+gallery:
+  - src: "/projects/igttpb-2025-qr-peserta.webp"
+    caption: "QR presensi di dasbor peserta, yang dipindai panitia di hari-H (akun demo)."
+  - src: "/projects/igttpb-2025-rekap-kehadiran.webp"
+    caption: "Rekap kehadiran per kelompok di dasbor panitia (nama peserta dummy)."
 featured: false
 order: 23
 metrics:
@@ -21,6 +26,8 @@ metrics:
     value: "4"
   - label: "Commit saya"
     value: "46 dari 187"
+  - label: "Presensi QR di hari-H"
+    value: "Berjalan tanpa kendala"
 ---
 
 ## Latar Belakang & Masalah Teknis
@@ -50,7 +57,7 @@ Kode sumbernya ada di repositori privat organisasi, jadi bagian ini hanya menjel
 
 ## Hasil & Key Takeaways
 
-Saya menulis 46 dari 187 commit, sebagian besar pada logika auth, data, dan presensi.
+Saya menulis 46 dari 187 commit, sebagian besar pada logika auth, data, dan presensi. Presensi QR dipakai di hari-H kegiatan dan berjalan tanpa kendala.
 
 Setelah kegiatan selesai, database Supabase aslinya tidak lagi aktif. Karena itu yang live sekarang adalah versi demo di `igttpb-2025-demo.vercel.app`: tampilan yang sama, tetapi klien Supabase diganti versi tiruan di browser dan login Google diganti akun demo peserta dan panitia. Semua data peserta, presensi, dan tugas di dalamnya adalah data dummy.
 

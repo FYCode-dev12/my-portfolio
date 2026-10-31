@@ -3,7 +3,7 @@ title: "GOXPOSISI"
 slug: "goxposisi"
 summary: "Platform artikel eksposisi Alkitab per pasal: pembaca menjelajah menurut kitab dan tema tanpa login, admin menulis dan menerbitkan artikel Markdown."
 kind: "Platform artikel"
-role: "Fullstack developer"
+role: "Fullstack developer (platform)"
 period:
   start: "2026-09"
   end: "2026-10"
@@ -29,6 +29,8 @@ metrics:
 
 GOXPOSISI menerbitkan artikel eksposisi Alkitab dalam bahasa Indonesia, satu artikel per pasal, dimulai dari Kitab Roma. Pembaca cukup membuka situsnya tanpa akun. Penulisnya satu admin, tetapi kolom `author` sudah ada sejak awal agar bisa menampung penulis lain.
 
+Tugas saya adalah membangun platformnya. Isi artikel ditulis oleh pemilik situs, bukan oleh saya.
+
 Masalah teknisnya:
 
 - Halaman harus cepat dan murah di-host, padahal isinya bisa diperbarui kapan saja dari panel admin.
@@ -53,7 +55,7 @@ Masalah teknisnya:
 
 ## Hasil & Key Takeaways
 
-Situs sudah live di `gosposisi.web.id`.
+Platform sudah live di `gosposisi.web.id` dan siap dipakai. Penerbitan artikel ada di tangan pemilik situs, jadi halaman depannya akan terisi seiring artikel diterbitkan.
 
 - Rancangan berubah dari "tanpa login, tanpa database" menjadi admin berbasis Supabase. Karena konten sudah dipisah dari tampilan sejak awal, perubahan itu tidak memaksa penulisan ulang halaman publik.
 - Validasi di setiap handler API tetap perlu walaupun proxy sudah memeriksa peran.

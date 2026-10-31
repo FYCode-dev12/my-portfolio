@@ -15,6 +15,11 @@ links:
   repo: "https://github.com/FYCode-dev12/pemira-pmk-2025-FE-"
 repoVisibility: "public"
 cover: "/projects/pemira-pmk-2025.webp"
+gallery:
+  - src: "/projects/pemira-pmk-2025-konfirmasi.webp"
+    caption: "Dialog konfirmasi sebelum suara dikirim. Pilihan tidak bisa diubah setelah dikonfirmasi."
+  - src: "/projects/pemira-pmk-2025-partisipasi.webp"
+    caption: "Dasbor panitia: partisipasi keseluruhan dan per fakultas (data dummy dari versi demo)."
 featured: false
 order: 22
 metrics:
@@ -54,9 +59,10 @@ Masalah teknisnya:
 
 ## Hasil & Key Takeaways
 
-Frontend dan backend dikerjakan pada 20–25 November 2025. Repo frontend publik. Repo backend juga milik saya, tetapi tidak ditautkan di sini.
+Frontend dan backend dikerjakan pada 20–25 November 2025. Pemungutan suara berjalan dengan baik sampai selesai. Masalah yang muncul selama acara adalah website yang sesekali down dan tidak bisa diakses. Repo frontend publik, sedangkan repo backend bersifat privat.
 
 Setelah acara selesai, backend dan database aslinya tidak lagi aktif. Karena itu yang live sekarang adalah versi demo di `pemira-pmk-2025-demo.vercel.app`: frontend yang sama, tetapi respons API ditiru di browser dengan bentuk yang sama seperti controller Laravel. Alur pemilih dan dasbor panitia bisa dicoba penuh, dan semua data pemilih serta hasil suara di dalamnya adalah data dummy.
 
 - Aturan "satu suara" harus dijaga di database dengan constraint unik dan transaksi, tidak cukup dengan menonaktifkan tombol.
+- Untuk acara satu hari dengan akses serentak, ketersediaan sama pentingnya dengan kebenaran logika. Di proyek berikutnya saya akan menguji beban dan memasang pemantauan uptime sebelum hari-H.
 - Memindahkan prototipe ke stack baru lebih cepat daripada menulis ulang dari nol, karena nama halaman dan skema datanya sudah disepakati tim.
