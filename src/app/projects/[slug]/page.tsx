@@ -6,6 +6,7 @@ import { mdxComponents } from "../../../../mdx-components";
 import { RakitCue } from "@/components/mascot/RakitCue";
 import { ArchitectureFlow } from "@/components/sections/diagram/ArchitectureFlow";
 import { ProjectCover } from "@/components/sections/projects/ProjectCover";
+import { ProjectGallery } from "@/components/sections/projects/ProjectGallery";
 import { ProjectNav } from "@/components/sections/projects/ProjectNav";
 import { ProjectSidebar } from "@/components/sections/projects/ProjectSidebar";
 import { Container } from "@/components/ui/Container";
@@ -67,6 +68,7 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
           <ProjectSidebar project={project} />
         </div>
       </div>
+      <ProjectGallery project={project} />
       <ArchitectureFlow slug={project.slug} />
       <RakitCue act="toleh" say="Selamat membaca studi kasusnya!" />
       <ProjectNav prev={all[index - 1]} next={all[index + 1]} />

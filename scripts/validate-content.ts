@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import matter from "gray-matter";
 import { projectFrontmatterSchema } from "../src/lib/schema.ts";
@@ -30,6 +30,11 @@ for (const file of files) {
   const project = result.data;
   if (project.slug !== file.replace(/\.mdx$/, "")) {
     errors.push(`${file}: slug "${project.slug}" harus sama dengan nama file`);
+  }
+  for (const src of [project.cover, ...project.gallery.map((g) => g.src)]) {
+    if (src && !existsSync(join(ROOT, "public", src))) {
+      errors.push(`${file}: gambar "${src}" tidak ada di public/`);
+    }
   }
   const existing = slugs.get(project.slug);
   if (existing) errors.push(`${file}: slug "${project.slug}" duplikat dengan ${existing}`);
