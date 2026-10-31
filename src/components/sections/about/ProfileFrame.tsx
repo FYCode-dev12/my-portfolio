@@ -1,11 +1,18 @@
 import Image from "next/image";
 import { site } from "@/content/site";
 import { getProfilePhoto } from "@/lib/profile";
+import { cn } from "@/lib/cn";
 
 export function ProfileFrame() {
   const src = getProfilePhoto();
   return (
-    <div className="relative mx-auto aspect-[4/5] w-full max-w-xs overflow-hidden rounded-lg bg-surface">
+    // Foto tanpa latar (transparan) berdiri langsung di atas halaman; bidang warna hanya untuk siluet.
+    <div
+      className={cn(
+        "relative mx-auto aspect-[4/5] w-full max-w-xs overflow-hidden",
+        !src && "rounded-lg bg-surface",
+      )}
+    >
       {src ? (
         <Image
           src={src}
